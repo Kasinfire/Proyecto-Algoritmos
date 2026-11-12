@@ -1,0 +1,19 @@
+# MATLAB
+*.asv
+*.m~
+*.autosave
+slprj/
+*.mex*
+resources/project/
+
+# Resultados que se regeneran con experimentos/correr_experimentos.m
+experimentos/**/resultados/*.png
+experimentos/**/resultados/*.csv
+experimentos/**/resultados/*.json
+!experimentos/resultados/.gitkeep
+
+# Sistema
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json

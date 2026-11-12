@@ -1,0 +1,15 @@
+* text=auto
+*.m    text diff
+*.html text diff
+*.css  text diff
+*.csv  text
+*.md   text
+
+# Archivos binarios de MATLAB
+*.mlapp binary
+*.mat   binary
+*.fig   binary
+*.mlx   binary
+*.mlappinstall binary
+*.png   binary
+*.pdf   binary
