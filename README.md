@@ -32,7 +32,10 @@ Proyecto/
 │  │  └─ real/               [falta]   problema de aplicación real (bonus)
 │  ├─ core/utilidades/      *[listo]*   validar_problema, limitar_a_rango, completar_opciones
 │  ├─ graficas/             *[listo]*   convergencia, superficie/contorno, animación
-│  └─ ui/web/                [falta]   HTML/CSS de los paneles uihtml
+│  └─ ui/                    interfaz (bloque A)
+│     ├─ pantallas/          un .m por pantalla (puente entre HTML y MATLAB)
+│     ├─ demos/              probar una pantalla sola
+│     └─ web/                HTML/CSS/JS de las pantallas (uihtml)
 ├─ experimentos/
 │  ├─ pso_parametros/       *[listo]*   experimento de w, c1, c2 (main_pso.m)
 │  └─ bha_demo/             *[listo]*   demo del BHA (main_bha.m)
