@@ -17,6 +17,7 @@ puente.enviar("siguiente", …) ───────► callback al_continuar(t
   MATLAB (parula, `#0072BD`, `#D95319`): cargan al instante. Las gráficas de datos reales
   (convergencia, contorno con la población) van en las pantallas de ejecución y resultados.
 - Los structs llegan a JS como objetos y las celdas como arreglos (`jsonencode`).
+- `comun/numeros.js` lee y formatea los números que escribe el usuario (acepta `−` y coma decimal).
 
 ## Organización
 ```
@@ -36,13 +37,20 @@ Pantallas hechas:
 |---|---|---|
 | `tipo.html` + `tipo/` | `pantallas/pantalla_tipo.m`, `pantallas/tipos_de_problema.m` | 1. tipo de problema |
 | `problema.html` + `problema/` | `pantallas/pantalla_problema.m`, `problemas_de_tipo.m`, `armar_problema.m`, `limites_problema.m`, `generar_imagenes_problemas.m` | 2. problema y datos |
+| `problema_binario.html` + `problema_binario/` | `pantallas/pantalla_problema.m`, `armar_problema_binario.m`, `leer_objetos_csv.m` | 2. problema y datos (binario) |
 
 Las superficies de la pantalla 2 son PNG de MATLAB guardados en `problema/imagenes/`
 (`<id>.png` y `<id>_mini.png`). Se crean una sola vez con `generar_imagenes_problemas`
 (solo genera las que faltan; `forzar=true` las rehace) y se suben al repo. Al presionar
 Siguiente, `armar_problema.m` vuelve a validar y crea el problema con `crear_problema`.
-Los problemas binarios y de permutación aparecen como "en desarrollo" hasta que exista
-su función en `src/problemas/`.
+Los problemas de permutación aparecen como "en desarrollo" hasta que exista su función
+en `src/problemas/`.
+
+Con tipo binario, `pantalla_problema.m` carga `problema_binario.html`: pestañas Mochila y
+OneMax, la tabla de objetos (peso, valor, valor por unidad de peso) con su capacidad, y los
+bits de ejemplo de OneMax. El botón Cargar CSV lo atiende MATLAB (`leer_objetos_csv.m`).
+Se puede editar todo aunque falten `mochila.m` u `onemax.m`, pero Siguiente queda
+bloqueado hasta que existan en `src/problemas/binario/`.
 
 ## Caché de uihtml
 uihtml guarda en caché los CSS y JS mientras MATLAB está abierto. Por eso los enlaces
@@ -55,6 +63,6 @@ En MATLAB, desde `Proyecto/`:
 addpath(genpath('src')); demo_pantalla_tipo
 addpath(genpath('src')); demo_pantalla_problema          % o demo_pantalla_problema('binario')
 ```
-Para diseñar en el navegador sin MATLAB: abre `tipo.html` o `problema.html` directamente (o sirve la
+Para diseñar en el navegador sin MATLAB: abre `tipo.html`, `problema.html` o `problema_binario.html` directamente (o sirve la
 carpeta con `python3 -m http.server`). Sin MATLAB usa datos de ejemplo y los eventos
 salen en la consola.
