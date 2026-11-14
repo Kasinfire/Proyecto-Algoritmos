@@ -26,7 +26,7 @@ Proyecto/
 │  │  └─ comunes/           *[listo]*   crear_parametro, parametros_comunes, decodificar_llaves...
 │  ├─ problemas/
 │  │  ├─ comun/             *[listo]*   crear_problema (formato único de problema)
-│  │  ├─ continuo/          *[listo]*   funcion_prueba (9 funciones)
+│  │  ├─ continuo/          *[listo]*   funcion_prueba (16 funciones)
 │  │  ├─ binario/            [falta]   OneMax, mochila
 │  │  ├─ permutacion/        [falta]   TSP
 │  │  └─ real/               [falta]   problema de aplicación real (bonus)
