@@ -9,7 +9,7 @@ function problemas = problemas_de_tipo(tipo)
 %               x_optimo es el optimo con dim_defecto. disponible es false cuando la
 %               funcion del problema todavia no existe en src/.
 %               Los binarios traen ademas datos (la mochila de ejemplo: pesos, valores
-%               y capacidad).
+%               y capacidad) y el TSP la semilla de su instancia de ejemplo.
 
     switch tipo
         case 'continuo'
@@ -17,7 +17,7 @@ function problemas = problemas_de_tipo(tipo)
         case 'binario'
             problemas = binarios();
         case 'permutacion'
-            problemas = pendientes({'tsp', 'TSP', 'f(π) = Σ d(π₍ᵢ₎, π₍ᵢ₊₁₎)'});
+            problemas = permutaciones();
         otherwise
             error('problemas_de_tipo:tipo', 'Tipo desconocido: "%s".', tipo);
     end
@@ -73,6 +73,12 @@ function problemas = binarios()
     limites = limites_problema('onemax');
     problemas(2).f_optimo = 1:limites.dim_max;
     problemas(2).x_optimo = 1;
+end
+
+function problemas = permutaciones()
+    problemas = pendientes({'tsp', 'TSP', 'min Σ d(πᵢ, πᵢ₊₁)'});
+    problemas.descripcion = 'Encuentra la ruta más corta que pasa una vez por cada ciudad y regresa al inicio.';
+    problemas.datos = struct('semilla', 7);
 end
 
 function problemas = pendientes(catalogo)
