@@ -14,6 +14,10 @@ function fig = demo_pantalla_problema(tipo)
 end
 
 function texto = resumen(problema)
-    texto = sprintf('%s, n = %d, rango [%g, %g], %s.', problema.nombre, problema.dim, ...
-                    problema.lb(1), problema.ub(1), problema.sentido);
+    if strcmp(problema.representacion, 'binario')
+        texto = sprintf('%s, n = %d bits, %s.', problema.nombre, problema.dim, problema.sentido);
+    else
+        texto = sprintf('%s, n = %d, rango [%g, %g], %s.', problema.nombre, problema.dim, ...
+                        problema.lb(1), problema.ub(1), problema.sentido);
+    end
 end

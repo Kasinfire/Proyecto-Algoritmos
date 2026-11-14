@@ -8,10 +8,15 @@ function h = pantalla_problema(padre, tipo, opciones)
 %   al_continuar : se llama con el struct problema (crear_problema) al presionar Siguiente
 %   al_regresar  : se llama sin argumentos al presionar Regresar o el paso 1 del riel
 %   al_comparar  : se llama sin argumentos al presionar el boton de comparar
-%   seleccion    : struct con id, dim, lb, ub y sentido para restaurar (al volver del paso 3)
+%   seleccion    : lo que se eligio antes, para restaurarlo (al volver del paso 3):
+%                  continuo -> id, dim, lb, ub y sentido
+%                  binario  -> id y dim (OneMax) o pesos, valores y capacidad (mochila)
 %   n_guardadas  : ejecuciones guardadas (contador del boton de comparar)
 %
 %   h : el componente uihtml. Requiere MATLAB R2023a o mas reciente.
+%
+%   Los problemas binarios usan su propia pagina (problema_binario.html): en vez de
+%   rango y superficie se editan los objetos de la mochila o los bits de OneMax.
 
     arguments
         padre
@@ -24,7 +29,12 @@ function h = pantalla_problema(padre, tipo, opciones)
     end
 
     carpeta_web = fullfile(fileparts(fileparts(mfilename('fullpath'))), 'web');
-    h = uihtml(padre, 'HTMLSource', fullfile(carpeta_web, 'problema.html'));
+    if strcmp(tipo, 'binario')
+        pagina = 'problema_binario.html';
+    else
+        pagina = 'problema.html';
+    end
+    h = uihtml(padre, 'HTMLSource', fullfile(carpeta_web, pagina));
     if isa(padre, 'matlab.ui.container.GridLayout')
         h.Layout.Row = 1;
         h.Layout.Column = 1;
@@ -41,7 +51,11 @@ function atender(h, evento, tipo, opciones)
             sendEventToHTMLSource(h, 'datos', datos_iniciales(tipo, opciones));
         case 'siguiente'
             try
-                problema = armar_problema(datos);
+                if strcmp(tipo, 'binario')
+                    problema = armar_problema_binario(datos);
+                else
+                    problema = armar_problema(datos);
+                end
             catch err
                 sendEventToHTMLSource(h, 'aviso', struct('texto', err.message));
                 return;
@@ -53,7 +67,25 @@ function atender(h, evento, tipo, opciones)
             if datos.paso == 0, opciones.al_regresar(); end
         case 'comparar'
             opciones.al_comparar();
+        case 'cargar_csv'
+            cargar_csv(h);
     end
+end
+
+% Los objetos de la mochila desde un CSV; la capacidad se queda como estaba.
+function cargar_csv(h)
+    carpeta_datos = fullfile(fileparts(fileparts(fileparts(fileparts(mfilename('fullpath'))))), 'datos');
+    [archivo, carpeta] = uigetfile({'*.csv', 'CSV (*.csv)'}, 'Objetos de la mochila', ...
+                                   [carpeta_datos filesep]);
+    figure(ancestor(h, 'figure'));
+    if isequal(archivo, 0), return; end
+    try
+        [pesos, valores] = leer_objetos_csv(fullfile(carpeta, archivo));
+    catch err
+        sendEventToHTMLSource(h, 'aviso', struct('texto', err.message));
+        return;
+    end
+    sendEventToHTMLSource(h, 'objetos', struct('pesos', pesos, 'valores', valores));
 end
 
 function datos = datos_iniciales(tipo, opciones)
