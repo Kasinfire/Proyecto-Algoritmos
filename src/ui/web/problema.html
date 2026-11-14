@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Problema</title>
+<link rel="stylesheet" href="comun/fuentes/geist.css?v=3">
+<link rel="stylesheet" href="comun/base.css?v=3">
+<link rel="stylesheet" href="problema/problema.css?v=3">
+</head>
+<body>
+<div class="lienzo">
+  <div class="mancha mancha-izq" aria-hidden="true"></div>
+  <div class="mancha mancha-der" aria-hidden="true"></div>
+
+  <nav class="riel vidrio" aria-label="Pasos" id="riel"></nav>
+
+  <main class="principal">
+    <header class="encabezado">
+      <h1>Elige el problema</h1>
+      <p id="subtitulo"></p>
+    </header>
+
+    <div class="cuerpo">
+      <section class="lista vidrio" role="radiogroup" aria-label="Problemas" id="lista"></section>
+
+      <section class="detalle" aria-labelledby="nombre" id="detalle">
+        <div class="detalle-cabeza">
+          <h2 id="nombre"></h2>
+          <div class="objetivo">
+            <span id="titulo-objetivo">Objetivo</span>
+            <div class="segmento" role="radiogroup" aria-labelledby="titulo-objetivo" id="sentido">
+              <button type="button" role="radio" data-sentido="min">Minimizar</button>
+              <button type="button" role="radio" data-sentido="max">Maximizar</button>
+            </div>
+          </div>
+        </div>
+        <p class="detalle-descripcion" id="descripcion"></p>
+
+        <div class="datos" id="datos">
+          <div class="campo">
+            <label for="dim">Dimensión</label>
+            <div class="paso-dim">
+              <button type="button" class="boton-mini" id="dim-menos" aria-label="Quitar una dimensión">−</button>
+              <input class="entrada entrada-dim" id="dim" inputmode="numeric" autocomplete="off">
+              <button type="button" class="boton-mini" id="dim-mas" aria-label="Agregar una dimensión">+</button>
+            </div>
+          </div>
+          <div class="campo">
+            <label for="lb">Límite inferior</label>
+            <input class="entrada entrada-limite" id="lb" inputmode="decimal" autocomplete="off">
+          </div>
+          <div class="campo">
+            <label for="ub">Límite superior</label>
+            <input class="entrada entrada-limite" id="ub" inputmode="decimal" autocomplete="off">
+          </div>
+          <button type="button" class="enlace" id="restablecer" hidden>Rango original</button>
+        </div>
+
+        <figure class="superficie">
+          <img id="imagen" alt="">
+          <span class="mensaje-imagen" id="mensaje-imagen"></span>
+        </figure>
+
+        <footer class="detalle-pie">
+          <span class="pie-etiqueta">Función objetivo</span>
+          <span class="pie-formula" id="formula"></span>
+          <span class="pie-optimo" id="optimo"></span>
+        </footer>
+      </section>
+    </div>
+
+    <section class="acciones vidrio" aria-label="Acciones">
+      <div role="status" id="resumen"></div>
+      <div class="acciones-botones">
+        <button type="button" class="boton" id="regresar">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+          Regresar
+        </button>
+        <button type="button" class="boton boton-primario" id="siguiente" disabled>
+          Siguiente
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="comun/puente.js?v=3"></script>
+<script src="comun/riel.js?v=3"></script>
+<script src="problema/demo.js?v=3"></script>
+<script src="problema/problema.js?v=3"></script>
+</body>
+</html>

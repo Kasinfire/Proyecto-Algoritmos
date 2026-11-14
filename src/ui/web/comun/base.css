@@ -9,6 +9,7 @@
   --acento: #0072BD;
   --acento-oscuro: #005A96;
   --acento-suave: rgba(0, 114, 189, 0.08);
+  --error: #B8441A;
   --linea: rgba(17, 19, 40, 0.07);
   --relleno-boton: rgba(17, 19, 40, 0.07);
   --radio: 26px;
@@ -17,6 +18,8 @@
 }
 
 * { box-sizing: border-box; }
+
+[hidden] { display: none !important; }
 
 html, body { height: 100%; margin: 0; }
 
@@ -29,6 +32,20 @@ body {
   background-size: 24px 24px;
   overflow: hidden;
 }
+
+/* Scroll delgado tipo pastilla, sin flechas; se pinta con el acento al usarlo. */
+::-webkit-scrollbar { width: 14px; height: 14px; }
+::-webkit-scrollbar-track { margin: 12px 0; background: transparent; }
+::-webkit-scrollbar-button { display: none; }
+::-webkit-scrollbar-corner { background: transparent; }
+::-webkit-scrollbar-thumb {
+  min-height: 40px;
+  border: 5px solid transparent;
+  border-radius: 999px;
+  background: rgba(17, 19, 40, 0.16) padding-box;
+}
+::-webkit-scrollbar-thumb:hover { border-width: 4px; background-color: rgba(0, 114, 189, 0.55); }
+::-webkit-scrollbar-thumb:active { border-width: 4px; background-color: var(--acento); }
 
 button { font: inherit; cursor: pointer; }
 button:disabled { cursor: not-allowed; }

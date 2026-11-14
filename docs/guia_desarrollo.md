@@ -49,7 +49,7 @@ Proyecto/
 │  │  └─ bha/            algoritmo extra, no se toca
 │  ├─ problemas/
 │  │  ├─ comun/          crear_problema.m (ya existe)
-│  │  ├─ continuo/       funcion_prueba.m con 9 funciones (ya existe)
+│  │  ├─ continuo/       funcion_prueba.m con 16 funciones (ya existe)
 │  │  ├─ binario/        por hacer (onemax, mochila)
 │  │  ├─ permutacion/    por hacer (tsp)
 │  │  └─ real/           por hacer (problema real, bonus)
@@ -251,8 +251,9 @@ end
 `sin_mejora` se reinicia a 0 cuando mejora `mejor_costo` y aumenta en 1 cuando no.
 
 ### 5. Código que ya existe y se puede usar
-- `funcion_prueba(nombre, dim)`: esfera, rosenbrock, rastrigin, ackley, griewank,
-  schwefel, zakharov (min), lineal y exponencial (max).
+- `funcion_prueba(nombre, dim)`: parabolica, seno, lineal, exponencial, coseno (max);
+  esfera, rastrigin, himmelblau, ackley, schwefel, eggholder, griewank, rosenbrock,
+  michalewicz, levy, zakharov (min). Himmelblau y Eggholder solo aceptan dim = 2.
 - `limitar_a_rango(x, lb, ub)`: recorta a los límites.
 - `graficar_convergencia(curvas, etiquetas, titulo=, sentido=, f_optimo=, etiqueta_y=, ax=)`:
   una o varias curvas; con `ax` dibuja en unos ejes existentes (para la interfaz).
