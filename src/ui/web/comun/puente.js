@@ -48,6 +48,13 @@ const puente = (() => {
   return { escuchar, enviar, conectar, al_iniciar, recibir };
 })();
 
+// jsonencode manda un struct 1x1 como objeto y una celda vacia como []; esto
+// normaliza cualquier lista que llegue de MATLAB a un arreglo.
+function como_lista(valor) {
+  if (valor === null || valor === undefined || valor === "") return [];
+  return Array.isArray(valor) ? valor : [valor];
+}
+
 function setup(componente) {
   puente.conectar(componente);
 }

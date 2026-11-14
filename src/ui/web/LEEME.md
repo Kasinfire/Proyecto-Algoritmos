@@ -35,12 +35,26 @@ Pantallas hechas:
 | HTML | MATLAB | qué es |
 |---|---|---|
 | `tipo.html` + `tipo/` | `pantallas/pantalla_tipo.m`, `pantallas/tipos_de_problema.m` | 1. tipo de problema |
+| `problema.html` + `problema/` | `pantallas/pantalla_problema.m`, `problemas_de_tipo.m`, `armar_problema.m`, `limites_problema.m`, `generar_imagenes_problemas.m` | 2. problema y datos |
+
+Las superficies de la pantalla 2 son PNG de MATLAB guardados en `problema/imagenes/`
+(`<id>.png` y `<id>_mini.png`). Se crean una sola vez con `generar_imagenes_problemas`
+(solo genera las que faltan; `forzar=true` las rehace) y se suben al repo. Al presionar
+Siguiente, `armar_problema.m` vuelve a validar y crea el problema con `crear_problema`.
+Los problemas binarios y de permutación aparecen como "en desarrollo" hasta que exista
+su función en `src/problemas/`.
+
+## Caché de uihtml
+uihtml guarda en caché los CSS y JS mientras MATLAB está abierto. Por eso los enlaces
+llevan `?v=3`: si cambias un CSS o JS, súbele el número en el HTML (o reinicia MATLAB),
+si no se queda la versión vieja.
 
 ## Probar
 En MATLAB, desde `Proyecto/`:
 ```matlab
 addpath(genpath('src')); demo_pantalla_tipo
+addpath(genpath('src')); demo_pantalla_problema          % o demo_pantalla_problema('binario')
 ```
-Para diseñar en el navegador sin MATLAB: abre `tipo.html` directamente (o sirve la
+Para diseñar en el navegador sin MATLAB: abre `tipo.html` o `problema.html` directamente (o sirve la
 carpeta con `python3 -m http.server`). Sin MATLAB usa datos de ejemplo y los eventos
 salen en la consola.
