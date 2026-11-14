@@ -16,11 +16,6 @@ const tarjetas = document.getElementById("tarjetas");
 const resumen = document.getElementById("resumen");
 const boton_siguiente = document.getElementById("siguiente");
 
-function como_lista(valor) {
-  if (valor === null || valor === undefined || valor === "") return [];
-  return Array.isArray(valor) ? valor : [valor];
-}
-
 // Muestra hasta `maximo` nombres; el resto se resume para no saturar la tarjeta.
 function texto_lista(valores, maximo = 3) {
   if (valores.length <= maximo) return valores.join(" · ");

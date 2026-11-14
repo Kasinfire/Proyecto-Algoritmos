@@ -14,27 +14,13 @@ function tipos = tipos_de_problema()
         'Vector de ceros y unos. Cada bit decide si algo se toma o no, como en la mochila.', ...
         'Un orden de los elementos 1 a n. Por ejemplo, el orden en que se visitan ciudades.'};
 
-    problemas = {problemas_continuos(), ...
-                 problemas_existentes({'onemax', 'OneMax'; 'mochila', 'Mochila'}), ...
-                 problemas_existentes({'tsp', 'TSP'})};
-
     tipos = struct('id', ids, 'nombre', nombres, 'notacion', notaciones, ...
                    'descripcion', descripciones, 'problemas', {{}}, 'algoritmos', {{}});
     for k = 1:numel(ids)
-        tipos(k).problemas = problemas{k};
+        catalogo = problemas_de_tipo(ids{k});
+        tipos(k).problemas = {catalogo([catalogo.disponible]).nombre};
         tipos(k).algoritmos = algoritmos_para(ids{k});
     end
-end
-
-function nombres = problemas_continuos()
-    nombres = cellfun(@(n) funcion_prueba(n, 2).nombre, funcion_prueba('lista'), ...
-                      'UniformOutput', false);
-end
-
-function nombres = problemas_existentes(catalogo)
-% catalogo: celda n x 2 con {funcion, nombre visible}.
-    existe = cellfun(@(f) exist(f, 'file') == 2, catalogo(:, 1));
-    nombres = catalogo(existe, 2)';
 end
 
 function siglas = algoritmos_para(representacion)
