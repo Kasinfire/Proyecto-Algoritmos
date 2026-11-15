@@ -11,11 +11,11 @@ function resultado = bha(problema, params)
 %
 % x_i = estrellas(i,:),  f_i = fitness(i),  BH = idx_bh
 %
-% Uso: resultado = bha(problema, params)   (ver main_BHA.m)
+% Uso: resultado = bha(problema, params)   (ver main_bha.m)
 
 if nargin < 1
     error('bha:entrada', ...
-        'Falta el problema. Corre main_BHA.m en vez de este archivo.');
+        'Falta el problema. Corre main_bha.m en vez de este archivo.');
 end
 if nargin < 2
     params = struct();

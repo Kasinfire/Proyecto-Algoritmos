@@ -4,9 +4,12 @@
 
 clear; clc; close all;
 
-% Raiz del proyecto = dos carpetas arriba de este script
-carpeta_raiz = fileparts(fileparts(fileparts(mfilename('fullpath'))));
+% Raiz del proyecto = dos carpetas arriba de este script. El BHA vive fuera de src/,
+% asi que se agrega su carpeta ademas de src/.
+carpeta_bha = fileparts(mfilename('fullpath'));
+carpeta_raiz = fileparts(fileparts(carpeta_bha));
 addpath(genpath(fullfile(carpeta_raiz, 'src')));
+addpath(carpeta_bha);
 
 nombre_funcion = 'rastrigin';
 dimension     = 2;

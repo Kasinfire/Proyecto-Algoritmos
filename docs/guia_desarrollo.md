@@ -46,19 +46,19 @@ Proyecto/
 │  │  │                  decodificar_llaves, decodificar_solucion,
 │  │  │                  espacio_busqueda, evaluar_individuos (ya existen)
 │  │  ├─ ga/ aco/ ais/ de/   por hacer
-│  │  ├─ pso/            listo y cumple el contrato: es el EJEMPLO DE REFERENCIA
-│  │  └─ bha/            algoritmo extra, no se toca
+│  │  └─ pso/            listo y cumple el contrato: es el EJEMPLO DE REFERENCIA
 │  ├─ problemas/
 │  │  ├─ comun/          crear_problema.m (ya existe)
 │  │  ├─ continuo/       funcion_prueba.m con 16 funciones (ya existe)
 │  │  ├─ binario/        por hacer (onemax, mochila)
 │  │  ├─ permutacion/    por hacer (tsp)
 │  │  └─ real/           por hacer (problema real, bonus)
-│  ├─ core/utilidades/   validar_problema, limitar_a_rango, completar_opciones (ya existen)
-│  ├─ graficas/          graficar_convergencia, graficar_funcion, malla_funcion, animar_bha (ya existen)
+│  ├─ core/utilidades/   validar_problema, limitar_a_rango (ya existen)
+│  ├─ graficas/          graficar_convergencia, malla_funcion (ya existen)
 │  └─ ui/                interfaz (por hacer)
 ├─ datos/                CSV de instancias (ciudades, mochila, datos reales)
 ├─ experimentos/         scripts de experimentos
+├─ extras/bha/           Black Hole Algorithm (trabajo previo; no es parte de la app ni del contrato)
 └─ tests/                pruebas con matlab.unittest
 ```
 Todo `src/` se agrega al path con `addpath(genpath('src'))`. Dos funciones no pueden
@@ -262,7 +262,7 @@ end
 - `limitar_a_rango(x, lb, ub)`: recorta a los límites.
 - `graficar_convergencia(curvas, etiquetas, titulo=, sentido=, f_optimo=, etiqueta_y=, ax=)`:
   una o varias curvas; con `ax` dibuja en unos ejes existentes (para la interfaz).
-- `malla_funcion(problema, n)` y `graficar_funcion(resultado)`: superficie y contorno de una función 2D.
+- `malla_funcion(problema, n)`: malla de una función 2D para superficie o contorno.
 - **PSO completo y conforme al contrato** (`src/algoritmos/pso/`): `pso.m`, `info_pso.m`,
   `parametros_pso.m` y sus pasos en archivos aparte. Soporta continuo, binario (BPSO) y
   permutación (random keys). **Es el ejemplo a imitar**: `pso.m`,
