@@ -11,7 +11,8 @@
 //            solo x1, x2. mapa sale de mapa_de_busqueda.m ({tipo: 'ninguno'} si no es continuo).
 //   "exportado" { texto, ok }
 // Eventos que se mandan a MATLAB:
-//   "lista", "exportar" { formato: 'csv' | 'json' }, "comparar", "ir_a_paso" { paso }, "ayuda"
+//   "lista", "exportar" { formato: 'csv' | 'json' }, "nueva_ejecucion", "comparar",
+//   "ir_a_paso" { paso }, "ayuda"
 
 const MOTIVOS = {
   max_iteraciones: "llegó al límite",
@@ -23,7 +24,7 @@ const el = Object.fromEntries([
   "subtitulo", "cuerpo", "escenario", "mapa-imagen", "mapa", "leyenda", "leyenda-inicio",
   "etiqueta-mejor", "mejor", "sentido", "etiqueta-solucion", "solucion", "optimo",
   "iteraciones", "motivo", "convergencia", "th-valor", "historial", "nota-historial",
-  "configuracion", "estado", "exportar-csv", "exportar-json", "comparar"
+  "configuracion", "estado", "exportar-csv", "exportar-json", "nueva-ejecucion", "comparar"
 ].map((id) => [id.replace(/-/g, "_"), document.getElementById(id)]));
 
 const pestanas = [...document.querySelectorAll('[role="tab"]')];
@@ -210,6 +211,7 @@ pestanas.forEach((b, k) => {
 
 el.exportar_csv.addEventListener("click", () => puente.enviar("exportar", { formato: "csv" }));
 el.exportar_json.addEventListener("click", () => puente.enviar("exportar", { formato: "json" }));
+el.nueva_ejecucion.addEventListener("click", () => puente.enviar("nueva_ejecucion"));
 el.comparar.addEventListener("click", () => puente.enviar("comparar"));
 
 new ResizeObserver(dibujar_graficas).observe(el.escenario);

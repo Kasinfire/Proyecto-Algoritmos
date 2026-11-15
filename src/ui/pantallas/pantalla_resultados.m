@@ -7,6 +7,8 @@ function h = pantalla_resultados(padre, resultado, opciones)
 %   resultado    : struct que regresa el algoritmo (lo que entrega la pantalla de ejecucion)
 %   numero       : numero con el que se guardo la ejecucion para comparar (0 = sin guardar)
 %   n_guardadas  : ejecuciones guardadas (contador del boton de comparar del riel)
+%   al_nueva_ejecucion : se llama sin argumentos al presionar Nueva ejecucion (el Reiniciar
+%                        del enunciado): la app regresa al paso 3 con la misma configuracion
 %   al_comparar  : se llama sin argumentos al presionar Comparar ejecuciones
 %   al_ir_a_paso : se llama con 0..3 al presionar un paso del riel
 %
@@ -18,6 +20,7 @@ function h = pantalla_resultados(padre, resultado, opciones)
         resultado struct
         opciones.numero (1,1) double = 0
         opciones.n_guardadas (1,1) double = 0
+        opciones.al_nueva_ejecucion function_handle = @() []
         opciones.al_comparar function_handle = @() []
         opciones.al_ir_a_paso function_handle = @(paso) []
     end
@@ -40,6 +43,8 @@ function atender(h, evento, resultado, opciones)
             sendEventToHTMLSource(h, 'datos', datos_resultados(resultado, opciones));
         case 'exportar'
             exportar(h, resultado, opciones.numero, datos.formato);
+        case 'nueva_ejecucion'
+            opciones.al_nueva_ejecucion();
         case 'comparar'
             opciones.al_comparar();
         case 'ir_a_paso'
