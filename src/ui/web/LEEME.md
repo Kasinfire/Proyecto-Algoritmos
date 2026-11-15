@@ -36,6 +36,7 @@ Pantallas hechas:
 |---|---|---|
 | `tipo.html` + `tipo/` | `pantallas/pantalla_tipo.m`, `pantallas/tipos_de_problema.m` | 1. tipo de problema |
 | `problema.html` + `problema/` | `pantallas/pantalla_problema.m`, `problemas_de_tipo.m`, `armar_problema.m`, `limites_problema.m`, `generar_imagenes_problemas.m` | 2. problema y datos |
+| `algoritmo.html` + `algoritmo/` | `pantallas/pantalla_algoritmo.m`, `algoritmos_de_tipo.m`, `parametros_para_ui.m`, `armar_parametros.m` | 3. algoritmo y parámetros |
 
 Las superficies de la pantalla 2 son PNG de MATLAB guardados en `problema/imagenes/`
 (`<id>.png` y `<id>_mini.png`). Se crean una sola vez con `generar_imagenes_problemas`
@@ -43,6 +44,14 @@ Las superficies de la pantalla 2 son PNG de MATLAB guardados en `problema/imagen
 Siguiente, `armar_problema.m` vuelve a validar y crea el problema con `crear_problema`.
 Los problemas binarios y de permutación aparecen como "en desarrollo" hasta que exista
 su función en `src/problemas/`.
+
+La pantalla 3 se arma sola con lo que hay en `src/algoritmos/`: un algoritmo aparece
+disponible cuando existen `<id>.m`, `info_<id>.m` y `parametros_<id>.m` y su `info` incluye
+la representación del problema. Las tarjetas salen de `parametros_<id>(representacion)`
+(tipo, valor, rango); `parametros_para_ui.m` les pone etiquetas cortas con acentos y marca
+los que dependen de una opción (k del torneo, alfa de BLX). Un parámetro nuevo que no esté
+en su tabla aparece igual, con la etiqueta de su definición. Al presionar Ejecutar,
+`armar_parametros.m` vuelve a validar y entrega el struct `params` completo.
 
 ## Caché de uihtml
 uihtml guarda en caché los CSS y JS mientras MATLAB está abierto. Por eso los enlaces
@@ -54,7 +63,8 @@ En MATLAB, desde `Proyecto/`:
 ```matlab
 addpath(genpath('src')); demo_pantalla_tipo
 addpath(genpath('src')); demo_pantalla_problema          % o demo_pantalla_problema('binario')
+addpath(genpath('src')); demo_pantalla_algoritmo         % o demo_pantalla_algoritmo('ackley', 10)
 ```
-Para diseñar en el navegador sin MATLAB: abre `tipo.html` o `problema.html` directamente (o sirve la
+Para diseñar en el navegador sin MATLAB: abre `tipo.html`, `problema.html` o `algoritmo.html` directamente (o sirve la
 carpeta con `python3 -m http.server`). Sin MATLAB usa datos de ejemplo y los eventos
 salen en la consola.
