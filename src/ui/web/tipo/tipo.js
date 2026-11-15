@@ -2,6 +2,7 @@
 //
 // Eventos que llegan de MATLAB:
 //   "datos"    { tipos: [{id, nombre, notacion, descripcion, problemas, algoritmos}],
+//                real: {id, nombre, insignia, descripcion, algoritmos, detalle, disponible},
 //                seleccionado, n_guardadas }
 // Eventos que se mandan a MATLAB:
 //   "lista"      la pagina ya puede recibir datos
@@ -10,7 +11,7 @@
 //   "ir_a_paso"  { paso }   (desde el riel)
 //   "comparar", "ayuda"
 
-const estado = { tipos: [], seleccionado: "", n_guardadas: 0 };
+const estado = { tipos: [], real: null, seleccionado: "", n_guardadas: 0 };
 
 const tarjetas = document.getElementById("tarjetas");
 const resumen = document.getElementById("resumen");
@@ -53,21 +54,56 @@ function dibujar() {
           <div><dt>Algoritmos</dt><dd class="${algoritmos.length ? "" : "vacio"}">${texto_lista(algoritmos) || "Ninguno todavía"}</dd></div>
         </dl>
       </div>`;
-    if (!bloqueada) {
-      tarjeta.addEventListener("click", () => elegir(tipo.id));
-      tarjeta.addEventListener("dblclick", () => { elegir(tipo.id); continuar(); });
-    }
-    tarjetas.appendChild(tarjeta);
+    agregar_tarjeta(tarjeta, tipo.id, !bloqueada);
   });
 
+  if (estado.real) dibujar_real(estado.real);
   actualizar_acciones();
 }
 
+// Tarjeta del problema de aplicacion real: mas angosta, con insignia y sin la lista
+// de problemas, porque es uno solo.
+function dibujar_real(real) {
+  const algoritmos = como_lista(real.algoritmos);
+  const elegido = real.id === estado.seleccionado;
+  const tarjeta = document.createElement("div");
+  tarjeta.className = "tarjeta tarjeta-real vidrio";
+  tarjeta.setAttribute("role", "radio");
+  tarjeta.setAttribute("aria-checked", String(elegido));
+  tarjeta.tabIndex = elegido ? 0 : -1;
+  tarjeta.setAttribute("aria-disabled", String(algoritmos.length === 0));
+  tarjeta.dataset.id = real.id;
+  tarjeta.innerHTML = `
+    <figure class="tarjeta-figura">${ILUSTRACIONES.real}</figure>
+    <div class="tarjeta-texto">
+      <div class="tarjeta-titulo">
+        <span class="tarjeta-nombre">${real.nombre}</span>
+        <span class="insignia">${real.insignia}</span>
+      </div>
+      <p class="tarjeta-descripcion">${real.descripcion}</p>
+      <p class="tarjeta-pie">${[algoritmos.join(", "), real.detalle].filter(Boolean).join(" · ")}</p>
+    </div>`;
+  agregar_tarjeta(tarjeta, real.id, algoritmos.length > 0);
+}
+
+function agregar_tarjeta(tarjeta, id, activa) {
+  if (activa) {
+    tarjeta.addEventListener("click", () => elegir(id));
+    tarjeta.addEventListener("dblclick", () => { elegir(id); continuar(); });
+  }
+  tarjetas.appendChild(tarjeta);
+}
+
 function actualizar_acciones() {
-  const tipo = estado.tipos.find((t) => t.id === estado.seleccionado);
-  boton_siguiente.disabled = !tipo;
+  const real = estado.real && estado.real.id === estado.seleccionado ? estado.real : null;
+  const tipo = real || estado.tipos.find((t) => t.id === estado.seleccionado);
+  boton_siguiente.disabled = !tipo || (real && !real.disponible);
   if (!tipo) {
     resumen.textContent = "Elige un tipo para continuar.";
+    return;
+  }
+  if (real && !real.disponible) {
+    resumen.textContent = `${real.nombre}: el problema todavía no está en src/problemas/real/.`;
     return;
   }
   const n_alg = como_lista(tipo.algoritmos).length;
@@ -87,7 +123,7 @@ function elegir(id) {
 }
 
 function continuar() {
-  if (estado.seleccionado) puente.enviar("siguiente", { tipo: estado.seleccionado });
+  if (estado.seleccionado && !boton_siguiente.disabled) puente.enviar("siguiente", { tipo: estado.seleccionado });
 }
 
 // Flechas para moverse entre tarjetas, como en un grupo de radio.
@@ -115,6 +151,7 @@ boton_siguiente.addEventListener("click", continuar);
 
 puente.escuchar("datos", (datos) => {
   estado.tipos = como_lista(datos.tipos);
+  estado.real = datos.real || null;
   estado.seleccionado = datos.seleccionado || "";
   estado.n_guardadas = Number(datos.n_guardadas) || 0;
   dibujar();
@@ -139,6 +176,9 @@ puente.al_iniciar((con_matlab) => {
         descripcion: "Un orden de los elementos 1 a n. Por ejemplo, el orden en que se visitan ciudades.",
         problemas: [], algoritmos: ["GA", "PSO"] }
     ],
+    real: { id: "real", nombre: "Aplicación real", insignia: "Bonus",
+      descripcion: "Armar tu horario del semestre con la oferta real: sin choques y con pocas horas muertas.",
+      algoritmos: ["GA", "PSO", "DE"], detalle: "una sección por materia", disponible: false },
     seleccionado: "", n_guardadas: 0
   });
 });
