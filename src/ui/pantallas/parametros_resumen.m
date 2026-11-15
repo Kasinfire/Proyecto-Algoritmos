@@ -10,9 +10,7 @@ function lista = parametros_resumen(id, representacion, params)
 %       comun    : true si es de parametros_comunes (iteraciones, semilla, paciencia)
 
     defs = feval(['parametros_' id], representacion);
-    if exist('parametros_para_ui', 'file') == 2
-        defs = parametros_para_ui(defs);
-    end
+    defs = parametros_para_ui(defs);
     comunes = {parametros_comunes().nombre};
     lista = struct('nombre', {}, 'etiqueta', {}, 'corta', {}, 'valor', {}, 'comun', {});
     for k = 1:numel(defs)

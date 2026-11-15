@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Problema binario</title>
+<link rel="stylesheet" href="comun/fuentes/geist.css?v=3">
+<link rel="stylesheet" href="comun/base.css?v=3">
+<link rel="stylesheet" href="problema/problema.css?v=3">
+<link rel="stylesheet" href="problema_binario/binario.css?v=1">
+</head>
+<body>
+<div class="lienzo">
+  <div class="mancha mancha-izq" aria-hidden="true"></div>
+  <div class="mancha mancha-der" aria-hidden="true"></div>
+
+  <nav class="riel vidrio" aria-label="Pasos" id="riel"></nav>
+
+  <main class="principal">
+    <header class="encabezado">
+      <h1>Elige el problema</h1>
+      <p id="subtitulo"></p>
+    </header>
+
+    <section class="detalle tarjeta" aria-label="Problema">
+      <div class="detalle-cabeza">
+        <div class="segmento" role="tablist" aria-label="Problemas" id="pestanas"></div>
+        <div class="objetivo">
+          <span>Objetivo</span>
+          <span class="objetivo-fijo" title="Este problema siempre se maximiza">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+            <span id="sentido">Maximizar</span>
+          </span>
+        </div>
+      </div>
+      <p class="detalle-descripcion" id="descripcion"></p>
+
+      <div class="panel" role="tabpanel" id="panel-mochila" hidden>
+        <div class="datos capacidad">
+          <div class="campo">
+            <label for="capacidad">Capacidad</label>
+            <input class="entrada entrada-capacidad" id="capacidad" inputmode="decimal" autocomplete="off">
+          </div>
+          <div class="medidor">
+            <span id="texto-capacidad"></span>
+            <span class="barra"><span class="barra-relleno" id="barra-capacidad"></span></span>
+          </div>
+          <button type="button" class="boton-punteado" id="cargar-csv">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4M7 9l5-5 5 5M5 15v4h14v-4"/></svg>
+            Cargar CSV
+          </button>
+        </div>
+
+        <div class="tabla" role="table" aria-label="Objetos">
+          <div class="tabla-cabeza" role="row">
+            <span role="columnheader">Objeto</span>
+            <span role="columnheader">Peso</span>
+            <span role="columnheader">Valor</span>
+            <span role="columnheader" class="columna-ancha">Valor por unidad de peso</span>
+          </div>
+          <div class="tabla-filas" role="rowgroup" id="filas"></div>
+        </div>
+        <button type="button" class="boton boton-agregar" id="agregar">+ Agregar objeto</button>
+      </div>
+
+      <div class="panel" role="tabpanel" id="panel-onemax" hidden>
+        <div class="datos">
+          <div class="campo">
+            <label for="dim">Número de bits</label>
+            <div class="paso-dim">
+              <button type="button" class="boton-mini" id="dim-menos" aria-label="Quitar un bit">−</button>
+              <input class="entrada entrada-dim" id="dim" inputmode="numeric" autocomplete="off">
+              <button type="button" class="boton-mini" id="dim-mas" aria-label="Agregar un bit">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="bits" role="group" aria-label="Bits de ejemplo" id="bits"></div>
+        <p class="bits-nota" id="bits-nota"></p>
+      </div>
+
+      <footer class="detalle-pie">
+        <span class="pie-etiqueta">Función objetivo</span>
+        <span class="pie-formula" id="formula"></span>
+        <span class="pie-optimo" id="optimo"></span>
+      </footer>
+    </section>
+
+    <section class="acciones vidrio" aria-label="Acciones">
+      <div role="status" id="resumen"></div>
+      <div class="acciones-botones">
+        <button type="button" class="boton" id="regresar">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+          Regresar
+        </button>
+        <button type="button" class="boton boton-primario" id="siguiente" disabled>
+          Siguiente
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="comun/puente.js?v=3"></script>
+<script src="comun/riel.js?v=3"></script>
+<script src="comun/numeros.js?v=3"></script>
+<script src="problema_binario/demo.js?v=1"></script>
+<script src="problema_binario/binario.js?v=1"></script>
+</body>
+</html>
