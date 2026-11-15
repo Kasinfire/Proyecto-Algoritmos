@@ -41,17 +41,10 @@ function numeros(valor) {
   return como_lista(valor).map(Number);
 }
 
-// Coordenadas con 3 decimales, como en la maqueta: (0.000, 0.000). Los enteros
-// (binario, permutacion) y los valores enormes van sin forzar decimales.
-function coordenada(v) {
-  if (Number.isInteger(v) || Math.abs(v) >= 1e4) return formato_corto(v);
-  return (Math.abs(v) < 5e-4 ? 0 : v).toFixed(3).replace(/-/g, "−");
-}
-
 // dim: coordenadas que tiene el punto aunque x traiga menos.
-function texto_punto(x, dim = x.length, formato = coordenada) {
-  const coords = x.slice(0, 3).map(formato);
-  if (dim > 3) coords.push("…");
+function texto_punto(x, dim = x.length, max_coordenadas = 3) {
+  const coords = x.slice(0, max_coordenadas).map(formato_corto);
+  if (dim > max_coordenadas) coords.push("…");
   return dim === 1 ? coords[0] : `(${coords.join(", ")})`;
 }
 
@@ -109,12 +102,13 @@ function dibujar_lecturas() {
   el.sentido.textContent = problema.sentido === "max" ? "maximizando" : "minimizando";
 
   el.etiqueta_solucion.textContent = `Mejor solución ${g}`;
-  el.solucion.textContent = texto_punto(datos.mejor_solucion, problema.dim);
+  // Arriba caben dos coordenadas con su exponente; el punto completo esta en Historial y el CSV.
+  el.solucion.textContent = texto_punto(datos.mejor_solucion, problema.dim, 2);
   el.solucion.title = el.solucion.textContent;
   const x = problema.x_optimo;
   if (x.length === problema.dim) {
     const iguales = x.every((v) => v === x[0]);
-    const punto = iguales && x.length > 2 ? `(${formato_corto(x[0])}, …)` : texto_punto(x, x.length, formato_corto);
+    const punto = iguales && x.length > 2 ? `(${formato_corto(x[0])}, …)` : texto_punto(x);
     el.optimo.textContent = `óptimo: ${punto}`;
   } else if (Number.isFinite(Number(problema.f_optimo))) {
     el.optimo.textContent = `óptimo: f = ${formato_corto(Number(problema.f_optimo))}`;
