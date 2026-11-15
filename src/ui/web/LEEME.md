@@ -40,6 +40,7 @@ Pantallas hechas:
 | `problema.html` + `problema/` | `pantallas/pantalla_problema.m`, `problemas_de_tipo.m`, `armar_problema.m`, `limites_problema.m`, `generar_imagenes_problemas.m` | 2. problema y datos |
 | `problema_binario.html` + `problema_binario/` | `pantallas/pantalla_problema.m`, `armar_problema_binario.m`, `leer_objetos_csv.m` | 2. problema y datos (binario) |
 | `problema_tsp.html` + `problema_tsp/` | `pantallas/pantalla_problema.m`, `armar_problema_permutacion.m`, `ciudades_al_azar.m`, `leer_ciudades_csv.m` | 2. problema y datos (TSP) |
+| `algoritmo.html` + `algoritmo/` | `pantallas/pantalla_algoritmo.m`, `algoritmos_de_tipo.m`, `parametros_para_ui.m`, `armar_parametros.m` | 3. algoritmo y parámetros |
 | `ejecucion.html` + `ejecucion/` | `pantallas/pantalla_ejecucion.m`, `pantallas/mapa_de_busqueda.m` | 4. ejecución |
 | `resultados.html` + `resultados/` | `pantallas/pantalla_resultados.m`, `exportar_resultado.m` | 5. resultados |
 | `comparar.html` + `comparar/` | `pantallas/pantalla_comparar.m`, `exportar_comparacion.m` | comparar ejecuciones (botón del riel) |
@@ -86,6 +87,14 @@ minimizar con óptimo conocido distinto de 0 se grafica f − f* para poder usar
 columna de evaluaciones muestra el presupuesto real de cada una (no todas evalúan f igual
 de veces por iteración).
 
+La pantalla 3 se arma sola con lo que hay en `src/algoritmos/`: un algoritmo aparece
+disponible cuando existen `<id>.m`, `info_<id>.m` y `parametros_<id>.m` y su `info` incluye
+la representación del problema. Las tarjetas salen de `parametros_<id>(representacion)`
+(tipo, valor, rango); `parametros_para_ui.m` les pone etiquetas cortas con acentos y marca
+los que dependen de una opción (k del torneo, alfa de BLX). Un parámetro nuevo que no esté
+en su tabla aparece igual, con la etiqueta de su definición. Al presionar Ejecutar,
+`armar_parametros.m` vuelve a validar y entrega el struct `params` completo.
+
 ## Caché de uihtml
 uihtml guarda en caché los CSS y JS mientras MATLAB está abierto. Por eso los enlaces
 llevan `?v=3`: si cambias un CSS o JS, súbele el número en el HTML (o reinicia MATLAB),
@@ -96,6 +105,7 @@ En MATLAB, desde `Proyecto/`:
 ```matlab
 addpath(genpath('src')); demo_pantalla_tipo
 addpath(genpath('src')); demo_pantalla_problema          % o ('binario') o ('permutacion')
+addpath(genpath('src')); demo_pantalla_algoritmo         % o demo_pantalla_algoritmo('ackley', 10)
 addpath(genpath('src')); demo_pantalla_ejecucion         % o demo_pantalla_ejecucion('ackley', 5, 'de')
 addpath(genpath('src')); demo_pantalla_resultados        % o demo_pantalla_resultados('ackley', 5, 'de')
 addpath(genpath('src')); demo_pantalla_comparar
