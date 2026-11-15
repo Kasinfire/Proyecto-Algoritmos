@@ -28,7 +28,7 @@ function resultado = de(problema, params, al_cada_iteracion)
     [lb, ub] = espacio_busqueda(problema);
     X = lb + rand(N, problema.dim) .* (ub - lb);
 
-    poblacion = decodificar(X, problema.representacion);
+    poblacion = decodificar_solucion(X, problema.representacion);
     costos = evaluar_individuos(poblacion, costo);
     evaluaciones = N;
     [mejor_costo, i] = min(costos);
@@ -46,10 +46,10 @@ function resultado = de(problema, params, al_cada_iteracion)
             V = mutacion_de(X, X(i_mejor, :), params, lb, ub);
             U = cruza_binomial(X, V, params.tasa_cr);
 
-            costos_u = evaluar_individuos(decodificar(U, problema.representacion), costo);
+            costos_u = evaluar_individuos(decodificar_solucion(U, problema.representacion), costo);
             evaluaciones = evaluaciones + N;
             [X, costos] = seleccion_voraz(X, costos, U, costos_u);
-            poblacion = decodificar(X, problema.representacion);
+            poblacion = decodificar_solucion(X, problema.representacion);
 
             % La seleccion voraz impide que el mejor empeore, pero el mejor
             % global se actualiza explicitamente para contar sin_mejora.
@@ -98,28 +98,4 @@ function resultado = de(problema, params, al_cada_iteracion)
     resultado.historial.mejor_valor = hist_valor(1:n);
     resultado.historial.mejor_solucion = hist_solucion(1:n, :);
     resultado.historial.poblacion = hist_poblacion(1:n);
-end
-
-% -------------------------------------------------------------------------
-function [lb, ub] = espacio_busqueda(problema)
-% Limites del espacio donde viven los vectores de DE.
-    if strcmp(problema.representacion, 'continuo')
-        lb = problema.lb;
-        ub = problema.ub;
-    else
-        lb = zeros(1, problema.dim);
-        ub = ones(1, problema.dim);
-    end
-end
-
-function soluciones = decodificar(X, representacion)
-% Vectores de DE -> soluciones en la representacion del problema.
-    switch representacion
-        case 'binario'
-            soluciones = double(X > 0.5);
-        case 'permutacion'
-            soluciones = decodificar_llaves(X);
-        otherwise
-            soluciones = X;
-    end
 end

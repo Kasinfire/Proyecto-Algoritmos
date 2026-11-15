@@ -43,7 +43,8 @@ Proyecto/
 ├─ src/
 │  ├─ algoritmos/
 │  │  ├─ comunes/        crear_parametro, parametros_comunes, valores_por_defecto,
-│  │  │                  decodificar_llaves (ya existen)
+│  │  │                  decodificar_llaves, decodificar_solucion,
+│  │  │                  espacio_busqueda, evaluar_individuos (ya existen)
 │  │  ├─ ga/ aco/ ais/ de/   por hacer
 │  │  ├─ pso/            listo y cumple el contrato: es el EJEMPLO DE REFERENCIA
 │  │  └─ bha/            algoritmo extra, no se toca
@@ -164,6 +165,10 @@ Funciones que ya existen en `src/algoritmos/comunes/`:
 - `parametros_comunes()` regresa `n_iteraciones` (200), `semilla` (42) y `paciencia` (0 = desactivada).
 - `valores_por_defecto(defs)` convierte los parámetros en el struct `params`.
 - `decodificar_llaves(llaves)` convierte random keys (N x D reales) en permutaciones.
+- `decodificar_solucion(X, representacion)` aplica la decodificación de cada representación
+  (umbral `x > 0.5` en binario, random keys en permutación).
+- `espacio_busqueda(problema)` regresa `[lb, ub]`: los del problema en continuo y `[0, 1]` en los demás.
+- `evaluar_individuos(poblacion, costo)` evalúa el costo de cada fila de la población.
 
 Todos los algoritmos usan los mismos nombres para lo común: `n_iteraciones`,
 `tam_poblacion` (o `n_hormigas`, `n_particulas`, `n_anticuerpos` si es más claro), `semilla`, `paciencia`.

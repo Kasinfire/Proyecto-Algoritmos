@@ -4,12 +4,12 @@ function defs = parametros_comunes()
 %   Cada parametros_<alg>.m debe incluirlos:  defs = [parametros_comunes(), ...]
 
     defs = [
-        crear_parametro('n_iteraciones', 'Numero de iteraciones', 'entero', 200, ...
-            min=1, max=10000, descripcion='Iteraciones (o generaciones) maximas.')
+        crear_parametro('n_iteraciones', 'Número de iteraciones', 'entero', 200, ...
+            min=1, max=10000, descripcion='Iteraciones (o generaciones) máximas.')
         crear_parametro('semilla', 'Semilla aleatoria', 'entero', 42, ...
-            min=0, max=2^31, descripcion='Misma semilla = misma ejecucion (reproducible).')
+            min=0, max=2^31, descripcion='Misma semilla = misma ejecución (reproducible).')
         crear_parametro('paciencia', 'Paciencia', 'entero', 0, ...
             min=0, max=10000, descripcion=['Detener si el mejor valor no mejora en ' ...
-            'este numero de iteraciones. 0 = desactivado.'])
+            'este número de iteraciones. 0 = desactivado.'])
     ]';
 end
