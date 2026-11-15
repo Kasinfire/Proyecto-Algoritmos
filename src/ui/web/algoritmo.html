@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Algoritmo</title>
+<link rel="stylesheet" href="comun/fuentes/geist.css?v=3">
+<link rel="stylesheet" href="comun/base.css?v=3">
+<link rel="stylesheet" href="algoritmo/algoritmo.css?v=1">
+</head>
+<body>
+<div class="lienzo">
+  <div class="mancha mancha-izq" aria-hidden="true"></div>
+  <div class="mancha mancha-der" aria-hidden="true"></div>
+
+  <nav class="riel vidrio" aria-label="Pasos" id="riel"></nav>
+
+  <main class="principal">
+    <header class="encabezado">
+      <h1>Elige el algoritmo</h1>
+      <p id="subtitulo"></p>
+    </header>
+
+    <div class="cuerpo">
+      <section class="algoritmos vidrio" role="radiogroup" aria-label="Algoritmos" id="lista"></section>
+
+      <section class="configuracion" aria-labelledby="nombre">
+        <div class="configuracion-cabeza">
+          <h2 id="nombre"></h2>
+          <button type="button" class="enlace" id="por-defecto" hidden>Valores por defecto</button>
+        </div>
+        <p class="configuracion-descripcion" id="descripcion"></p>
+        <div class="parametros" id="parametros"></div>
+      </section>
+    </div>
+
+    <section class="acciones vidrio" aria-label="Acciones">
+      <div role="status" id="resumen"></div>
+      <div class="acciones-botones">
+        <button type="button" class="boton" id="regresar">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+          Regresar
+        </button>
+        <button type="button" class="boton boton-primario" id="ejecutar" disabled>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>
+          Ejecutar
+        </button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="comun/puente.js?v=3"></script>
+<script src="comun/riel.js?v=3"></script>
+<script src="comun/numeros.js?v=1"></script>
+<script src="algoritmo/iconos.js?v=1"></script>
+<script src="algoritmo/demo.js?v=1"></script>
+<script src="algoritmo/algoritmo.js?v=1"></script>
+</body>
+</html>

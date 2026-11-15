@@ -41,11 +41,12 @@ Proyecto/
 ├─ datos/                    [falta]   instancias (ciudades TSP, mochila, datos reales)
 └─ tests/                    [falta]   pruebas automáticas (matlab.unittest)
 ```
-La interfaz (`MetaheuristicasApp.mlapp`) todavía no existe.
 
 ## Cómo correr lo que ya existe
-Abrir MATLAB en la carpeta `Proyecto/` y ejecutar:
+Abrir MATLAB en la carpeta `Proyecto/` y escribir en la ventana de comandos (no en la terminal del
+sistema):
 ```matlab
+MetaheuristicasApp                              % la aplicación completa
 run('experimentos/pso_parametros/main_pso.m')   % experimento PSO (tabla + gráficas en resultados/)
 run('extras/bha/main_bha.m')                    % demo BHA en Rastrigin 2D (ver extras/)
 ```

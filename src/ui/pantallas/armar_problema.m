@@ -14,6 +14,9 @@ function problema = armar_problema(config)
     if ~(isfinite(config.lb) && isfinite(config.ub) && config.lb < config.ub)
         error('armar_problema:limites', 'El límite inferior debe ser menor que el superior.');
     end
+    if ~isfinite(config.ub - config.lb)
+        error('armar_problema:limites', 'El rango es demasiado grande para representarlo.');
+    end
 
     base = funcion_prueba(config.id, config.dim);
     lb = config.lb;

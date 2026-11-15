@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Comparar ejecuciones</title>
+<link rel="stylesheet" href="comun/fuentes/geist.css?v=3">
+<link rel="stylesheet" href="comun/base.css?v=4">
+<link rel="stylesheet" href="comun/paneles.css?v=1">
+<link rel="stylesheet" href="comparar/comparar.css?v=8">
+</head>
+<body>
+<div class="lienzo">
+  <div class="mancha mancha-izq" aria-hidden="true"></div>
+  <div class="mancha mancha-der" aria-hidden="true"></div>
+
+  <nav class="riel vidrio" aria-label="Pasos" id="riel"></nav>
+
+  <main class="principal">
+    <header class="encabezado">
+      <h1>Comparar ejecuciones</h1>
+      <p id="subtitulo">Cargando las ejecuciones guardadas…</p>
+    </header>
+
+    <div class="cuerpo-comparar">
+      <div class="columna">
+        <section class="vidrio ejecuciones" aria-label="Ejecuciones guardadas">
+          <ul id="ejecuciones"></ul>
+        </section>
+
+        <section class="vidrio ficha" aria-labelledby="ficha-nombre">
+          <div class="ficha-cabeza">
+            <span class="etiqueta" id="ficha-numero"></span>
+            <h2 id="ficha-nombre"></h2>
+          </div>
+          <dl class="ficha-lista" id="ficha-lista"></dl>
+        </section>
+      </div>
+
+      <div class="columna">
+        <figure class="tarjeta grafica">
+          <figcaption>Convergencia</figcaption>
+          <div class="convergencia"><svg id="convergencia" role="img" aria-label="Convergencia de las ejecuciones marcadas"></svg></div>
+        </figure>
+
+        <section class="vidrio tabla" id="tabla-seccion" aria-label="Tabla comparativa">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Ejecución</th>
+                <th scope="col" id="th-valor">Mejor f</th>
+                <th scope="col" title="Primera iteración en que la curva llega a su valor final">Iteración del mejor</th>
+                <th scope="col" title="Veces que se evaluó la función objetivo">Evaluaciones</th>
+              </tr>
+            </thead>
+            <tbody id="tabla"></tbody>
+          </table>
+        </section>
+      </div>
+    </div>
+
+    <section class="acciones vidrio" aria-label="Acciones">
+      <div role="status" id="estado"></div>
+      <div class="acciones-botones">
+        <button type="button" class="boton" id="volver">Volver</button>
+        <button type="button" class="boton boton-primario" id="exportar">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg>
+          Exportar comparación
+        </button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="comun/puente.js?v=3"></script>
+<script src="comun/riel.js?v=4"></script>
+<script src="comun/graficas.js?v=3"></script>
+<script src="comparar/demo.js?v=2"></script>
+<script src="comparar/comparar.js?v=4"></script>
+</body>
+</html>
