@@ -14,13 +14,13 @@ Aplicación en MATLAB para configurar, ejecutar y comparar **GA, ACO, PSO, AIS y
 
 ```
 Proyecto/
-├─ src/                                Código de la aplicación (se agrega al path con genpath)
+├─ src/
 │  ├─ algoritmos/
 │  │  ├─ pso/
-│  │  ├─ ga/                 [falta]
+│  │  ├─ ga/
 │  │  ├─ aco/                [falta]
 │  │  ├─ ais/                [falta]
-│  │  ├─ de/                 [falta]
+│  │  ├─ de/
 │  │  └─ comunes/
 │  ├─ problemas/
 │  │  ├─ comun/
@@ -38,7 +38,7 @@ Proyecto/
 │  └─ pso_parametros/
 ├─ extras/bha/
 ├─ datos/                    [falta]   instancias (ciudades TSP, mochila, datos reales)
-└─ tests/                    [falta]   pruebas automáticas (matlab.unittest)
+└─ tests/                    [falta]   pruebas automáticas (matlab.unittest) ? 
 ```
 
 ## Cómo correr lo que ya existe
