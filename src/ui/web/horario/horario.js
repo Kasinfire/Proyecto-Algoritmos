@@ -1,6 +1,6 @@
 // Pantalla 2 del problema real: tu horario del semestre, en tres subpasos
 // (1 Oferta, 2 Materias, 3 Preferencias). Este archivo lleva el riel, los subpasos, la
-// barra de abajo y el puente; cada subpaso dibuja lo suyo (oferta.js).
+// barra de abajo y el puente; cada subpaso dibuja lo suyo (oferta.js, materias.js).
 //
 // Eventos que llegan de MATLAB:
 //   "datos"     { ciclos, centros, carreras: [{id, nombre}], defecto: {ciclo, centro, carrera,
@@ -12,21 +12,97 @@
 //   "cancelado"            (se cerro el dialogo de abrir sin elegir archivo)
 // Eventos que se mandan a MATLAB:
 //   "lista", "consultar" { ciclo, centro, carrera, solo_cupo }, "abrir_guardada", "usar_ejemplo",
+//   "materias" { claves }   (cada vez que cambia la lista de materias elegidas),
 //   "regresar", "ir_a_paso" { paso }, "comparar", "ayuda"
 
-const estado = { con_matlab: false, n_guardadas: 0, cargando: false, cuenta: null, paginas: 0 };
+const SUBPASOS = {
+  oferta: { subtitulo: "Primero, la oferta académica. La traemos de la consulta pública de SIIAU." },
+  materias: { subtitulo: "Busca las materias que te tocan este ciclo." },
+  preferencias: { subtitulo: "Dinos cómo lo quieres." }
+};
+const ORDEN = Object.keys(SUBPASOS);
 
-const el = Object.fromEntries(["resumen", "regresar", "siguiente"]
+const estado = {
+  con_matlab: false, n_guardadas: 0, cargando: false, cuenta: null, paginas: 0,
+  subpaso: "oferta", aviso: ""
+};
+
+const el = Object.fromEntries(["resumen", "regresar", "siguiente", "subtitulo", "subpasos"]
   .map((id) => [id, document.getElementById(id)]));
+
+const pestana = (nombre) => el.subpasos.querySelector(`[data-subpaso="${nombre}"]`);
+const panel = (nombre) => document.getElementById(`panel-${nombre}`);
+
+// ---------- Subpasos ----------
+
+function ir_a(nombre) {
+  if (!panel(nombre)) return;
+  estado.subpaso = nombre;
+  ORDEN.forEach((n) => {
+    if (panel(n)) panel(n).hidden = n !== nombre;
+    pestana(n).setAttribute("aria-selected", String(n === nombre));
+  });
+  el.subtitulo.textContent = SUBPASOS[nombre].subtitulo;
+  estado.aviso = "";
+  actualizar_barra();
+  if (nombre === "materias") MATERIAS.enfocar_busqueda();
+}
+
+// Un subpaso se puede abrir si el anterior ya esta completo.
+function puede_abrir(nombre) {
+  if (!panel(nombre)) return false;
+  if (nombre === "oferta") return true;
+  if (nombre === "materias") return oferta_lista();
+  return oferta_lista() && MATERIAS.lista();
+}
+
+function oferta_lista() { return Boolean(estado.cuenta && estado.cuenta.con_horario > 0); }
+
+function actualizar_barra() {
+  ORDEN.forEach((n, i) => {
+    const b = pestana(n);
+    b.disabled = estado.cargando || !puede_abrir(n);
+    const siguiente = ORDEN[i + 1];
+    b.classList.toggle("hecho", n !== estado.subpaso && Boolean(siguiente) && puede_abrir(siguiente));
+  });
+  const siguiente = ORDEN[ORDEN.indexOf(estado.subpaso) + 1];
+  el.siguiente.disabled = estado.cargando || !siguiente || !puede_abrir(siguiente);
+  el.regresar.disabled = estado.cargando;
+  poner_resumen(estado.aviso || resumen_del_subpaso(), Boolean(estado.aviso));
+}
+
+function resumen_del_subpaso() {
+  if (estado.subpaso === "materias") return MATERIAS.resumen();
+  const n = estado.cuenta;
+  if (!n) return "Trae la oferta de SIIAU para empezar.";
+  return `${n.con_horario} ${n.con_horario === 1 ? "sección con horario lista" : "secciones con horario listas"}.`;
+}
 
 function poner_resumen(texto, es_aviso = false) {
   el.resumen.textContent = texto;
   el.resumen.classList.toggle("aviso", es_aviso);
 }
 
+el.subpasos.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-subpaso]");
+  if (b && !b.disabled) ir_a(b.dataset.subpaso);
+});
+
+el.siguiente.addEventListener("click", () => ir_a(ORDEN[ORDEN.indexOf(estado.subpaso) + 1]));
+
+el.regresar.addEventListener("click", () => {
+  const anterior = ORDEN[ORDEN.indexOf(estado.subpaso) - 1];
+  if (anterior) ir_a(anterior);
+  else puente.enviar("regresar");
+});
+
+// ---------- Subpaso Oferta ----------
+
 function empezar_carga(texto) {
   estado.cargando = true;
+  estado.aviso = "";
   OFERTA.ocupado(true);
+  actualizar_barra();
   poner_resumen(texto);
 }
 
@@ -34,14 +110,6 @@ function terminar_carga() {
   estado.cargando = false;
   OFERTA.ocupado(false);
 }
-
-function resumen_de_oferta() {
-  const n = estado.cuenta;
-  if (!n) return "Trae la oferta de SIIAU para empezar.";
-  return `${n.con_horario} ${n.con_horario === 1 ? "sección con horario lista" : "secciones con horario listas"}.`;
-}
-
-// ---------- Acciones del subpaso Oferta ----------
 
 OFERTA.al_pedir({
   consultar(consulta) {
@@ -76,7 +144,12 @@ function simular_consulta() {
   setTimeout(siguiente_pagina, 450);
 }
 
-el.regresar.addEventListener("click", () => puente.enviar("regresar"));
+// ---------- Subpaso Materias ----------
+
+MATERIAS.al_cambiar(({ claves }) => {
+  if (estado.con_matlab) puente.enviar("materias", { claves });
+  actualizar_barra();
+});
 
 // ---------- Puente ----------
 
@@ -85,7 +158,7 @@ puente.escuchar("datos", (datos) => {
   dibujar_riel(document.getElementById("riel"), 1, estado.n_guardadas,
     (paso) => puente.enviar("ir_a_paso", { paso }));
   OFERTA.poner_opciones(datos);
-  poner_resumen(resumen_de_oferta());
+  actualizar_barra();
 });
 
 puente.escuchar("progreso", (datos) => {
@@ -97,18 +170,20 @@ puente.escuchar("oferta", (oferta) => {
   terminar_carga();
   estado.cuenta = OFERTA.mostrar(oferta);
   estado.paginas = Number(oferta.paginas) || 0;
-  poner_resumen(resumen_de_oferta());
+  MATERIAS.poner_oferta(como_lista(oferta.secciones));
+  actualizar_barra();
 });
 
 puente.escuchar("aviso", (datos) => {
   terminar_carga();
   OFERTA.avance_listo(estado.paginas);
-  poner_resumen(datos.texto, true);
+  estado.aviso = datos.texto;
+  actualizar_barra();
 });
 
 puente.escuchar("cancelado", () => {
   terminar_carga();
-  poner_resumen(resumen_de_oferta());
+  actualizar_barra();
 });
 
 puente.al_iniciar((con_matlab) => {

@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="comun/base.css?v=3">
 <link rel="stylesheet" href="comun/paneles.css?v=1">
 <link rel="stylesheet" href="comun/desplegable.css?v=1">
-<link rel="stylesheet" href="horario/horario.css?v=2">
+<link rel="stylesheet" href="horario/horario.css?v=3">
 </head>
 <body>
 <div class="lienzo">
@@ -24,8 +24,8 @@
         <p id="subtitulo">Primero, la oferta académica. La traemos de la consulta pública de SIIAU.</p>
       </div>
       <div class="subpasos" role="tablist" aria-label="Subpasos" id="subpasos">
-        <button type="button" role="tab" data-subpaso="oferta" aria-selected="true">1 Oferta</button>
-        <button type="button" role="tab" data-subpaso="materias" aria-selected="false" disabled>2 Materias</button>
+        <button type="button" role="tab" data-subpaso="oferta" aria-selected="true" aria-controls="panel-oferta">1 Oferta</button>
+        <button type="button" role="tab" data-subpaso="materias" aria-selected="false" aria-controls="panel-materias" disabled>2 Materias</button>
         <button type="button" role="tab" data-subpaso="preferencias" aria-selected="false" disabled>3 Preferencias</button>
       </div>
     </header>
@@ -116,6 +116,32 @@
       </section>
     </div>
 
+    <div class="cuerpo-horario cuerpo-materias" role="tabpanel" id="panel-materias" hidden>
+      <section class="tarjeta buscador" aria-label="Elegir materias">
+        <label class="grupo-titulo" for="buscar" id="buscar-etiqueta">Buscar materias</label>
+        <input type="search" class="buscar" id="buscar" placeholder="Nombre o clave" autocomplete="off" spellcheck="false">
+        <p class="nota-repetidas" id="nota-repetidas"></p>
+        <ul class="resultados" id="resultados" aria-label="Materias de la oferta"></ul>
+
+        <div class="elegidas-cabeza">
+          <h2 class="grupo-titulo" id="elegidas-titulo">Tus materias (0)</h2>
+          <span class="bits" id="bits">n = 0 bits</span>
+        </div>
+        <ul class="elegidas" id="elegidas" aria-labelledby="elegidas-titulo"></ul>
+      </section>
+
+      <section class="tarjeta secciones" aria-label="Secciones de la materia">
+        <div class="secciones-cabeza">
+          <div>
+            <span class="grupo-titulo">Secciones de</span>
+            <h2 class="secciones-titulo" id="secciones-titulo">Elige una materia</h2>
+          </div>
+          <span class="nota" id="secciones-nota"></span>
+        </div>
+        <div class="semana" id="semana"></div>
+      </section>
+    </div>
+
     <section class="acciones vidrio" aria-label="Acciones">
       <button type="button" class="boton" id="regresar">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
@@ -134,7 +160,9 @@
 <script src="comun/riel.js?v=3"></script>
 <script src="comun/desplegable.js?v=1"></script>
 <script src="horario/demo.js?v=1"></script>
-<script src="horario/oferta.js?v=2"></script>
-<script src="horario/horario.js?v=1"></script>
+<script src="horario/texto.js?v=1"></script>
+<script src="horario/oferta.js?v=3"></script>
+<script src="horario/materias.js?v=1"></script>
+<script src="horario/horario.js?v=2"></script>
 </body>
 </html>
