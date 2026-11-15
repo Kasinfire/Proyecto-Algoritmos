@@ -7,6 +7,7 @@ const ICONO_COMPARAR = '<svg width="18" height="18" viewBox="0 0 24 24" fill="no
 const ICONO_AYUDA = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0zM9.5 9.2a2.5 2.5 0 1 1 3.4 2.3c-.6.3-.9.8-.9 1.4v.6M12 16.8v.2"/></svg>';
 
 // paso_actual empieza en 0. Los pasos ya hechos se pueden visitar; los siguientes no.
+// Con paso_actual = 5 (pantalla de comparar) todos quedan hechos y el boton de comparar activo.
 function dibujar_riel(nav, paso_actual, n_guardadas, al_ir_a_paso) {
   const pasos = PASOS.map((nombre, i) => {
     const estado = i < paso_actual ? "hecho" : "";
@@ -18,13 +19,14 @@ function dibujar_riel(nav, paso_actual, n_guardadas, al_ir_a_paso) {
   }).join("");
 
   const contador = n_guardadas > 0 ? `<span class="contador">${n_guardadas}</span>` : "";
+  const comparando = paso_actual === PASOS.length;
 
   nav.innerHTML = `
     <span class="riel-logo" role="img" aria-label="Metaheurísticas">${ICONO_LOGO}</span>
     <span class="riel-separador" aria-hidden="true"></span>
     ${pasos}
     <div class="riel-pie">
-      <button type="button" class="boton-redondo" data-accion="comparar"
+      <button type="button" class="boton-redondo${comparando ? " activo" : ""}" data-accion="comparar"${comparando ? ' aria-current="page"' : ""}
         aria-label="Comparar ejecuciones (${n_guardadas} guardadas)" title="Comparar ejecuciones"
         ${n_guardadas > 0 ? "" : "disabled"}>${ICONO_COMPARAR}${contador}</button>
       <button type="button" class="boton-redondo" data-accion="ayuda"
