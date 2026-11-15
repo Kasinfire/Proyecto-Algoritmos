@@ -1,5 +1,5 @@
-// Dibujo de la pantalla 4: mapa con la poblacion, convergencia y miniaturas.
-// Solo pinta lo que MATLAB ya calculo (historial y mapa_de_busqueda.m).
+// Graficas de las pantallas de ejecucion y resultados: mapa con la poblacion y convergencia.
+// Solo pintan lo que MATLAB ya calculo (historial y mapa_de_busqueda.m).
 
 const COLOR_MEJOR = "#D95319";
 
@@ -135,7 +135,8 @@ function dibujar_ejes(ctx, mapa, esc, w, h, evitar) {
 }
 
 // vista: { mapa, poblacion: [[x, y]...], mejor: [x, y], valor_mejor, ruta: [[x, y]...],
-//          imagen (solo miniaturas: la imagen del mapa ya cargada), miniatura, evitar }
+//          imagen (solo miniaturas: la imagen del mapa ya cargada), miniatura, evitar,
+//          poblacion_tenue (la poblacion como fantasma, para que destaquen estrella y ruta) }
 function dibujar_mapa(canvas, vista) {
   const { ctx, w, h } = preparar_lienzo(canvas);
   const { mapa, miniatura } = vista;
@@ -159,8 +160,8 @@ function dibujar_mapa(canvas, vista) {
   }
 
   const radio = miniatura ? 2 : 5.5;
-  ctx.fillStyle = "#FFFFFF";
-  ctx.strokeStyle = "rgba(17, 19, 40, 0.8)";
+  ctx.fillStyle = vista.poblacion_tenue ? "rgba(255, 255, 255, 0.45)" : "#FFFFFF";
+  ctx.strokeStyle = vista.poblacion_tenue ? "rgba(17, 19, 40, 0.45)" : "rgba(17, 19, 40, 0.8)";
   ctx.lineWidth = miniatura ? 0.8 : 1.6;
   vista.poblacion.forEach((p) => {
     const [x, y] = punto_mapa(mapa, esc, p);
@@ -178,7 +179,8 @@ function dibujar_mapa(canvas, vista) {
 
 // Grafica de convergencia en SVG: el mejor valor acumulado hasta la iteracion i.
 // escala: { tipo: 'log' | 'lineal', min, max } calculada una vez con todo el historial.
-function dibujar_convergencia(svg, valores, i, total, escala, etiqueta_y) {
+// con_punto marca la iteracion i con su valor (en resultados la curva va completa, sin marca).
+function dibujar_convergencia(svg, valores, i, total, escala, etiqueta_y, con_punto = true) {
   const caja = svg.getBoundingClientRect();
   const w = caja.width, h = caja.height;
   if (w < 10 || h < 10) return;
@@ -221,6 +223,10 @@ function dibujar_convergencia(svg, valores, i, total, escala, etiqueta_y) {
   }
   d += `H${px(i).toFixed(1)}`;
   s += `<path class="curva" d="${d}"/>`;
+  if (!con_punto) {
+    svg.innerHTML = s;
+    return;
+  }
   const xa = px(i), ya = py(valores[i]);
   const ancla = xa > m.izq + ancho - 60 ? "end" : "start";
   s += `<circle class="punto" cx="${xa.toFixed(1)}" cy="${ya.toFixed(1)}" r="4"/>`;

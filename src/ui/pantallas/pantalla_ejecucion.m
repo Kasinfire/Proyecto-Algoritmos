@@ -101,7 +101,7 @@ function datos = datos_ejecucion(resultado, id, n_guardadas)
         'iteraciones', resultado.iteraciones, ...
         'motivo', resultado.motivo_termino, ...
         'historial', struct( ...
-            'mejor_valor', {con_infinitos(redondear(hist.mejor_valor))}, ...
+            'mejor_valor', {numeros_para_js(hist.mejor_valor)}, ...
             'mejor_solucion', {num2cell(redondear(hist.mejor_solucion(:, 1:min(3, end))), 2)}, ...
             'distancia', {distancia}, ...
             'poblacion', {cuadros}, ...
@@ -109,43 +109,6 @@ function datos = datos_ejecucion(resultado, id, n_guardadas)
             'n_individuos', size(hist.poblacion{1}, 1)), ...
         'mapa', mapa, ...
         'n_guardadas', n_guardadas);
-end
-
-function algoritmo = algoritmo_para_ui(id)
-% nombre para el titulo, como se llama a cada solucion y si conserva su identidad entre
-% iteraciones (entonces el HTML puede animar el movimiento de una a otra).
-    catalogo = {
-        'ga',  'Algoritmo genético',     'GA',  'individuos',  'x*', false
-        'aco', 'Colonia de hormigas',    'ACO', 'hormigas',    'x*', false
-        'pso', 'Enjambre de partículas', 'PSO', 'partículas',  'g',  true
-        'ais', 'Sistema inmune',         'AIS', 'anticuerpos', 'x*', false
-        'de',  'Evolución diferencial',  'DE',  'vectores',    'x*', true
-    };
-    fila = catalogo(strcmp(catalogo(:, 1), id), :);
-    if isempty(fila)
-        fila = {id, upper(id), upper(id), 'soluciones', 'x*', false};
-    end
-    algoritmo = cell2struct(fila', {'id', 'nombre', 'siglas', 'individuos', 'simbolo', 'continuidad'});
-end
-
-function lista = parametros_resumen(id, representacion, params)
-% Etiqueta, simbolo corto (lo que va entre parentesis al final de la etiqueta, si es
-% corto: 'Inercia (w)' -> 'w') y valor usado.
-    defs = feval(['parametros_' id], representacion);
-    if exist('parametros_para_ui', 'file') == 2
-        defs = parametros_para_ui(defs);
-    end
-    comunes = {parametros_comunes().nombre};
-    lista = struct('nombre', {}, 'etiqueta', {}, 'corta', {}, 'valor', {}, 'comun', {});
-    for k = 1:numel(defs)
-        nombre = defs(k).nombre;
-        corta = regexp(defs(k).etiqueta, '\(([^()]{1,4})\)$', 'tokens', 'once');
-        if isempty(corta), corta = {''}; end
-        lista(end + 1) = struct('nombre', nombre, ...
-            'etiqueta', strtrim(regexprep(defs(k).etiqueta, '\([^()]{1,4}\)$', '')), ...
-            'corta', corta{1}, 'valor', params.(nombre), ...
-            'comun', any(strcmp(comunes, nombre))); %#ok<AGROW>
-    end
 end
 
 function [cuadros, paso] = muestra_poblacion(poblacion, n_ejes)
@@ -165,15 +128,6 @@ function [cuadros, paso] = muestra_poblacion(poblacion, n_ejes)
         filas = unique(round(linspace(1, size(P, 1), min(size(P, 1), MAX_INDIVIDUOS))));
         cuadros{k} = redondear(P(filas, 1:n_ejes));
     end
-end
-
-% jsonencode convierte Inf y NaN en null; como texto, Number() de JS los recupera.
-function v = con_infinitos(v)
-    malos = ~isfinite(v);
-    if ~any(malos), return; end
-    texto = cellstr(strrep(string(v(malos)), "Inf", "Infinity"));
-    v = num2cell(v);
-    v(malos) = texto;
 end
 
 function v = redondear(v)
