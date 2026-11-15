@@ -5,7 +5,9 @@ function h = pantalla_problema(padre, tipo, opciones)
 %
 %   padre        : uifigure, uipanel o uigridlayout donde se dibuja
 %   tipo         : 'continuo', 'binario' o 'permutacion' (lo elegido en el paso 1)
-%   al_continuar : se llama con el struct problema (crear_problema) al presionar Siguiente
+%   al_continuar : se llama con el struct problema (crear_problema) y la configuracion
+%                  que mando el HTML al presionar Siguiente. La configuracion sirve como
+%                  seleccion para restaurar la pantalla despues.
 %   al_regresar  : se llama sin argumentos al presionar Regresar o el paso 1 del riel
 %   al_comparar  : se llama sin argumentos al presionar el boton de comparar
 %   seleccion    : lo que se eligio antes, para restaurarlo (al volver del paso 3):
@@ -23,7 +25,7 @@ function h = pantalla_problema(padre, tipo, opciones)
     arguments
         padre
         tipo {mustBeMember(tipo, {'continuo', 'binario', 'permutacion'})}
-        opciones.al_continuar function_handle = @(problema) []
+        opciones.al_continuar function_handle = @(problema, config) []
         opciones.al_regresar function_handle = @() []
         opciones.al_comparar function_handle = @() []
         opciones.seleccion struct = struct()
@@ -63,7 +65,7 @@ function atender(h, evento, tipo, opciones)
                 sendEventToHTMLSource(h, 'aviso', struct('texto', err.message));
                 return;
             end
-            opciones.al_continuar(problema);
+            opciones.al_continuar(problema, datos);
         case 'regresar'
             opciones.al_regresar();
         case 'ir_a_paso'
