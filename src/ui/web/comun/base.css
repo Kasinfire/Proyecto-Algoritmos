@@ -119,6 +119,7 @@ button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--acento
   background: rgba(17, 19, 40, 0.06); color: var(--tinta);
   display: inline-flex; align-items: center; justify-content: center;
 }
+.boton-redondo.activo { background: var(--acento); color: #FFFFFF; }
 .contador {
   position: absolute; top: -2px; right: -4px; min-width: 18px; height: 18px; border-radius: 9px;
   background: var(--tinta); color: #FFFFFF; font-size: 11px;

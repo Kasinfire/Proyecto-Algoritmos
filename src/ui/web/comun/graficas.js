@@ -1,4 +1,4 @@
-// Graficas de las pantallas de ejecucion y resultados: mapa con la poblacion y convergencia.
+// Graficas de las pantallas de ejecucion, resultados y comparar: mapa con la poblacion y convergencia.
 // Solo pintan lo que MATLAB ya calculo (historial y mapa_de_busqueda.m).
 
 const COLOR_MEJOR = "#D95319";
@@ -177,13 +177,14 @@ function dibujar_mapa(canvas, vista) {
   }
 }
 
-// Grafica de convergencia en SVG: el mejor valor acumulado hasta la iteracion i.
+// Rejilla, marcas y titulos de una grafica de convergencia en SVG.
 // escala: { tipo: 'log' | 'lineal', min, max } calculada una vez con todo el historial.
-// con_punto marca la iteracion i con su valor (en resultados la curva va completa, sin marca).
-function dibujar_convergencia(svg, valores, i, total, escala, etiqueta_y, con_punto = true) {
+// Regresa el SVG de los ejes y las funciones px (iteracion) y py (valor) a pixeles,
+// o null si el SVG todavia no tiene tamano.
+function ejes_convergencia(svg, total, escala, etiqueta_y) {
   const caja = svg.getBoundingClientRect();
   const w = caja.width, h = caja.height;
-  if (w < 10 || h < 10) return;
+  if (w < 10 || h < 10) return null;
   const m = { izq: 44, der: 14, arriba: 8, abajo: 34 };
   const ancho = w - m.izq - m.der, alto = h - m.arriba - m.abajo;
   const log = escala.tipo === "log";
@@ -215,14 +216,25 @@ function dibujar_convergencia(svg, valores, i, total, escala, etiqueta_y, con_pu
   s += `<line class="eje" x1="${m.izq}" x2="${w - m.der}" y1="${m.arriba + alto}" y2="${m.arriba + alto}"/>`;
   s += `<text class="eje-titulo" x="${m.izq + ancho / 2}" y="${h - 2}" text-anchor="middle">Iteración</text>`;
   s += `<text class="eje-titulo" transform="translate(10 ${m.arriba + alto / 2}) rotate(-90)" text-anchor="middle">${etiqueta_y}</text>`;
+  return { s, px, py, m, ancho };
+}
 
-  // El mejor acumulado cambia a saltos: se dibuja en escalones, uno por cada cambio.
+// El mejor acumulado cambia a saltos: se dibuja en escalones, uno por cada cambio, hasta i.
+function escalones(valores, i, px, py) {
   let d = `M${px(0).toFixed(1)} ${py(valores[0]).toFixed(1)}`;
   for (let k = 1; k <= i; k++) {
     if (valores[k] !== valores[k - 1]) d += `H${px(k).toFixed(1)} V${py(valores[k]).toFixed(1)}`;
   }
-  d += `H${px(i).toFixed(1)}`;
-  s += `<path class="curva" d="${d}"/>`;
+  return d + `H${px(i).toFixed(1)}`;
+}
+
+// Grafica de convergencia: el mejor valor acumulado hasta la iteracion i.
+// con_punto marca la iteracion i con su valor (en resultados la curva va completa, sin marca).
+function dibujar_convergencia(svg, valores, i, total, escala, etiqueta_y, con_punto = true) {
+  const ejes = ejes_convergencia(svg, total, escala, etiqueta_y);
+  if (!ejes) return;
+  const { px, py, m, ancho } = ejes;
+  let s = ejes.s + `<path class="curva" d="${escalones(valores, i, px, py)}"/>`;
   if (!con_punto) {
     svg.innerHTML = s;
     return;
@@ -234,6 +246,16 @@ function dibujar_convergencia(svg, valores, i, total, escala, etiqueta_y, con_pu
   svg.innerHTML = s;
 }
 
+// Varias curvas completas sobre los mismos ejes (pantalla de comparar).
+// series: [{ valores, color }]; cada una dura lo que duro su ejecucion.
+function dibujar_convergencias(svg, series, total, escala, etiqueta_y) {
+  const ejes = ejes_convergencia(svg, total, escala, etiqueta_y);
+  if (!ejes) return;
+  svg.innerHTML = ejes.s + series.map(({ valores, color }) =>
+    `<path class="curva" style="stroke: ${color}" d="${escalones(valores, valores.length - 1, ejes.px, ejes.py)}"/>`
+  ).join("");
+}
+
 function texto_potencia(v) {
   const k = Math.round(Math.log10(v));
   if (k >= 0 && k <= 3) return String(Math.pow(10, k));
@@ -242,14 +264,14 @@ function texto_potencia(v) {
   return "10" + String(k).split("").map((c) => sup[c]).join("");
 }
 
-// Escala de la convergencia: logaritmica si ningun valor es negativo. Se calcula con los
-// valores finitos y entre 1e-300 y 1e308: fuera de eso 10^k ya es 0 o Infinity.
-function escala_convergencia(valores) {
+// Escala de la convergencia: logaritmica si ningun valor es negativo (y permitir_log). Se
+// calcula con los valores finitos y entre 1e-300 y 1e308: fuera de eso 10^k ya es 0 o Infinity.
+function escala_convergencia(valores, permitir_log = true) {
   const finitos = valores.filter(Number.isFinite);
   if (!finitos.length) return { tipo: "lineal", min: 0, max: 1 };
   const min = finitos.reduce((a, v) => Math.min(a, v)), max = finitos.reduce((a, v) => Math.max(a, v));
   const positivos = finitos.filter((v) => v > 0);
-  if (min >= 0 && positivos.length) {
+  if (permitir_log && min >= 0 && positivos.length) {
     let a = Math.max(-300, Math.floor(Math.log10(positivos.reduce((p, v) => Math.min(p, v))))),
         b = Math.min(308, Math.max(a, Math.ceil(Math.log10(max))));
     if (a === b) { if (b < 308) b += 1; else a -= 1; }
