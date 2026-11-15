@@ -1,56 +1,57 @@
 # Entorno interactivo de metaheurísticas (MATLAB)
 
-Aplicación en MATLAB (App Designer + paneles HTML/CSS con `uihtml`) para configurar, ejecutar y comparar
-**GA, ACO, PSO, AIS y DE** sobre problemas **continuos, binarios y de permutación (TSP)**, con
-visualización de la convergencia en vivo y exportación de resultados.
+Aplicación en MATLAB para configurar, ejecutar y comparar **GA, ACO, PSO, AIS y DE** sobre problemas 
+**continuos, binarios y de permutación (TSP)**, con visualización de la convergencia en vivo y exportación de resultados.
 
 > Estado: **en organización**. El reparto de trabajo está en [`TAREAS.md`](TAREAS.md).
 > Reglas de código y contrato entre módulos: [`docs/guia_desarrollo.md`](docs/guia_desarrollo.md).
 
 ## Requisitos
-- MATLAB **R2023a o más reciente** (el equipo usa R2026a). Solo se necesita MATLAB base.
-- (Opcional) VS Code con la extensión **MATLAB** de MathWorks (`.vscode/extensions.json` la sugiere).
+- MATLAB **R2023a o más reciente** (usamos R2026a). Solo se necesita MATLAB base.
+- (Opcional) VS Code con la extensión **MATLAB** de MathWorks (`.vscode/extensions.json`).
 
 ## Estructura
-`[listo]` = ya hay código (lo que teníamos, reorganizado). `[falta]` = pendiente, ver `TAREAS.md`.
+
 ```
 Proyecto/
 ├─ src/                                Código de la aplicación (se agrega al path con genpath)
 │  ├─ algoritmos/
-│  │  ├─ pso/               *[listo]*   PSO continuo, binario y TSP; ejemplo del contrato
+│  │  ├─ pso/
 │  │  ├─ ga/                 [falta]
 │  │  ├─ aco/                [falta]
 │  │  ├─ ais/                [falta]
 │  │  ├─ de/                 [falta]
-│  │  └─ comunes/           *[listo]*   crear_parametro, parametros_comunes, decodificar_llaves...
+│  │  └─ comunes/
 │  ├─ problemas/
-│  │  ├─ comun/             *[listo]*   crear_problema (formato único de problema)
-│  │  ├─ continuo/          *[listo]*   funcion_prueba (16 funciones)
+│  │  ├─ comun/
+│  │  ├─ continuo/
 │  │  ├─ binario/            [falta]   OneMax, mochila
 │  │  ├─ permutacion/        [falta]   TSP
 │  │  └─ real/               [falta]   problema de aplicación real (bonus)
-│  ├─ core/utilidades/      *[listo]*   validar_problema, limitar_a_rango
-│  ├─ graficas/             *[listo]*   convergencia y malla de una función 2D
-│  └─ ui/                    interfaz (bloque A)
-│     ├─ pantallas/          un .m por pantalla (puente entre HTML y MATLAB)
-│     ├─ demos/              probar una pantalla sola
-│     └─ web/                HTML/CSS/JS de las pantallas (uihtml)
+│  ├─ core/utilidades/
+│  ├─ graficas/
+│  └─ ui/
+│     ├─ pantallas/
+│     ├─ demos/
+│     └─ web/
 ├─ experimentos/
-│  └─ pso_parametros/       *[listo]*   experimento de w, c1, c2 (main_pso.m)
-├─ extras/bha/                         Black Hole Algorithm: trabajo previo, fuera de la app
+│  └─ pso_parametros/
+├─ extras/bha/
 ├─ datos/                    [falta]   instancias (ciudades TSP, mochila, datos reales)
 └─ tests/                    [falta]   pruebas automáticas (matlab.unittest)
 ```
 
 ## Cómo correr lo que ya existe
-Abrir MATLAB en la carpeta `Proyecto/` y escribir en la ventana de comandos (no en la terminal del
-sistema):
+Abrir MATLAB en la carpeta `Proyecto/` y escribir en la ventana de comandos :
+
 ```matlab
 MetaheuristicasApp                              % la aplicación completa
 run('experimentos/pso_parametros/main_pso.m')   % experimento PSO (tabla + gráficas en resultados/)
 run('extras/bha/main_bha.m')                    % demo BHA en Rastrigin 2D (ver extras/)
 ```
 Cada script agrega `src/` al path por su cuenta.
+
+
 
 ## Trabajo en equipo 
 1. `git clone https://github.com/Kasinfire/Proyecto-Algoritmos.git`
