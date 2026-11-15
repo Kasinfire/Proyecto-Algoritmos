@@ -9,12 +9,23 @@
   background: rgba(17, 19, 40, 0.06);
 }
 .subpasos button {
-  height: 34px; padding: 0 16px; border: 0; border-radius: 17px;
+  height: 34px; padding: 0 16px 0 6px; border: 0; border-radius: 17px;
+  display: inline-flex; align-items: center; gap: 8px;
   background: transparent; color: var(--tinta-2); font-size: 13px; white-space: nowrap;
 }
-.subpasos button:hover:not(:disabled) { color: var(--tinta); }
+/* Numero en circulo como en el riel; al completar el subpaso se cambia por una palomita gris. */
+.subpasos i {
+  width: 22px; height: 22px; border-radius: 11px; display: grid; place-items: center;
+  background: rgba(17, 19, 40, 0.07); font-style: normal; font-size: 11px; font-weight: 500;
+}
+.subpasos button[aria-selected="true"] i { background: #FFFFFF; color: var(--acento); }
+.subpasos button.hecho i {
+  background: rgba(17, 19, 40, 0.07) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234A4D57' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center / 12px no-repeat;
+  color: transparent;
+}
+.subpasos button:hover:not(:disabled):not([aria-selected="true"]) { color: var(--tinta); }
 .subpasos button:disabled { color: var(--apagado); }
-.subpasos button[aria-selected="true"] { background: var(--tinta); color: #FFFFFF; font-weight: 500; }
+.subpasos button[aria-selected="true"] { background: var(--acento); color: #FFFFFF; font-weight: 500; }
 
 .cuerpo-horario {
   flex: 1; min-height: 0;
@@ -143,7 +154,6 @@
 
 /* ---------- Subpaso Materias ---------- */
 
-.subpasos button.hecho::after { content: " ✓"; }
 
 .cuerpo-materias { grid-template-columns: 380px minmax(0, 1fr); }
 
@@ -265,6 +275,107 @@
 .bloque.resaltado { background-color: var(--tinte-fuerte); }
 .bloque.sin-cupo.resaltado { background-color: rgba(17, 19, 40, 0.12); }
 
+/* ---------- Subpaso Preferencias ---------- */
+
+.cuerpo-preferencias { grid-template-columns: 400px minmax(0, 1fr); }
+
+.preferencias { min-height: 0; padding: 20px; display: flex; flex-direction: column; gap: 6px; overflow: hidden auto; }
+.pref-fila {
+  flex: none; display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  min-height: 46px; padding: 6px 8px 6px 14px; border-radius: 16px;
+  background: rgba(17, 19, 40, 0.035); font-size: 13.5px; color: var(--tinta-2);
+}
+.pref-fila > span:first-child, .pref-sub > span { flex: 1; min-width: 0; }
+.pref-columna { flex-direction: column; align-items: stretch; gap: 8px; padding: 10px 14px; }
+.pref-cabeza { display: flex; justify-content: space-between; gap: 12px; }
+.pref-cabeza span { flex: 1; min-width: 0; }
+.pref-cabeza b { font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; font-weight: 500; color: var(--tinta); }
+.pref-grupo { font-weight: 500; color: var(--tinta); }
+.pref-sub { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-right: -6px; }
+
+.ajuste { flex: none; display: flex; align-items: center; gap: 4px; padding: 3px; border-radius: 999px; background: #FFFFFF; }
+.ajuste button {
+  width: 28px; height: 28px; border: 0; border-radius: 14px;
+  background: rgba(17, 19, 40, 0.05); color: var(--tinta); font-size: 15px; line-height: 1;
+}
+.ajuste button:hover:not(:disabled) { background: rgba(17, 19, 40, 0.1); }
+.ajuste button:disabled { color: var(--apagado); background: transparent; }
+.ajuste output {
+  min-width: 54px; text-align: center; color: var(--tinta);
+  font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; font-size: 13.5px;
+}
+
+.dias-libres { display: flex; gap: 4px; }
+.dias-libres button {
+  width: 32px; height: 32px; border: 0; border-radius: 16px;
+  background: #FFFFFF; color: var(--tinta-2); font-size: 12px; font-weight: 500;
+}
+.dias-libres button:hover { background: rgba(217, 83, 25, 0.12); }
+.dias-libres button[aria-pressed="true"] { background: #D95319; color: #FFFFFF; }
+
+.escala { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px; }
+/* Cada barra es un boton de 22 px de alto; solo se pinta la franja de en medio. */
+.escala button {
+  height: 22px; padding: 7px 0; border: 0; border-radius: 11px;
+  background: #E3E7ED content-box; transition: background-color 120ms ease;
+}
+.escala button:hover { background-color: #C9D6E4; }
+.escala button.lleno { background-color: var(--acento); }
+.escala-pie { display: flex; justify-content: space-between; font-size: 11px; color: var(--tinta-3); }
+
+.preferencias .interruptor { cursor: pointer; padding-right: 14px; }
+.pref-texto { flex: 1; }
+
+/* Lo que se minimiza: un castigo por renglon con su peso en pastilla. */
+.objetivo {
+  flex: none; margin-top: auto; padding: 14px 14px 10px; border-radius: 18px;
+  background: var(--acento-suave); display: flex; flex-direction: column; gap: 8px;
+}
+.objetivo-cabeza { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 2px 12px; padding: 0 4px; }
+.objetivo-suma {
+  font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+  font-size: 11.5px; color: var(--acento-oscuro); white-space: nowrap;
+}
+.castigos { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; }
+.castigos li {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  padding: 6px 4px; font-size: 13px; color: var(--tinta-2);
+}
+.castigos li + li { box-shadow: inset 0 1px 0 rgba(0, 114, 189, 0.12); }
+.castigos span { flex: 1; min-width: 0; }
+.castigos b {
+  flex: none; min-width: 44px; padding: 2px 8px; border-radius: 999px; text-align: center;
+  background: #FFFFFF; color: var(--acento-oscuro); font-weight: 500;
+  font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; font-size: 12px;
+}
+.castigos li.regla { color: var(--tinta-3); }
+.castigos li.regla b { background: transparent; color: var(--tinta-3); }
+
+.opciones { min-width: 0; min-height: 0; padding: 22px 24px 20px; display: flex; flex-direction: column; gap: 14px; }
+.opciones .secciones-cabeza > div { flex: none; }
+.leyenda-materias {
+  flex: 1; margin: 0; padding: 0; list-style: none; min-width: 0;
+  display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px 14px;
+}
+.leyenda-materias li { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--tinta-2); white-space: nowrap; }
+.leyenda-materias li::before { content: ""; width: 10px; height: 10px; border-radius: 3px; background: var(--color); }
+
+.semana-opciones .dia-cabeza.libre { color: var(--error); }
+.opcion-bloque {
+  padding: 2px 4px; border-width: 1px; border-radius: 7px; background: var(--color) padding-box;
+  color: #FFFFFF; font-size: 10px; font-weight: 500; line-height: 1.2;
+  white-space: nowrap; text-overflow: clip;
+}
+.opcion-bloque.sin-cupo { background-color: rgba(17, 19, 40, 0.07); color: var(--apagado); text-decoration: none; }
+.semana-opciones .bloque.resaltado { background-color: var(--color); box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.6); }
+.semana-opciones .bloque.sin-cupo.resaltado { background-color: rgba(17, 19, 40, 0.14); }
+.semana-opciones .dia { overflow: hidden; }
+.zona {
+  position: absolute; left: 0; right: 0; pointer-events: none;
+  background-image: repeating-linear-gradient(135deg, rgba(17, 19, 40, 0.1) 0 2px, transparent 2px 8px);
+}
+.zona.libre { background-color: rgba(217, 83, 25, 0.05); background-image: repeating-linear-gradient(135deg, rgba(217, 83, 25, 0.22) 0 2px, transparent 2px 8px); }
+
 /* Barra de abajo: Regresar, estado al centro, Siguiente */
 .acciones { flex-wrap: nowrap; }
 .acciones [role="status"] { text-align: center; }
@@ -279,8 +390,10 @@
   .cifras .grande { font-size: 36px; }
   .cuerpo-materias { grid-template-columns: 330px minmax(0, 1fr); }
   .elegidas { max-height: 220px; }
+  .cuerpo-preferencias { grid-template-columns: 350px minmax(0, 1fr); }
+  .preferencias .pref-fila { font-size: 13px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .interruptor-riel, .interruptor-riel::after, .avance .barra-relleno, .bloque { transition: none; animation: none; }
+  .interruptor-riel, .interruptor-riel::after, .avance .barra-relleno, .bloque, .escala button { transition: none; animation: none; }
 }

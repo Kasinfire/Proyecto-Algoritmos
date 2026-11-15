@@ -4,11 +4,12 @@ function h = pantalla_horario(padre, opciones)
 %
 %   Tiene tres subpasos en la misma pagina (horario.html): 1 Oferta, 2 Materias y
 %   3 Preferencias. Oferta consulta SIIAU (consultar_siiau) o lee una pagina guardada
-%   (leer_oferta_guardada); Materias elige que materias entran al problema. La oferta y
-%   las claves elegidas se quedan aqui, en MATLAB, para armar el problema.
+%   (leer_oferta_guardada); Materias elige que materias entran al problema y Preferencias
+%   dice como se quiere el horario. La oferta, las claves y las preferencias se quedan aqui,
+%   en MATLAB; al terminar se arma el problema con horario.m (src/problemas/real).
 %
 %   padre        : uifigure, uipanel o uigridlayout donde se dibuja
-%   al_continuar : se llamara con el problema armado al terminar Preferencias
+%   al_continuar : se llama con el problema armado y {claves, preferencias} al terminar
 %   al_regresar  : se llama sin argumentos al presionar Regresar o el paso 1 del riel
 %   al_comparar  : se llama sin argumentos al presionar el boton de comparar
 %   seleccion    : lo elegido antes (reservado para restaurar al volver del paso 3)
@@ -28,6 +29,7 @@ function h = pantalla_horario(padre, opciones)
     catalogo = opciones_siiau();
     secciones = struct([]);
     claves = strings(1, 0);
+    preferencias = struct();
 
     h = uihtml(padre, 'HTMLSource', fullfile(raiz, 'src', 'ui', 'web', 'horario.html'));
     if isa(padre, 'matlab.ui.container.GridLayout')
@@ -62,6 +64,11 @@ function h = pantalla_horario(padre, opciones)
                 leer_archivos({fullfile(raiz, ejemplo)});
             case 'materias'
                 claves = string(datos.claves(:)');
+            case 'preferencias'
+                preferencias = datos;
+                preferencias.dias_libres = logical(datos.dias_libres(:)');
+            case 'siguiente'
+                continuar();
             case 'regresar'
                 opciones.al_regresar();
             case 'ir_a_paso'
@@ -107,6 +114,24 @@ function h = pantalla_horario(padre, opciones)
             'titulo', titulo_de(info, catalogo), ...
             'detalle', detalle, ...
             'paginas', info.paginas));
+    end
+
+    % Solo entran las secciones con horario de las materias elegidas: cada una es un bit.
+    function continuar()
+        if exist('horario', 'file') ~= 2
+            sendEventToHTMLSource(h, 'aviso', struct('texto', ...
+                'Falta horario.m en src/problemas/real para armar el problema.'));
+            return;
+        end
+        con_horario = arrayfun(@(s) ~isempty(s.sesiones), secciones);
+        elegidas = secciones(ismember(string({secciones.clave}), claves) & con_horario);
+        try
+            problema = horario(elegidas, preferencias);
+        catch err
+            sendEventToHTMLSource(h, 'aviso', struct('texto', err.message));
+            return;
+        end
+        opciones.al_continuar(problema, struct('claves', claves, 'preferencias', preferencias));
     end
 
     function enviar_y_dibujar(nombre, datos)

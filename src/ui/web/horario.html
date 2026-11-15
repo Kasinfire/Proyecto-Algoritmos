@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="comun/base.css?v=3">
 <link rel="stylesheet" href="comun/paneles.css?v=1">
 <link rel="stylesheet" href="comun/desplegable.css?v=1">
-<link rel="stylesheet" href="horario/horario.css?v=3">
+<link rel="stylesheet" href="horario/horario.css?v=7">
 </head>
 <body>
 <div class="lienzo">
@@ -24,9 +24,9 @@
         <p id="subtitulo">Primero, la oferta académica. La traemos de la consulta pública de SIIAU.</p>
       </div>
       <div class="subpasos" role="tablist" aria-label="Subpasos" id="subpasos">
-        <button type="button" role="tab" data-subpaso="oferta" aria-selected="true" aria-controls="panel-oferta">1 Oferta</button>
-        <button type="button" role="tab" data-subpaso="materias" aria-selected="false" aria-controls="panel-materias" disabled>2 Materias</button>
-        <button type="button" role="tab" data-subpaso="preferencias" aria-selected="false" disabled>3 Preferencias</button>
+        <button type="button" role="tab" data-subpaso="oferta" aria-selected="true" aria-controls="panel-oferta"><i aria-hidden="true">1</i>Oferta</button>
+        <button type="button" role="tab" data-subpaso="materias" aria-selected="false" aria-controls="panel-materias" disabled><i aria-hidden="true">2</i>Materias</button>
+        <button type="button" role="tab" data-subpaso="preferencias" aria-selected="false" aria-controls="panel-preferencias" disabled><i aria-hidden="true">3</i>Preferencias</button>
       </div>
     </header>
 
@@ -142,6 +142,94 @@
       </section>
     </div>
 
+    <div class="cuerpo-horario cuerpo-preferencias" role="tabpanel" id="panel-preferencias" hidden>
+      <section class="tarjeta preferencias" id="preferencias" aria-label="Tus preferencias">
+        <h2 class="grupo-titulo">Tus preferencias</h2>
+        <div class="pref-fila" data-contador="entrada">
+          <span>No entrar antes de</span>
+          <div class="ajuste">
+            <button type="button" data-paso="-1" aria-label="Más temprano">−</button>
+            <output aria-live="polite"></output>
+            <button type="button" data-paso="1" aria-label="Más tarde">+</button>
+          </div>
+        </div>
+        <div class="pref-fila" data-contador="salida">
+          <span>No salir después de</span>
+          <div class="ajuste">
+            <button type="button" data-paso="-1" aria-label="Más temprano">−</button>
+            <output aria-live="polite"></output>
+            <button type="button" data-paso="1" aria-label="Más tarde">+</button>
+          </div>
+        </div>
+        <div class="pref-fila">
+          <span id="dias-libres-etiqueta">Días libres</span>
+          <div class="dias-libres" id="dias-libres" role="group" aria-labelledby="dias-libres-etiqueta">
+            <button type="button" data-dia="0" aria-pressed="false" aria-label="lunes libre">L</button>
+            <button type="button" data-dia="1" aria-pressed="false" aria-label="martes libre">M</button>
+            <button type="button" data-dia="2" aria-pressed="false" aria-label="miércoles libre">I</button>
+            <button type="button" data-dia="3" aria-pressed="false" aria-label="jueves libre">J</button>
+            <button type="button" data-dia="4" aria-pressed="false" aria-label="viernes libre">V</button>
+            <button type="button" data-dia="5" aria-pressed="false" aria-label="sábado libre">S</button>
+          </div>
+        </div>
+        <div class="pref-fila pref-columna">
+          <div class="pref-cabeza"><span id="muertas-etiqueta">Qué tanto te molestan las horas muertas</span><b id="muertas-valor"></b></div>
+          <div class="escala" id="muertas" role="radiogroup" aria-labelledby="muertas-etiqueta">
+              <button type="button" role="radio" data-peso="0" aria-checked="false" aria-label="0"></button>
+              <button type="button" role="radio" data-peso="1" aria-checked="false" aria-label="1"></button>
+              <button type="button" role="radio" data-peso="2" aria-checked="false" aria-label="2"></button>
+              <button type="button" role="radio" data-peso="3" aria-checked="false" aria-label="3"></button>
+              <button type="button" role="radio" data-peso="4" aria-checked="false" aria-label="4"></button>
+              <button type="button" role="radio" data-peso="5" aria-checked="false" aria-label="5"></button>
+          </div>
+          <div class="escala-pie"><span>Me da igual</span><span>Las odio</span></div>
+        </div>
+        <div class="pref-fila pref-columna">
+          <span class="pref-grupo">Carga por día</span>
+        <div class="pref-sub" data-contador="max_materias_dia">
+          <span>Máximo de materias en un día</span>
+          <div class="ajuste">
+            <button type="button" data-paso="-1" aria-label="Menos">−</button>
+            <output aria-live="polite"></output>
+            <button type="button" data-paso="1" aria-label="Más">+</button>
+          </div>
+        </div>
+        <div class="pref-sub" data-contador="max_horas_seguidas">
+          <span>Máximo de horas seguidas</span>
+          <div class="ajuste">
+            <button type="button" data-paso="-1" aria-label="Menos">−</button>
+            <output aria-live="polite"></output>
+            <button type="button" data-paso="1" aria-label="Más">+</button>
+          </div>
+        </div>
+        </div>
+        <label class="pref-fila interruptor">
+          <span class="pref-texto">Solo secciones con cupo</span>
+          <input type="checkbox" id="solo-cupo-pref">
+          <span class="interruptor-riel" aria-hidden="true"></span>
+        </label>
+
+        <div class="objetivo">
+          <div class="objetivo-cabeza">
+            <h2 class="grupo-titulo" id="objetivo-titulo">Qué se va a minimizar</h2>
+            <span class="objetivo-suma">f(x) = Σ peso · castigo</span>
+          </div>
+          <ul class="castigos" id="formula" aria-labelledby="objetivo-titulo"></ul>
+        </div>
+      </section>
+
+      <section class="tarjeta opciones" aria-label="Todas tus opciones">
+        <div class="secciones-cabeza">
+          <div>
+            <span class="grupo-titulo">Todas tus opciones</span>
+            <h2 class="secciones-titulo" id="opciones-titulo"></h2>
+          </div>
+          <ul class="leyenda-materias" id="leyenda" aria-label="Materias"></ul>
+        </div>
+        <div class="semana semana-opciones" id="semana-opciones"></div>
+      </section>
+    </div>
+
     <section class="acciones vidrio" aria-label="Acciones">
       <button type="button" class="boton" id="regresar">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
@@ -160,9 +248,11 @@
 <script src="comun/riel.js?v=3"></script>
 <script src="comun/desplegable.js?v=1"></script>
 <script src="horario/demo.js?v=1"></script>
-<script src="horario/texto.js?v=1"></script>
+<script src="horario/texto.js?v=2"></script>
+<script src="horario/semana.js?v=1"></script>
 <script src="horario/oferta.js?v=3"></script>
-<script src="horario/materias.js?v=1"></script>
-<script src="horario/horario.js?v=2"></script>
+<script src="horario/materias.js?v=2"></script>
+<script src="horario/preferencias.js?v=2"></script>
+<script src="horario/horario.js?v=3"></script>
 </body>
 </html>
