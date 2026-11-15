@@ -41,7 +41,7 @@ Pantallas hechas:
 | `problema_binario.html` + `problema_binario/` | `pantallas/pantalla_problema.m`, `armar_problema_binario.m`, `leer_objetos_csv.m` | 2. problema y datos (binario) |
 | `problema_tsp.html` + `problema_tsp/` | `pantallas/pantalla_problema.m`, `armar_problema_permutacion.m`, `ciudades_al_azar.m`, `leer_ciudades_csv.m` | 2. problema y datos (TSP) |
 | `horario.html` + `horario/` | `pantallas/pantalla_horario.m` (la abre `pantalla_problema` con tipo `real`) y `src/problemas/real/` | 2. problema real: horario del semestre |
-| `algoritmo.html` + `algoritmo/` | `pantallas/pantalla_algoritmo.m`, `algoritmos_de_tipo.m`, `parametros_para_ui.m`, `armar_parametros.m` | 3. algoritmo y parámetros |
+| `algoritmo.html` + `algoritmo/` | `pantallas/pantalla_algoritmo.m`, `algoritmos_de_tipo.m`, `parametros_para_ui.m`, `armar_parametros.m`, `algoritmos_para_horario.m` | 3. algoritmo y parámetros |
 | `ejecucion.html` + `ejecucion/` | `pantallas/pantalla_ejecucion.m`, `pantallas/mapa_de_busqueda.m` | 4. ejecución |
 | `resultados.html` + `resultados/` | `pantallas/pantalla_resultados.m`, `exportar_resultado.m` | 5. resultados |
 | `comparar.html` + `comparar/` | `pantallas/pantalla_comparar.m`, `exportar_comparacion.m` | comparar ejecuciones (botón del riel) |
@@ -104,7 +104,16 @@ la representación del problema. Las tarjetas salen de `parametros_<id>(represen
 (tipo, valor, rango); `parametros_para_ui.m` les pone etiquetas cortas con acentos y marca
 los que dependen de una opción (k del torneo, alfa de BLX). Un parámetro nuevo que no esté
 en su tabla aparece igual, con la etiqueta de su definición. Al presionar Ejecutar,
-`armar_parametros.m` vuelve a validar y entrega el struct `params` completo.
+`armar_parametros.m` vuelve a validar y entrega el struct `params` completo. Junto al
+nombre del algoritmo, una pastilla resume su flujo con las opciones elegidas (GA) o cómo
+pasa de números a bits o ruta (PSO y DE); en continuo, PSO y DE no la muestran.
+
+Con el horario (tipo `real`) es la misma pantalla: el problema es binario y
+`algoritmos_para_horario.m` cambia las notas y ayudas para hablar de horarios y secciones y
+deja los no disponibles al final. Arriba aparecen el problema, `n` y el sentido, y al pie
+el presupuesto de
+evaluaciones (`tam × (iteraciones + 1)`) para comparar GA, PSO y DE con el mismo. En el
+navegador sin MATLAB se ve con `algoritmo.html?horario`.
 
 ## Caché de uihtml
 uihtml guarda en caché los CSS y JS mientras MATLAB está abierto. Por eso los enlaces
@@ -116,7 +125,7 @@ En MATLAB, desde `Proyecto/`:
 ```matlab
 addpath(genpath('src')); demo_pantalla_tipo
 addpath(genpath('src')); demo_pantalla_problema          % o ('binario'), ('permutacion') o ('real')
-addpath(genpath('src')); demo_pantalla_algoritmo         % o demo_pantalla_algoritmo('ackley', 10)
+addpath(genpath('src')); demo_pantalla_algoritmo         % o ('ackley', 10) u ('horario')
 addpath(genpath('src')); demo_pantalla_ejecucion         % o demo_pantalla_ejecucion('ackley', 5, 'de')
 addpath(genpath('src')); demo_pantalla_resultados        % o demo_pantalla_resultados('ackley', 5, 'de')
 addpath(genpath('src')); demo_pantalla_comparar

@@ -12,6 +12,9 @@ function h = pantalla_algoritmo(padre, problema, opciones)
 %   al_comparar  : se llama sin argumentos al presionar el boton de comparar
 %   seleccion    : struct con id y valores (struct de parametros) para restaurar
 %   n_guardadas  : ejecuciones guardadas (contador del boton de comparar)
+%   tipo         : lo elegido en el paso 1. Con 'real' (el horario) los textos hablan de
+%                  horarios y la pantalla muestra el presupuesto de evaluaciones
+%   config       : lo que regreso el paso 2 (en el horario, las claves de las materias)
 %
 %   h : el componente uihtml. Requiere MATLAB R2023a o mas reciente.
 
@@ -24,6 +27,8 @@ function h = pantalla_algoritmo(padre, problema, opciones)
         opciones.al_comparar function_handle = @() []
         opciones.seleccion struct = struct()
         opciones.n_guardadas (1,1) double = 0
+        opciones.tipo char = ''
+        opciones.config struct = struct()
     end
 
     carpeta_web = fullfile(fileparts(fileparts(mfilename('fullpath'))), 'web');
@@ -63,11 +68,21 @@ function atender(h, evento, problema, opciones)
 end
 
 function datos = datos_iniciales(problema, opciones)
+    algoritmos = algoritmos_de_tipo(problema.representacion);
+    horario = struct();
+    if strcmp(opciones.tipo, 'real')
+        algoritmos = algoritmos_para_horario(algoritmos);
+        materias = 0;
+        if isfield(opciones.config, 'claves'), materias = numel(opciones.config.claves); end
+        horario = struct('materias', materias);
+    end
     datos = struct( ...
         'problema', struct('nombre', problema.nombre, ...
                            'representacion', problema.representacion, ...
-                           'dim', problema.dim), ...
-        'algoritmos', algoritmos_de_tipo(problema.representacion), ...
+                           'dim', problema.dim, ...
+                           'sentido', problema.sentido), ...
+        'algoritmos', algoritmos, ...
+        'horario', horario, ...
         'seleccion', opciones.seleccion, ...
         'n_guardadas', opciones.n_guardadas);
 end
