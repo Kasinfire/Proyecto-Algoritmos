@@ -24,14 +24,15 @@ function resultado = pso(problema, params, al_cada_iteracion)
     signo = 1 - 2 * strcmp(problema.sentido, 'max');
     costo = @(x) signo * problema.f(x);
 
-    [lb, ub, vmax] = espacio_busqueda(problema, params);
+    [lb, ub] = espacio_busqueda(problema);
+    vmax = velocidad_maxima(problema, params, lb, ub);
     [X, V] = inicializar_enjambre(params.n_particulas, lb, ub, vmax);
     if strcmp(problema.representacion, 'binario')
         X = double(X > 0.5);
     end
 
-    poblacion = decodificar(X, problema.representacion);
-    costo_actual = evaluar_enjambre(poblacion, costo);
+    poblacion = decodificar_solucion(X, problema.representacion);
+    costo_actual = evaluar_individuos(poblacion, costo);
     evaluaciones = params.n_particulas;
 
     pbest = X;
@@ -50,8 +51,8 @@ function resultado = pso(problema, params, al_cada_iteracion)
             V = actualizar_velocidad(V, X, pbest, gbest, params, vmax);
             [X, V] = mover_enjambre(X, V, lb, ub, problema.representacion);
 
-            poblacion = decodificar(X, problema.representacion);
-            costo_actual = evaluar_enjambre(poblacion, costo);
+            poblacion = decodificar_solucion(X, problema.representacion);
+            costo_actual = evaluar_individuos(poblacion, costo);
             evaluaciones = evaluaciones + params.n_particulas;
 
             [pbest, pbest_costo] = actualizar_mejores_personales( ...
@@ -68,7 +69,7 @@ function resultado = pso(problema, params, al_cada_iteracion)
             end
         end
 
-        mejor_solucion = decodificar(gbest, problema.representacion);
+        mejor_solucion = decodificar_solucion(gbest, problema.representacion);
         hist_valor(t + 1) = signo * gbest_costo;
         hist_solucion(t + 1, :) = mejor_solucion;
         hist_poblacion{t + 1} = poblacion;
@@ -107,21 +108,13 @@ function resultado = pso(problema, params, al_cada_iteracion)
 end
 
 % -------------------------------------------------------------------------
-function [lb, ub, vmax] = espacio_busqueda(problema, params)
-% Limites del espacio donde se mueven las particulas y su velocidad maxima.
-    switch problema.representacion
-        case 'continuo'
-            lb = problema.lb;
-            ub = problema.ub;
-            vmax = params.fraccion_vmax * (ub - lb);
-        case 'binario'
-            lb = zeros(1, problema.dim);
-            ub = ones(1, problema.dim);
-            vmax = params.vmax * ones(1, problema.dim);
-        case 'permutacion'
-            lb = zeros(1, problema.dim);
-            ub = ones(1, problema.dim);
-            vmax = params.fraccion_vmax * (ub - lb);
+function vmax = velocidad_maxima(problema, params, lb, ub)
+% En binario vmax es un limite absoluto (la velocidad es una probabilidad via sigmoide);
+% en continuo y permutacion es una fraccion del rango.
+    if strcmp(problema.representacion, 'binario')
+        vmax = params.vmax * ones(1, problema.dim);
+    else
+        vmax = params.fraccion_vmax * (ub - lb);
     end
 end
 
@@ -130,13 +123,5 @@ function [X, V] = mover_enjambre(X, V, lb, ub, representacion)
         X = actualizar_posicion_binaria(V);
     else
         [X, V] = actualizar_posicion(X, V, lb, ub);
-    end
-end
-
-function soluciones = decodificar(X, representacion)
-    if strcmp(representacion, 'permutacion')
-        soluciones = decodificar_llaves(X);
-    else
-        soluciones = X;
     end
 end
