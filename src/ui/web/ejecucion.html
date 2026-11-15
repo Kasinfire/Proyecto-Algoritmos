@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ejecución</title>
+<link rel="stylesheet" href="comun/fuentes/geist.css?v=3">
+<link rel="stylesheet" href="comun/base.css?v=3">
+<link rel="stylesheet" href="ejecucion/ejecucion.css?v=1">
+</head>
+<body>
+<div class="lienzo">
+  <div class="mancha mancha-izq" aria-hidden="true"></div>
+  <div class="mancha mancha-der" aria-hidden="true"></div>
+
+  <nav class="riel vidrio" aria-label="Pasos" id="riel"></nav>
+
+  <main class="principal">
+    <header class="encabezado">
+      <h1 id="titulo">Ejecución</h1>
+      <p id="subtitulo">Ejecutando el algoritmo…</p>
+    </header>
+
+    <div class="cuerpo">
+      <section class="escenario" aria-label="Espacio de búsqueda" id="escenario">
+        <img class="mapa-imagen" id="mapa-imagen" alt="" hidden>
+        <canvas class="mapa-lienzo" id="mapa"></canvas>
+        <div class="barra-color" id="barra-color" aria-hidden="true" hidden>
+          <span id="z-max"></span><i id="degradado"></i><span id="z-min"></span>
+        </div>
+        <ul class="leyenda" id="leyenda" hidden>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z" fill="#D95319" stroke="#FFFFFF" stroke-width="1.6" stroke-linejoin="round"/></svg>mejor global</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7" fill="#FFFFFF" stroke="#111113" stroke-width="2"/></svg><span id="leyenda-poblacion"></span></li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12h20" stroke="#111113" stroke-width="2" stroke-dasharray="3 3"/></svg>ruta del mejor</li>
+        </ul>
+        <p class="escenario-mensaje" id="mensaje-mapa"></p>
+      </section>
+
+      <div class="columna">
+        <section class="tarjeta lecturas" aria-label="Lecturas">
+          <div class="lectura">
+            <span class="etiqueta">Iteración</span>
+            <span class="grande"><span id="iteracion">0</span><span class="total">/<span id="total">0</span></span></span>
+          </div>
+          <div class="lectura">
+            <span class="etiqueta" id="etiqueta-mejor">Mejor f</span>
+            <span class="grande" id="mejor">–</span>
+            <span class="nota" id="cambio"></span>
+          </div>
+          <div class="lectura">
+            <span class="etiqueta" id="etiqueta-posicion">Mejor posición</span>
+            <span class="mediana" id="posicion">–</span>
+            <span class="nota" id="distancia"></span>
+          </div>
+          <div class="lectura">
+            <span class="etiqueta" id="etiqueta-parametros">Parámetros</span>
+            <span class="mediana" id="parametros"></span>
+            <button type="button" class="enlace" id="ver-configuracion" aria-expanded="false" aria-controls="configuracion">Configuración completa →</button>
+          </div>
+
+          <div class="configuracion" id="configuracion" role="dialog" aria-labelledby="titulo-configuracion" hidden>
+            <div class="configuracion-cabeza">
+              <h2 id="titulo-configuracion">Configuración completa</h2>
+              <button type="button" class="boton-cerrar" id="cerrar-configuracion" aria-label="Cerrar">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+              </button>
+            </div>
+            <dl class="configuracion-lista" id="lista-configuracion"></dl>
+          </div>
+        </section>
+
+        <section class="tarjeta progreso" aria-label="Progreso">
+          <h2>Convergencia</h2>
+          <div class="convergencia"><svg id="convergencia" role="img" aria-label="Convergencia del mejor valor"></svg></div>
+          <h2>Momentos de la búsqueda</h2>
+          <div class="momentos" id="momentos"></div>
+        </section>
+      </div>
+    </div>
+
+    <section class="dock vidrio" aria-label="Reproducción">
+      <button type="button" class="boton-redondo" id="reiniciar" title="Volver al inicio" aria-label="Volver al inicio">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4.5h4.5"/></svg>
+      </button>
+      <span class="divisor" aria-hidden="true"></span>
+      <div class="reproductor">
+        <button type="button" class="boton-paso" id="anterior" aria-label="Iteración anterior">
+          <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5v14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M19 5.5v13L9 12z" fill="currentColor"/></svg>
+        </button>
+        <button type="button" class="boton-play" id="reproducir" aria-label="Reproducir">
+          <svg class="icono-play" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l12.5-7.5z" fill="currentColor"/></svg>
+          <svg class="icono-pausa" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5v14M17 5v14" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/></svg>
+        </button>
+        <button type="button" class="boton-paso" id="siguiente" aria-label="Iteración siguiente">
+          <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 5v14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M5 5.5v13L15 12z" fill="currentColor"/></svg>
+        </button>
+      </div>
+      <button type="button" class="boton boton-detener" id="detener">
+        <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><rect width="10" height="10" rx="2" fill="currentColor"/></svg>
+        Detener
+      </button>
+
+      <div class="linea-tiempo">
+        <div class="hitos" id="hitos"></div>
+        <div class="pista" id="pista" role="slider" tabindex="0" aria-label="Iteración"
+             aria-valuemin="0" aria-valuemax="0" aria-valuenow="0">
+          <span class="regla" id="regla" aria-hidden="true"></span>
+          <span class="carril" aria-hidden="true"><span class="avance" id="avance"></span><span class="vedado" id="vedado"></span></span>
+          <span class="perilla" id="perilla" aria-hidden="true"></span>
+        </div>
+      </div>
+
+      <div class="estado" role="status" id="estado">Ejecutando…</div>
+      <div class="dock-botones">
+        <button type="button" class="boton" id="regresar">Regresar</button>
+        <button type="button" class="boton boton-primario" id="resultados" disabled>
+          Ver resultados
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="comun/puente.js?v=3"></script>
+<script src="comun/riel.js?v=3"></script>
+<script src="ejecucion/demo.js?v=2"></script>
+<script src="ejecucion/dibujo.js?v=2"></script>
+<script src="ejecucion/ejecucion.js?v=3"></script>
+</body>
+</html>

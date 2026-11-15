@@ -1,0 +1,181 @@
+function h = pantalla_ejecucion(padre, problema, id, params, opciones)
+% PANTALLA_EJECUCION  Pantalla 4 del flujo: corre el algoritmo y reproduce la busqueda (HTML en uihtml).
+%   h = pantalla_ejecucion(padre, problema, 'pso', params)
+%   h = pantalla_ejecucion(padre, problema, 'pso', params, al_ver_resultados=@(resultado) ...)
+%
+%   padre             : uifigure, uipanel o uigridlayout donde se dibuja
+%   problema          : struct de crear_problema (lo armado en el paso 2)
+%   id, params        : algoritmo ('pso', ...) y parametros elegidos en el paso 3
+%   al_ver_resultados : se llama con el struct resultado al presionar Ver resultados. Si se
+%                       presiono Detener, el resultado termina en esa iteracion.
+%   al_regresar       : se llama sin argumentos al presionar Regresar o el paso 3 del riel
+%   al_ir_a_paso      : se llama con 0 (tipo) o 1 (problema) al presionar esos pasos del riel
+%   al_comparar       : se llama sin argumentos al presionar el boton de comparar
+%   n_guardadas       : ejecuciones guardadas (contador del boton de comparar)
+%
+%   El algoritmo corre completo en MATLAB al abrir la pantalla y el HTML solo reproduce
+%   resultado.historial; por eso se puede pausar, adelantar y regresar.
+%   h : el componente uihtml. Requiere MATLAB R2023a o mas reciente.
+
+    arguments
+        padre
+        problema struct
+        id {mustBeTextScalar}
+        params struct
+        opciones.al_ver_resultados function_handle = @(resultado) []
+        opciones.al_regresar function_handle = @() []
+        opciones.al_ir_a_paso function_handle = @(paso) []
+        opciones.al_comparar function_handle = @() []
+        opciones.n_guardadas (1,1) double = 0
+    end
+
+    carpeta_web = fullfile(fileparts(fileparts(mfilename('fullpath'))), 'web');
+    h = uihtml(padre, 'HTMLSource', fullfile(carpeta_web, 'ejecucion.html'));
+    if isa(padre, 'matlab.ui.container.GridLayout')
+        h.Layout.Row = 1;
+        h.Layout.Column = 1;
+    else
+        h.Position = [0 0 padre.Position(3:4)];
+    end
+    h.HTMLEventReceivedFcn = @(~, evento) atender(h, evento, problema, char(id), params, opciones);
+end
+
+function atender(h, evento, problema, id, params, opciones)
+    datos = evento.HTMLEventData;
+    switch evento.HTMLEventName
+        case 'lista'
+            try
+                resultado = feval(id, problema, params);
+            catch err
+                sendEventToHTMLSource(h, 'aviso', struct('texto', err.message));
+                return;
+            end
+            h.UserData = resultado;
+            sendEventToHTMLSource(h, 'datos', datos_ejecucion(resultado, id, opciones.n_guardadas));
+        case 'resultados'
+            resultado = h.UserData;
+            if datos.iteracion < resultado.iteraciones
+                % Misma semilla, misma busqueda: se repite cortando en la iteracion elegida.
+                resultado = feval(id, problema, params, @(estado) estado.iteracion >= datos.iteracion);
+            end
+            opciones.al_ver_resultados(resultado);
+        case 'regresar'
+            opciones.al_regresar();
+        case 'ir_a_paso'
+            if datos.paso == 2
+                opciones.al_regresar();
+            else
+                opciones.al_ir_a_paso(datos.paso);
+            end
+        case 'comparar'
+            opciones.al_comparar();
+    end
+end
+
+function datos = datos_ejecucion(resultado, id, n_guardadas)
+    problema = resultado.problema;
+    hist = resultado.historial;
+    [cuadros, paso] = muestra_poblacion(hist.poblacion, min(2, problema.dim));
+
+    % Del mejor solo se muestran tres coordenadas; la distancia al optimo se calcula aqui
+    % para no mandar las dim columnas de cada iteracion.
+    if numel(problema.x_optimo) == problema.dim
+        distancia = redondear(vecnorm(hist.mejor_solucion - problema.x_optimo, 2, 2));
+    else
+        distancia = [];
+    end
+
+    if strcmp(problema.representacion, 'continuo')
+        mapa = mapa_de_busqueda(problema, resultado.mejor_solucion);
+    else
+        mapa = struct('tipo', 'ninguno');
+    end
+
+    datos = struct( ...
+        'algoritmo', algoritmo_para_ui(id), ...
+        'problema', struct('nombre', problema.nombre, 'dim', problema.dim, ...
+            'lb', problema.lb(1), 'ub', problema.ub(1), 'sentido', problema.sentido, ...
+            'representacion', problema.representacion, ...
+            'f_optimo', problema.f_optimo, 'x_optimo', problema.x_optimo), ...
+        'parametros', parametros_resumen(id, problema.representacion, resultado.params), ...
+        'iteraciones', resultado.iteraciones, ...
+        'motivo', resultado.motivo_termino, ...
+        'historial', struct( ...
+            'mejor_valor', {con_infinitos(redondear(hist.mejor_valor))}, ...
+            'mejor_solucion', {num2cell(redondear(hist.mejor_solucion(:, 1:min(3, end))), 2)}, ...
+            'distancia', {distancia}, ...
+            'poblacion', {cuadros}, ...
+            'paso_poblacion', paso, ...
+            'n_individuos', size(hist.poblacion{1}, 1)), ...
+        'mapa', mapa, ...
+        'n_guardadas', n_guardadas);
+end
+
+function algoritmo = algoritmo_para_ui(id)
+% nombre para el titulo, como se llama a cada solucion y si conserva su identidad entre
+% iteraciones (entonces el HTML puede animar el movimiento de una a otra).
+    catalogo = {
+        'ga',  'Algoritmo genético',     'GA',  'individuos',  'x*', false
+        'aco', 'Colonia de hormigas',    'ACO', 'hormigas',    'x*', false
+        'pso', 'Enjambre de partículas', 'PSO', 'partículas',  'g',  true
+        'ais', 'Sistema inmune',         'AIS', 'anticuerpos', 'x*', false
+        'de',  'Evolución diferencial',  'DE',  'vectores',    'x*', true
+    };
+    fila = catalogo(strcmp(catalogo(:, 1), id), :);
+    if isempty(fila)
+        fila = {id, upper(id), upper(id), 'soluciones', 'x*', false};
+    end
+    algoritmo = cell2struct(fila', {'id', 'nombre', 'siglas', 'individuos', 'simbolo', 'continuidad'});
+end
+
+function lista = parametros_resumen(id, representacion, params)
+% Etiqueta, simbolo corto (lo que va entre parentesis al final de la etiqueta, si es
+% corto: 'Inercia (w)' -> 'w') y valor usado.
+    defs = feval(['parametros_' id], representacion);
+    if exist('parametros_para_ui', 'file') == 2
+        defs = parametros_para_ui(defs);
+    end
+    comunes = {parametros_comunes().nombre};
+    lista = struct('nombre', {}, 'etiqueta', {}, 'corta', {}, 'valor', {}, 'comun', {});
+    for k = 1:numel(defs)
+        nombre = defs(k).nombre;
+        corta = regexp(defs(k).etiqueta, '\(([^()]{1,4})\)$', 'tokens', 'once');
+        if isempty(corta), corta = {''}; end
+        lista(end + 1) = struct('nombre', nombre, ...
+            'etiqueta', strtrim(regexprep(defs(k).etiqueta, '\([^()]{1,4}\)$', '')), ...
+            'corta', corta{1}, 'valor', params.(nombre), ...
+            'comun', any(strcmp(comunes, nombre))); %#ok<AGROW>
+    end
+end
+
+function [cuadros, paso] = muestra_poblacion(poblacion, n_ejes)
+% Con 1000 individuos y 10000 iteraciones el historial completo pesa cientos de MB y
+% uihtml no lo aguanta. Se manda a lo mas MAX_INDIVIDUOS por iteracion (siempre los
+% mismos, para que la animacion siga a cada uno) y, si aun no cabe en MAX_PUNTOS, una
+% iteracion cada `paso` mas la ultima. A esa velocidad de reproduccion no se nota.
+    MAX_INDIVIDUOS = 500;
+    MAX_PUNTOS = 3e5;
+    n = numel(poblacion);
+    por_cuadro = min(max(cellfun(@(P) size(P, 1), poblacion)), MAX_INDIVIDUOS);
+    paso = max(1, ceil(n * por_cuadro / MAX_PUNTOS));
+    indices = unique([1:paso:n, n]);
+    cuadros = cell(numel(indices), 1);
+    for k = 1:numel(indices)
+        P = poblacion{indices(k)};
+        filas = unique(round(linspace(1, size(P, 1), min(size(P, 1), MAX_INDIVIDUOS))));
+        cuadros{k} = redondear(P(filas, 1:n_ejes));
+    end
+end
+
+% jsonencode convierte Inf y NaN en null; como texto, Number() de JS los recupera.
+function v = con_infinitos(v)
+    malos = ~isfinite(v);
+    if ~any(malos), return; end
+    texto = cellstr(strrep(string(v(malos)), "Inf", "Infinity"));
+    v = num2cell(v);
+    v(malos) = texto;
+end
+
+function v = redondear(v)
+    v = round(v, 6, 'significant');
+end
