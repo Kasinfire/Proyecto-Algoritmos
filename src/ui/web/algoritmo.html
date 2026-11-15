@@ -6,7 +6,7 @@
 <title>Algoritmo</title>
 <link rel="stylesheet" href="comun/fuentes/geist.css?v=3">
 <link rel="stylesheet" href="comun/base.css?v=3">
-<link rel="stylesheet" href="algoritmo/algoritmo.css?v=1">
+<link rel="stylesheet" href="algoritmo/algoritmo.css?v=2">
 </head>
 <body>
 <div class="lienzo">
@@ -16,9 +16,12 @@
   <nav class="riel vidrio" aria-label="Pasos" id="riel"></nav>
 
   <main class="principal">
-    <header class="encabezado">
-      <h1>Elige el algoritmo</h1>
-      <p id="subtitulo"></p>
+    <header class="encabezado encabezado-fila">
+      <div>
+        <h1>Elige el algoritmo</h1>
+        <p id="subtitulo"></p>
+      </div>
+      <ul class="etiquetas" aria-label="Problema" id="etiquetas" hidden></ul>
     </header>
 
     <div class="cuerpo">
@@ -27,10 +30,18 @@
       <section class="configuracion" aria-labelledby="nombre">
         <div class="configuracion-cabeza">
           <h2 id="nombre"></h2>
-          <button type="button" class="enlace" id="por-defecto" hidden>Valores por defecto</button>
+          <div class="configuracion-extra">
+            <span class="flujo" id="flujo" hidden></span>
+            <button type="button" class="enlace" id="por-defecto" hidden>Valores por defecto</button>
+          </div>
         </div>
         <p class="configuracion-descripcion" id="descripcion"></p>
         <div class="parametros" id="parametros"></div>
+        <div class="presupuesto" id="presupuesto" hidden>
+          <span class="presupuesto-titulo">Presupuesto</span>
+          <span id="presupuesto-cuenta"></span>
+          <span class="presupuesto-nota" id="presupuesto-nota"></span>
+        </div>
       </section>
     </div>
 
@@ -54,7 +65,7 @@
 <script src="comun/riel.js?v=3"></script>
 <script src="comun/numeros.js?v=1"></script>
 <script src="algoritmo/iconos.js?v=1"></script>
-<script src="algoritmo/demo.js?v=1"></script>
-<script src="algoritmo/algoritmo.js?v=1"></script>
+<script src="algoritmo/demo.js?v=2"></script>
+<script src="algoritmo/algoritmo.js?v=3"></script>
 </body>
 </html>
