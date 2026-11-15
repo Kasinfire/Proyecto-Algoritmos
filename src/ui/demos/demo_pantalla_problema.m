@@ -4,6 +4,7 @@ function fig = demo_pantalla_problema(tipo)
 %       addpath(genpath('src')); demo_pantalla_problema            % continuo
 %       addpath(genpath('src')); demo_pantalla_problema('binario')
 %       addpath(genpath('src')); demo_pantalla_problema('permutacion')
+%       addpath(genpath('src')); demo_pantalla_problema('real')         % horario (SIIAU)
 
     if nargin < 1, tipo = 'continuo'; end
 
