@@ -3,9 +3,9 @@ function h = pantalla_horario(padre, opciones)
 %   h = pantalla_horario(padre, al_regresar=@() ..., n_guardadas=0)
 %
 %   Tiene tres subpasos en la misma pagina (horario.html): 1 Oferta, 2 Materias y
-%   3 Preferencias. Por ahora esta hecho Oferta: la oferta se consulta en SIIAU
-%   (consultar_siiau) o se lee de una pagina guardada (leer_oferta_guardada) y se queda
-%   aqui, en MATLAB, para los siguientes subpasos.
+%   3 Preferencias. Oferta consulta SIIAU (consultar_siiau) o lee una pagina guardada
+%   (leer_oferta_guardada); Materias elige que materias entran al problema. La oferta y
+%   las claves elegidas se quedan aqui, en MATLAB, para armar el problema.
 %
 %   padre        : uifigure, uipanel o uigridlayout donde se dibuja
 %   al_continuar : se llamara con el problema armado al terminar Preferencias
@@ -27,6 +27,7 @@ function h = pantalla_horario(padre, opciones)
     ejemplo = fullfile('datos', 'siiau', 'oferta_info_202620.html');
     catalogo = opciones_siiau();
     secciones = struct([]);
+    claves = strings(1, 0);
 
     h = uihtml(padre, 'HTMLSource', fullfile(raiz, 'src', 'ui', 'web', 'horario.html'));
     if isa(padre, 'matlab.ui.container.GridLayout')
@@ -59,6 +60,8 @@ function h = pantalla_horario(padre, opciones)
                 leer_archivos(fullfile(carpeta, cellstr(archivos)));
             case 'usar_ejemplo'
                 leer_archivos({fullfile(raiz, ejemplo)});
+            case 'materias'
+                claves = string(datos.claves(:)');
             case 'regresar'
                 opciones.al_regresar();
             case 'ir_a_paso'
