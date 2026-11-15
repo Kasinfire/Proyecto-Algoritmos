@@ -5,18 +5,27 @@ function h = pantalla_problema(padre, tipo, opciones)
 %
 %   padre        : uifigure, uipanel o uigridlayout donde se dibuja
 %   tipo         : 'continuo', 'binario' o 'permutacion' (lo elegido en el paso 1)
-%   al_continuar : se llama con el struct problema (crear_problema) al presionar Siguiente
+%   al_continuar : se llama con el struct problema (crear_problema) y la configuracion
+%                  que mando el HTML al presionar Siguiente. La configuracion sirve como
+%                  seleccion para restaurar la pantalla despues.
 %   al_regresar  : se llama sin argumentos al presionar Regresar o el paso 1 del riel
 %   al_comparar  : se llama sin argumentos al presionar el boton de comparar
-%   seleccion    : struct con id, dim, lb, ub y sentido para restaurar (al volver del paso 3)
+%   seleccion    : lo que se eligio antes, para restaurarlo (al volver del paso 3):
+%                  continuo -> id, dim, lb, ub y sentido
+%                  binario  -> id y dim (OneMax) o pesos, valores y capacidad (mochila)
+%                  permutacion -> id, dim y semilla (al azar) o x e y (de un CSV)
 %   n_guardadas  : ejecuciones guardadas (contador del boton de comparar)
 %
 %   h : el componente uihtml. Requiere MATLAB R2023a o mas reciente.
+%
+%   Los problemas binarios y de permutacion usan su propia pagina: en vez de rango y
+%   superficie se editan los objetos de la mochila o los bits de OneMax
+%   (problema_binario.html), o las ciudades del TSP (problema_tsp.html).
 
     arguments
         padre
         tipo {mustBeMember(tipo, {'continuo', 'binario', 'permutacion'})}
-        opciones.al_continuar function_handle = @(problema) []
+        opciones.al_continuar function_handle = @(problema, config) []
         opciones.al_regresar function_handle = @() []
         opciones.al_comparar function_handle = @() []
         opciones.seleccion struct = struct()
@@ -24,7 +33,10 @@ function h = pantalla_problema(padre, tipo, opciones)
     end
 
     carpeta_web = fullfile(fileparts(fileparts(mfilename('fullpath'))), 'web');
-    h = uihtml(padre, 'HTMLSource', fullfile(carpeta_web, 'problema.html'));
+    paginas = struct('continuo', 'problema.html', 'binario', 'problema_binario.html', ...
+                     'permutacion', 'problema_tsp.html');
+    pagina = paginas.(tipo);
+    h = uihtml(padre, 'HTMLSource', fullfile(carpeta_web, pagina));
     if isa(padre, 'matlab.ui.container.GridLayout')
         h.Layout.Row = 1;
         h.Layout.Column = 1;
@@ -41,18 +53,74 @@ function atender(h, evento, tipo, opciones)
             sendEventToHTMLSource(h, 'datos', datos_iniciales(tipo, opciones));
         case 'siguiente'
             try
-                problema = armar_problema(datos);
+                switch tipo
+                    case 'binario'
+                        problema = armar_problema_binario(datos);
+                    case 'permutacion'
+                        problema = armar_problema_permutacion(datos);
+                    otherwise
+                        problema = armar_problema(datos);
+                end
             catch err
                 sendEventToHTMLSource(h, 'aviso', struct('texto', err.message));
                 return;
             end
-            opciones.al_continuar(problema);
+            opciones.al_continuar(problema, datos);
         case 'regresar'
             opciones.al_regresar();
         case 'ir_a_paso'
             if datos.paso == 0, opciones.al_regresar(); end
         case 'comparar'
             opciones.al_comparar();
+        case 'cargar_csv'
+            if strcmp(tipo, 'permutacion')
+                cargar_ciudades(h);
+            else
+                cargar_objetos(h);
+            end
+        case 'generar'
+            [x, y] = ciudades_al_azar(datos.dim, datos.semilla);
+            sendEventToHTMLSource(h, 'ciudades', struct('x', x, 'y', y, ...
+                'dim', datos.dim, 'semilla', datos.semilla, 'archivo', ''));
+    end
+end
+
+% Los objetos de la mochila desde un CSV; la capacidad se queda como estaba.
+function cargar_objetos(h)
+    ruta = elegir_csv(h, 'Objetos de la mochila');
+    if isempty(ruta), return; end
+    try
+        [pesos, valores] = leer_objetos_csv(ruta);
+    catch err
+        sendEventToHTMLSource(h, 'aviso', struct('texto', err.message));
+        return;
+    end
+    sendEventToHTMLSource(h, 'objetos', struct('pesos', pesos, 'valores', valores));
+end
+
+function cargar_ciudades(h)
+    ruta = elegir_csv(h, 'Ciudades del TSP');
+    if isempty(ruta), return; end
+    try
+        [x, y] = leer_ciudades_csv(ruta);
+    catch err
+        sendEventToHTMLSource(h, 'aviso', struct('texto', err.message));
+        return;
+    end
+    [~, nombre, extension] = fileparts(ruta);
+    sendEventToHTMLSource(h, 'ciudades', struct('x', x, 'y', y, ...
+        'dim', numel(x), 'semilla', [], 'archivo', [nombre extension]));
+end
+
+% Ruta del CSV elegido, o '' si se cancelo.
+function ruta = elegir_csv(h, titulo)
+    carpeta_datos = fullfile(fileparts(fileparts(fileparts(fileparts(mfilename('fullpath'))))), 'datos');
+    [archivo, carpeta] = uigetfile({'*.csv', 'CSV (*.csv)'}, titulo, [carpeta_datos filesep]);
+    figure(ancestor(h, 'figure'));
+    if isequal(archivo, 0)
+        ruta = '';
+    else
+        ruta = fullfile(carpeta, archivo);
     end
 end
 

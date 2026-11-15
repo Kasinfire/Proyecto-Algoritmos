@@ -8,15 +8,16 @@ function problemas = problemas_de_tipo(tipo)
 %               f_optimo trae un valor por dimension (f_optimo(n), NaN si no se conoce);
 %               x_optimo es el optimo con dim_defecto. disponible es false cuando la
 %               funcion del problema todavia no existe en src/.
+%               Los binarios traen ademas datos (la mochila de ejemplo: pesos, valores
+%               y capacidad) y el TSP la semilla de su instancia de ejemplo.
 
     switch tipo
         case 'continuo'
             problemas = continuos();
         case 'binario'
-            problemas = pendientes({'onemax', 'OneMax', 'f(x) = Σ xᵢ'; ...
-                                    'mochila', 'Mochila', 'f(x) = Σ vᵢxᵢ  con  Σ wᵢxᵢ ≤ C'});
+            problemas = binarios();
         case 'permutacion'
-            problemas = pendientes({'tsp', 'TSP', 'f(π) = Σ d(π₍ᵢ₎, π₍ᵢ₊₁₎)'});
+            problemas = permutaciones();
         otherwise
             error('problemas_de_tipo:tipo', 'Tipo desconocido: "%s".', tipo);
     end
@@ -51,6 +52,33 @@ function f = optimos_por_dim(id, limites)
     for n = limites.dim_min:limites.dim_max
         f(n) = funcion_prueba(id, n).f_optimo;
     end
+end
+
+function problemas = binarios()
+    catalogo = {
+        'mochila', 'Mochila', 'max Σ vⱼ·xⱼ  con  Σ wⱼ·xⱼ ≤ capacidad', ...
+            'Elige qué objetos meter para lograr el mayor valor sin pasar la capacidad.'
+        'onemax', 'OneMax', 'max Σ xⱼ', ...
+            'Encender todos los bits: f(x) cuenta cuántos unos tiene x.'
+    };
+    problemas = pendientes(catalogo(:, 1:3));
+    [problemas.descripcion] = catalogo{:, 4};
+    [problemas.sentido] = deal('max');
+    [problemas.lb] = deal(0);
+    [problemas.ub] = deal(1);
+
+    problemas(1).datos = struct('pesos', [12 7 11 8 9 6], 'valores', [4 2 6 5 6 3], ...
+                                'capacidad', 30);
+
+    limites = limites_problema('onemax');
+    problemas(2).f_optimo = 1:limites.dim_max;
+    problemas(2).x_optimo = 1;
+end
+
+function problemas = permutaciones()
+    problemas = pendientes({'tsp', 'TSP', 'min Σ d(πᵢ, πᵢ₊₁)'});
+    problemas.descripcion = 'Encuentra la ruta más corta que pasa una vez por cada ciudad y regresa al inicio.';
+    problemas.datos = struct('semilla', 7);
 end
 
 function problemas = pendientes(catalogo)
