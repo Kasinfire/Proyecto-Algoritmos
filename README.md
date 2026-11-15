@@ -18,7 +18,6 @@ Proyecto/
 ├─ src/                                Código de la aplicación (se agrega al path con genpath)
 │  ├─ algoritmos/
 │  │  ├─ pso/               *[listo]*   PSO continuo, binario y TSP; ejemplo del contrato
-│  │  ├─ bha/               *[listo]*   Black Hole Algorithm (extra, de BHA_MATLAB)
 │  │  ├─ ga/                 [falta]
 │  │  ├─ aco/                [falta]
 │  │  ├─ ais/                [falta]
@@ -30,15 +29,15 @@ Proyecto/
 │  │  ├─ binario/            [falta]   OneMax, mochila
 │  │  ├─ permutacion/        [falta]   TSP
 │  │  └─ real/               [falta]   problema de aplicación real (bonus)
-│  ├─ core/utilidades/      *[listo]*   validar_problema, limitar_a_rango, completar_opciones
-│  ├─ graficas/             *[listo]*   convergencia, superficie/contorno, animación
+│  ├─ core/utilidades/      *[listo]*   validar_problema, limitar_a_rango
+│  ├─ graficas/             *[listo]*   convergencia y malla de una función 2D
 │  └─ ui/                    interfaz (bloque A)
 │     ├─ pantallas/          un .m por pantalla (puente entre HTML y MATLAB)
 │     ├─ demos/              probar una pantalla sola
 │     └─ web/                HTML/CSS/JS de las pantallas (uihtml)
 ├─ experimentos/
-│  ├─ pso_parametros/       *[listo]*   experimento de w, c1, c2 (main_pso.m)
-│  └─ bha_demo/             *[listo]*   demo del BHA (main_bha.m)
+│  └─ pso_parametros/       *[listo]*   experimento de w, c1, c2 (main_pso.m)
+├─ extras/bha/                         Black Hole Algorithm: trabajo previo, fuera de la app
 ├─ datos/                    [falta]   instancias (ciudades TSP, mochila, datos reales)
 └─ tests/                    [falta]   pruebas automáticas (matlab.unittest)
 ```
@@ -48,7 +47,7 @@ La interfaz (`MetaheuristicasApp.mlapp`) todavía no existe.
 Abrir MATLAB en la carpeta `Proyecto/` y ejecutar:
 ```matlab
 run('experimentos/pso_parametros/main_pso.m')   % experimento PSO (tabla + gráficas en resultados/)
-run('experimentos/bha_demo/main_bha.m')         % demo BHA en Rastrigin 2D
+run('extras/bha/main_bha.m')                    % demo BHA en Rastrigin 2D (ver extras/)
 ```
 Cada script agrega `src/` al path por su cuenta.
 
