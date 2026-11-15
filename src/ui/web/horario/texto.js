@@ -38,9 +38,15 @@ const TEXTO = (() => {
     return como_titulo(`${nombre} ${apellidos.split(/\s+/)[0]}`.trim());
   }
 
+  // "Redes de Computadoras" -> "RC"; "Análisis de Problemas Globales del Siglo XXI" -> "APGS"
+  function siglas(nombre) {
+    const palabras = plano(nombre).split(/\s+/).filter((p) => p && !MENORES.has(p) && !/^[ivx]+$|\d/.test(p));
+    return palabras.slice(0, 4).map((p) => p[0].toUpperCase()).join("") || String(nombre ?? "").slice(0, 3);
+  }
+
   function plural(n, uno, varios) {
     return `${n} ${n === 1 ? uno : varios}`;
   }
 
-  return { esc, hhmm, plano, como_titulo, profesor_corto, plural };
+  return { esc, hhmm, plano, como_titulo, profesor_corto, siglas, plural };
 })();

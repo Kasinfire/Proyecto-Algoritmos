@@ -1,6 +1,7 @@
 // Pantalla 2 del problema real: tu horario del semestre, en tres subpasos
 // (1 Oferta, 2 Materias, 3 Preferencias). Este archivo lleva el riel, los subpasos, la
-// barra de abajo y el puente; cada subpaso dibuja lo suyo (oferta.js, materias.js).
+// barra de abajo y el puente; cada subpaso dibuja lo suyo (oferta.js, materias.js,
+// preferencias.js).
 //
 // Eventos que llegan de MATLAB:
 //   "datos"     { ciclos, centros, carreras: [{id, nombre}], defecto: {ciclo, centro, carrera,
@@ -8,17 +9,19 @@
 //   "progreso"  { pagina, secciones }   (tras cada pagina leida de SIIAU)
 //   "oferta"    { secciones: [{nrc, clave, materia, seccion, creditos, cupo, disponibles,
 //                 sesiones: [{inicio, fin, dias, edificio, aula}], profesor}], titulo, detalle, paginas }
-//   "aviso"     { texto }   (no se pudo consultar o leer el archivo)
+//   "aviso"     { texto }   (no se pudo consultar, leer el archivo o armar el problema)
 //   "cancelado"            (se cerro el dialogo de abrir sin elegir archivo)
 // Eventos que se mandan a MATLAB:
 //   "lista", "consultar" { ciclo, centro, carrera, solo_cupo }, "abrir_guardada", "usar_ejemplo",
 //   "materias" { claves }   (cada vez que cambia la lista de materias elegidas),
-//   "regresar", "ir_a_paso" { paso }, "comparar", "ayuda"
+//   "preferencias" { entrada, salida, dias_libres, peso_muertas, max_materias_dia,
+//                    max_horas_seguidas, solo_cupo }   (cada vez que cambia una),
+//   "siguiente" (al terminar Preferencias), "regresar", "ir_a_paso" { paso }, "comparar", "ayuda"
 
 const SUBPASOS = {
   oferta: { subtitulo: "Primero, la oferta académica. La traemos de la consulta pública de SIIAU." },
   materias: { subtitulo: "Busca las materias que te tocan este ciclo." },
-  preferencias: { subtitulo: "Dinos cómo lo quieres." }
+  preferencias: { subtitulo: "Dinos cómo lo quieres. Lo rayado es lo que vas a evitar." }
 };
 const ORDEN = Object.keys(SUBPASOS);
 
@@ -46,6 +49,7 @@ function ir_a(nombre) {
   estado.aviso = "";
   actualizar_barra();
   if (nombre === "materias") MATERIAS.enfocar_busqueda();
+  if (nombre === "preferencias") PREFERENCIAS.poner(MATERIAS.elegidas(), MATERIAS.rango());
 }
 
 // Un subpaso se puede abrir si el anterior ya esta completo.
@@ -66,13 +70,16 @@ function actualizar_barra() {
     b.classList.toggle("hecho", n !== estado.subpaso && Boolean(siguiente) && puede_abrir(siguiente));
   });
   const siguiente = ORDEN[ORDEN.indexOf(estado.subpaso) + 1];
-  el.siguiente.disabled = estado.cargando || !siguiente || !puede_abrir(siguiente);
+  const ultimo = !siguiente && puede_abrir(estado.subpaso);
+  el.siguiente.disabled = estado.cargando || !(ultimo || (siguiente && puede_abrir(siguiente)));
   el.regresar.disabled = estado.cargando;
-  poner_resumen(estado.aviso || resumen_del_subpaso(), Boolean(estado.aviso));
+  const aviso = estado.aviso || (estado.subpaso === "preferencias" ? PREFERENCIAS.aviso() : "");
+  poner_resumen(aviso || resumen_del_subpaso(), Boolean(aviso));
 }
 
 function resumen_del_subpaso() {
   if (estado.subpaso === "materias") return MATERIAS.resumen();
+  if (estado.subpaso === "preferencias") return PREFERENCIAS.resumen();
   const n = estado.cuenta;
   if (!n) return "Trae la oferta de SIIAU para empezar.";
   return `${n.con_horario} ${n.con_horario === 1 ? "sección con horario lista" : "secciones con horario listas"}.`;
@@ -88,7 +95,11 @@ el.subpasos.addEventListener("click", (e) => {
   if (b && !b.disabled) ir_a(b.dataset.subpaso);
 });
 
-el.siguiente.addEventListener("click", () => ir_a(ORDEN[ORDEN.indexOf(estado.subpaso) + 1]));
+el.siguiente.addEventListener("click", () => {
+  const siguiente = ORDEN[ORDEN.indexOf(estado.subpaso) + 1];
+  if (siguiente) ir_a(siguiente);
+  else puente.enviar("siguiente");
+});
 
 el.regresar.addEventListener("click", () => {
   const anterior = ORDEN[ORDEN.indexOf(estado.subpaso) - 1];
@@ -148,6 +159,14 @@ function simular_consulta() {
 
 MATERIAS.al_cambiar(({ claves }) => {
   if (estado.con_matlab) puente.enviar("materias", { claves });
+  actualizar_barra();
+});
+
+// ---------- Subpaso Preferencias ----------
+
+PREFERENCIAS.al_cambiar((preferencias) => {
+  if (estado.con_matlab) puente.enviar("preferencias", preferencias);
+  estado.aviso = "";
   actualizar_barra();
 });
 

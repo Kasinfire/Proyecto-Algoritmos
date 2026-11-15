@@ -9,7 +9,6 @@ const MATERIAS = (() => {
     "elegidas-titulo", "bits", "elegidas", "secciones-titulo", "secciones-nota", "semana"
   ].map((id) => [id.replace(/-/g, "_"), document.getElementById(id)]));
 
-  const DIAS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
   const COLORES = ["#0072BD", "#D95319", "#7E2F8E", "#2B9FD0", "#A2142F", "#4E8A22", "#B07A0C", "#4A4D57"];
   const ICONO_MAS = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
   const ICONO_LISTO = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
@@ -25,7 +24,7 @@ const MATERIAS = (() => {
   };
   let avisar_cambio = () => {};
 
-  const con_horario = (s) => como_lista(s.sesiones).length > 0;
+  const con_horario = SEMANA.con_horario;
 
   // ---------- Datos ----------
 
@@ -39,23 +38,11 @@ const MATERIAS = (() => {
     });
     estado.materias.forEach((m) => { m.con_horario = m.secciones.filter(con_horario).length; });
     estado.total_con_horario = secciones.filter(con_horario).length;
-    estado.rango = rango_de_horas(secciones);
+    estado.rango = SEMANA.rango_de_horas(secciones);
 
     elegir(estado.elegidas);
     el.buscar_etiqueta.textContent = `Buscar en ${estado.materias.size} materias`;
   }
-
-  // Horas que abarca la oferta completa, para que la semana no cambie de escala al
-  // pasar de una materia a otra. SIIAU termina las clases a las :55.
-  function rango_de_horas(secciones) {
-    const sesiones = secciones.flatMap((s) => como_lista(s.sesiones));
-    if (sesiones.length === 0) return { desde: 7, hasta: 21 };
-    const desde = Math.floor(Math.min(...sesiones.map((x) => minutos(x.inicio))) / 60);
-    const hasta = Math.ceil(Math.max(...sesiones.map((x) => minutos(x.fin) + 5)) / 60);
-    return { desde: Math.min(desde, 7), hasta: Math.max(hasta, 21) };
-  }
-
-  function minutos(hhmm) { return Math.floor(hhmm / 100) * 60 + (hhmm % 100); }
 
   // ---------- Elegir y enfocar ----------
 
@@ -171,31 +158,21 @@ const MATERIAS = (() => {
   function dibujar_semana() {
     const m = estado.materias.get(estado.enfocada);
     const { desde, hasta } = estado.rango;
-    const horas = hasta - desde;
 
     el.secciones_titulo.textContent = m ? `${m.nombre} · ${m.clave}` : "Elige una materia";
     el.secciones_nota.textContent = m ? nota_de_secciones(m) : "";
 
-    const etiquetas = [];
-    for (let h = desde; h <= hasta; h += 2) {
-      etiquetas.push(`<span class="hora" style="top: ${(100 * (h - desde)) / horas}%">${String(h).padStart(2, "0")}:00</span>`);
-    }
     const color = (m && estado.colores.get(m.clave)) || "#4A4D57";
-    const por_dia = DIAS.map((_, d) => bloques_del_dia(m ? m.secciones : [], d));
+    const por_dia = SEMANA.DIAS.map((_, d) => SEMANA.bloques_del_dia(m ? m.secciones : [], d));
 
-    el.semana.style.setProperty("--horas", horas);
-    el.semana.style.setProperty("--tinte", tinte(color, 0.16));
-    el.semana.style.setProperty("--tinte-fuerte", tinte(color, 0.3));
+    el.semana.style.setProperty("--horas", hasta - desde);
+    el.semana.style.setProperty("--tinte", SEMANA.tinte(color, 0.16));
+    el.semana.style.setProperty("--tinte-fuerte", SEMANA.tinte(color, 0.3));
     el.semana.innerHTML = `
       <span></span>
-      ${DIAS.map((d) => `<span class="dia-cabeza">${d}</span>`).join("")}
-      <div class="horas" aria-hidden="true">${etiquetas.join("")}</div>
+      ${SEMANA.DIAS.map((d) => `<span class="dia-cabeza">${d}</span>`).join("")}
+      ${SEMANA.etiquetas(estado.rango)}
       ${por_dia.map((bloques) => `<div class="dia">${bloques.map(bloque).join("")}</div>`).join("")}`;
-  }
-
-  function tinte(hex, alfa) {
-    const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
-    return `rgba(${r}, ${g}, ${b}, ${alfa})`;
   }
 
   function nota_de_secciones(m) {
@@ -207,56 +184,15 @@ const MATERIAS = (() => {
     return partes.join(" · ");
   }
 
-  // Sesiones de un dia con su carril: las que se enciman se reparten el ancho de la columna.
-  function bloques_del_dia(secciones, d) {
-    const sesiones = secciones.flatMap((s) => como_lista(s.sesiones)
-      .filter((x) => x.dias[d] && x.dias[d] !== ".")
-      .map((x) => ({ s, x, ini: minutos(x.inicio), fin: minutos(x.fin) + 5 })))
-      .sort((a, b) => a.ini - b.ini || a.fin - b.fin);
-
-    let grupo = [];
-    let fin_del_grupo = -1;
-    const cerrar_grupo = () => {
-      const carriles = [];
-      grupo.forEach((b) => {
-        let k = carriles.findIndex((fin) => fin <= b.ini);
-        if (k < 0) k = carriles.length;
-        carriles[k] = b.fin;
-        b.carril = k;
-      });
-      grupo.forEach((b) => { b.carriles = carriles.length; });
-      grupo = [];
-    };
-    sesiones.forEach((b) => {
-      if (b.ini >= fin_del_grupo) cerrar_grupo();
-      grupo.push(b);
-      fin_del_grupo = Math.max(fin_del_grupo, b.fin);
-    });
-    cerrar_grupo();
-    return sesiones;
-  }
-
   function bloque(b) {
-    const { desde, hasta } = estado.rango;
-    const total = (hasta - desde) * 60;
-    const arriba = (100 * (b.ini - desde * 60)) / total;
-    const alto = (100 * (b.fin - b.ini)) / total;
-    const ancho = 100 / b.carriles;
     const sin_cupo = b.s.disponibles <= 0;
     const lugares = sin_cupo ? "sin cupo" : `cupo ${b.s.disponibles}`;
-    const titulo = [
-      `${b.s.seccion} · NRC ${b.s.nrc}`,
-      `${TEXTO.hhmm(b.x.inicio, true)}-${TEXTO.hhmm(b.x.fin, true)} · ${b.x.edificio} ${b.x.aula}`,
-      b.s.profesor || "Sin profesor",
-      `${b.s.disponibles} de ${b.s.cupo} lugares`
-    ].join("\n");
     // Con varias secciones encimadas no cabe todo: primero se va el NRC, luego el profesor.
     const encabezado = b.carriles > 1 ? b.s.seccion : `${b.s.seccion} · NRC ${b.s.nrc}`;
     const detalle = b.carriles > 2 ? "" : b.carriles > 1 ? lugares
       : `${TEXTO.profesor_corto(b.s.profesor)} · ${lugares}`;
     return `<div class="bloque${sin_cupo ? " sin-cupo" : ""}${b.carriles > 1 ? " angosto" : ""}" data-nrc="${TEXTO.esc(b.s.nrc)}"
-      style="top: ${arriba}%; height: ${alto}%; left: ${ancho * b.carril}%; width: ${ancho}%"
-      title="${TEXTO.esc(titulo)}">
+      style="${SEMANA.caja(b, estado.rango)}" title="${TEXTO.esc(SEMANA.titulo(b))}">
       <b>${TEXTO.esc(encabezado)}</b>
       ${detalle ? `<span>${TEXTO.esc(detalle)}</span>` : ""}
     </div>`;
@@ -280,18 +216,7 @@ const MATERIAS = (() => {
     else if (ver) enfocar(ver.dataset.ver);
   });
 
-  // Al pasar sobre una sesion se resaltan las demas sesiones de la misma seccion.
-  el.semana.addEventListener("mouseover", (e) => {
-    const b = e.target.closest(".bloque");
-    el.semana.querySelectorAll(".bloque").forEach((x) => {
-      x.classList.toggle("resaltado", Boolean(b) && x.dataset.nrc === b.dataset.nrc);
-    });
-    el.semana.classList.toggle("con-resalte", Boolean(b));
-  });
-  el.semana.addEventListener("mouseleave", () => {
-    el.semana.classList.remove("con-resalte");
-    el.semana.querySelectorAll(".resaltado").forEach((x) => x.classList.remove("resaltado"));
-  });
+  SEMANA.resaltar_secciones(el.semana);
 
   function al_cambiar(fn) { avisar_cambio = () => fn({ claves: [...estado.elegidas] }); }
 
@@ -304,5 +229,15 @@ const MATERIAS = (() => {
 
   function enfocar_busqueda() { el.buscar.focus(); }
 
-  return { poner_oferta, elegir, al_cambiar, resumen, lista, enfocar_busqueda };
+  // Lo que necesita Preferencias: las materias elegidas con su color y sus secciones con horario.
+  function elegidas() {
+    return estado.elegidas.map((clave) => {
+      const m = estado.materias.get(clave);
+      return { clave, nombre: m.nombre, color: estado.colores.get(clave), secciones: m.secciones.filter(con_horario) };
+    });
+  }
+
+  function rango() { return estado.rango; }
+
+  return { poner_oferta, elegir, al_cambiar, resumen, lista, enfocar_busqueda, elegidas, rango };
 })();
