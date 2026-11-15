@@ -4,8 +4,8 @@ function h = pantalla_tipo(padre, opciones)
 %   h = pantalla_tipo(padre, al_continuar=@(tipo) ..., seleccionado='continuo')
 %
 %   padre        : uifigure, uipanel o uigridlayout donde se dibuja
-%   al_continuar : se llama con el id del tipo ('continuo', 'binario' o
-%                  'permutacion') cuando el usuario presiona Siguiente
+%   al_continuar : se llama con el id del tipo ('continuo', 'binario',
+%                  'permutacion' o 'real') cuando el usuario presiona Siguiente
 %   al_comparar  : se llama sin argumentos al presionar el boton de comparar
 %   seleccionado : tipo marcado al abrir (por ejemplo al regresar del paso 2)
 %   n_guardadas  : ejecuciones guardadas (contador del boton de comparar)
@@ -35,8 +35,10 @@ function atender(h, evento, opciones)
     datos = evento.HTMLEventData;
     switch evento.HTMLEventName
         case 'lista'
+            [tipos, real] = tipos_de_problema();
             sendEventToHTMLSource(h, 'datos', struct( ...
-                'tipos', tipos_de_problema(), ...
+                'tipos', tipos, ...
+                'real', real, ...
                 'seleccionado', opciones.seleccionado, ...
                 'n_guardadas', opciones.n_guardadas));
         case 'siguiente'
