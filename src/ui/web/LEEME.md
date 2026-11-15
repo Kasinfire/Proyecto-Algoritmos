@@ -64,10 +64,14 @@ columnas `x,y` (`leer_ciudades_csv.m`); JS solo las dibuja. Siguiente queda bloq
 que exista `src/problemas/permutacion/tsp.m`.
 
 Con tipo real carga `horario.html`, con tres subpasos en pastilla: 1 Oferta, 2 Materias y
-3 Preferencias (por ahora solo Oferta). La oferta la consulta MATLAB en SIIAU página por página
+3 Preferencias. La oferta la consulta MATLAB en SIIAU página por página
 (`consultar_siiau.m`, avisa el avance con el evento `progreso`) o la lee de páginas guardadas
 (`leer_oferta_guardada.m`), y se queda en `pantalla_horario.m` para los siguientes subpasos.
 La tabla dibuja las filas por tandas al bajar, porque un centro completo pasa de 5000 secciones.
+En Preferencias se eligen horas de entrada y salida, días libres, peso de las horas muertas y
+carga por día; la fórmula de f se arma con esos valores y la semana muestra todas las secciones
+de las materias elegidas con lo que se evita rayado. Cada cambio se manda a MATLAB
+(`preferencias`) y Siguiente arma el problema con `src/problemas/real/horario.m`.
 
 En la pantalla 4 el algoritmo corre completo en MATLAB al abrirla y el HTML reproduce
 `resultado.historial` (play, pausa, paso a paso y arrastrar la línea de tiempo). El fondo del
