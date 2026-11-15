@@ -1,0 +1,160 @@
+/* Pantalla 2 del problema real (horario del semestre). Usa base.css y paneles.css. */
+
+.encabezado-fila { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px 24px; }
+.encabezado-fila > div:first-child { flex: 1; min-width: 0; }
+
+/* Subpasos en pastilla, el actual en negro */
+.subpasos {
+  flex: none; display: flex; gap: 2px; padding: 4px; border-radius: 999px;
+  background: rgba(17, 19, 40, 0.06);
+}
+.subpasos button {
+  height: 34px; padding: 0 16px; border: 0; border-radius: 17px;
+  background: transparent; color: var(--tinta-2); font-size: 13px; white-space: nowrap;
+}
+.subpasos button:hover:not(:disabled) { color: var(--tinta); }
+.subpasos button:disabled { color: var(--apagado); }
+.subpasos button[aria-selected="true"] { background: var(--tinta); color: #FFFFFF; font-weight: 500; }
+
+.cuerpo-horario {
+  flex: 1; min-height: 0;
+  display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 16px;
+}
+
+.grupo-titulo {
+  margin: 0; white-space: nowrap; font-size: 11px; font-weight: 400; color: var(--tinta-3);
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+
+/* Columna de la consulta */
+.consulta { min-height: 0; padding: 22px 20px; display: flex; flex-direction: column; gap: 14px; overflow-y: auto; }
+.campo { display: flex; flex-direction: column; gap: 6px; }
+.campo label { font-size: 12px; color: var(--tinta-2); }
+
+/* La caja muestra nombre y clave; la lista la dibuja comun/desplegable.js. */
+.selector {
+  position: relative; height: 42px; padding: 0 14px; border-radius: 12px;
+  display: flex; align-items: center; gap: 12px;
+  background: rgba(17, 19, 40, 0.05); font-size: 14px;
+  transition: background-color 120ms ease, box-shadow 120ms ease;
+}
+.selector:hover { background: rgba(17, 19, 40, 0.08); }
+.selector:focus-within, .selector.abierto {
+  background: #FFFFFF; box-shadow: 0 0 0 2px var(--acento), 0 6px 18px rgba(0, 114, 189, 0.12);
+}
+.selector.apagado { color: var(--apagado); background: rgba(17, 19, 40, 0.03); }
+.selector-texto { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.selector-clave {
+  display: flex; align-items: center; gap: 8px;
+  font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+  font-size: 12px; color: var(--apagado);
+}
+.selector-clave::after {
+  content: ""; width: 6px; height: 6px; margin-top: -3px;
+  border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg); transition: transform 160ms ease, margin 160ms ease;
+}
+.selector.abierto .selector-clave { color: var(--acento); }
+.selector.abierto .selector-clave::after { transform: rotate(-135deg); margin-top: 3px; }
+.selector select { display: none; }
+
+.interruptor { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--tinta-2); cursor: pointer; }
+.interruptor input { position: absolute; opacity: 0; pointer-events: none; }
+.interruptor-riel {
+  position: relative; flex: none; width: 36px; height: 20px; border-radius: 10px;
+  background: rgba(17, 19, 40, 0.16); transition: background-color 160ms ease;
+}
+.interruptor-riel::after {
+  content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 8px;
+  background: #FFFFFF; box-shadow: 0 1px 3px rgba(24, 38, 92, 0.25); transition: transform 160ms ease;
+}
+.interruptor input:checked + .interruptor-riel { background: var(--acento); }
+.interruptor input:checked + .interruptor-riel::after { transform: translateX(16px); }
+.interruptor input:focus-visible + .interruptor-riel { outline: 2px solid var(--acento); outline-offset: 2px; }
+
+.boton-ancho { width: 100%; justify-content: center; flex: none; }
+.boton-primario:hover:not(:disabled) { background: var(--acento-oscuro); }
+.boton:hover:not(:disabled):not(.boton-primario) { background: rgba(17, 19, 40, 0.1); }
+
+.sin-red { margin-top: 18px; }
+.opcion {
+  display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 14px;
+  border: 0; border-radius: 16px; text-align: left;
+  background: rgba(17, 19, 40, 0.04); color: var(--tinta);
+}
+.opcion:hover:not(:disabled) { background: rgba(17, 19, 40, 0.08); }
+.opcion:disabled { color: var(--apagado); }
+.opcion-marca {
+  flex: none; width: 36px; height: 36px; border-radius: 10px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: #FFFFFF; color: var(--acento);
+  font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; font-size: 11px;
+  box-shadow: 0 1px 4px rgba(24, 38, 92, 0.08);
+}
+.opcion-texto { min-width: 0; display: flex; flex-direction: column; gap: 3px; font-size: 13px; font-weight: 500; }
+.opcion-nota { font-size: 12px; font-weight: 400; color: var(--tinta-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Lo que llego de SIIAU */
+.llegada { min-width: 0; min-height: 0; padding: 22px 26px 18px; display: flex; flex-direction: column; }
+.llegada-cabeza { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+.llegada-cabeza .nota { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.llegada-titulo { margin: 6px 0 0; font-size: 22px; font-weight: 400; letter-spacing: -0.02em; }
+
+.cifras { margin-top: 18px; display: flex; gap: 40px; }
+.cifras > div { display: flex; flex-direction: column; gap: 2px; white-space: nowrap; }
+.cifra-aviso .grande { color: var(--error); }
+.aviso-oferta { margin: 14px 0 0; font-size: 13px; color: var(--error); }
+.aviso-oferta:empty { display: none; }
+
+.avance {
+  margin-top: 14px; display: flex; align-items: center; gap: 14px; white-space: nowrap;
+  font-size: 12px; color: var(--tinta-2); font-variant-numeric: tabular-nums;
+}
+.avance .barra { flex: 1; height: 5px; border-radius: 3px; background: rgba(17, 19, 40, 0.08); overflow: hidden; }
+.avance .barra-relleno { display: block; height: 100%; width: 0; border-radius: 3px; background: var(--acento); transition: width 300ms ease; }
+.avance.sin-datos { visibility: hidden; }
+.avance.leyendo .barra-relleno { animation: latido 1.2s ease-in-out infinite; }
+@keyframes latido { 50% { opacity: 0.45; } }
+
+/* Tabla de secciones */
+.tabla-caja { position: relative; flex: 1; min-height: 0; margin-top: 14px; overflow-x: hidden; overflow-y: auto; border-radius: 14px; background: rgba(17, 19, 40, 0.025); }
+.oferta { width: 100%; border-collapse: collapse; font-size: 12px; font-variant-numeric: tabular-nums; }
+.oferta th {
+  position: sticky; top: 0; z-index: 1; padding: 10px 8px 8px; text-align: left; white-space: nowrap;
+  font-size: 11px; font-weight: 400; color: var(--tinta-3);
+  background: #F6F7F9; box-shadow: inset 0 -1px 0 rgba(17, 19, 40, 0.1);
+}
+.oferta td { padding: 8px 8px; line-height: 17px; vertical-align: top; box-shadow: inset 0 -1px 0 var(--linea); }
+.oferta td.mono, .oferta td .sesion {
+  font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; font-size: 11.5px; white-space: nowrap;
+}
+.oferta td .sesion { display: block; line-height: 17px; }
+.oferta td.materia { width: 30%; }
+.oferta td.profesor { width: 22%; color: var(--tinta-2); }
+.oferta td.cero { color: var(--error); }
+.oferta td.vacio { color: var(--apagado); }
+.oferta tr:hover td { background: rgba(255, 255, 255, 0.7); }
+.tabla-vacia {
+  position: absolute; inset: 40px 0 0; margin: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: var(--tinta-3);
+}
+.tabla-vacia[hidden] { display: none; }
+
+/* Barra de abajo: Regresar, estado al centro, Siguiente */
+.acciones { flex-wrap: nowrap; }
+.acciones [role="status"] { text-align: center; }
+.acciones [role="status"].aviso { color: var(--error); }
+
+@media (max-width: 1280px) {
+  .encabezado h1 { font-size: 36px; }
+  .oferta td.mono, .oferta td .sesion { font-size: 10.5px; }
+  .oferta th, .oferta td { padding-left: 6px; padding-right: 6px; }
+  .cuerpo-horario { grid-template-columns: 300px minmax(0, 1fr); }
+  .cifras { gap: 28px; }
+  .cifras .grande { font-size: 36px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .interruptor-riel, .interruptor-riel::after, .avance .barra-relleno { transition: none; animation: none; }
+}

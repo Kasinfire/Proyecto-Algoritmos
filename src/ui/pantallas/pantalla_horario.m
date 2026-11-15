@@ -1,0 +1,144 @@
+function h = pantalla_horario(padre, opciones)
+% PANTALLA_HORARIO  Pantalla 2 para el problema real: armar el horario del semestre.
+%   h = pantalla_horario(padre, al_regresar=@() ..., n_guardadas=0)
+%
+%   Tiene tres subpasos en la misma pagina (horario.html): 1 Oferta, 2 Materias y
+%   3 Preferencias. Por ahora esta hecho Oferta: la oferta se consulta en SIIAU
+%   (consultar_siiau) o se lee de una pagina guardada (leer_oferta_guardada) y se queda
+%   aqui, en MATLAB, para los siguientes subpasos.
+%
+%   padre        : uifigure, uipanel o uigridlayout donde se dibuja
+%   al_continuar : se llamara con el problema armado al terminar Preferencias
+%   al_regresar  : se llama sin argumentos al presionar Regresar o el paso 1 del riel
+%   al_comparar  : se llama sin argumentos al presionar el boton de comparar
+%   seleccion    : lo elegido antes (reservado para restaurar al volver del paso 3)
+%   n_guardadas  : ejecuciones guardadas (contador del boton de comparar)
+
+    arguments
+        padre
+        opciones.al_continuar function_handle = @(problema, config) []
+        opciones.al_regresar function_handle = @() []
+        opciones.al_comparar function_handle = @() []
+        opciones.seleccion struct = struct()
+        opciones.n_guardadas (1,1) double = 0
+    end
+
+    raiz = fileparts(fileparts(fileparts(fileparts(mfilename('fullpath')))));
+    ejemplo = fullfile('datos', 'siiau', 'oferta_info_202620.html');
+    catalogo = opciones_siiau();
+    secciones = struct([]);
+
+    h = uihtml(padre, 'HTMLSource', fullfile(raiz, 'src', 'ui', 'web', 'horario.html'));
+    if isa(padre, 'matlab.ui.container.GridLayout')
+        h.Layout.Row = 1;
+        h.Layout.Column = 1;
+    else
+        h.Position = [0 0 padre.Position(3:4)];
+    end
+    h.HTMLEventReceivedFcn = @(~, evento) atender(evento);
+
+    function atender(evento)
+        datos = evento.HTMLEventData;
+        switch evento.HTMLEventName
+            case 'lista'
+                sendEventToHTMLSource(h, 'datos', struct( ...
+                    'ciclos', catalogo.ciclos, 'centros', catalogo.centros, ...
+                    'carreras', catalogo.carreras, 'defecto', catalogo.defecto, ...
+                    'ejemplo', strrep(ejemplo, filesep, '/'), ...
+                    'seleccion', opciones.seleccion, 'n_guardadas', opciones.n_guardadas));
+            case 'consultar'
+                consultar(datos);
+            case 'abrir_guardada'
+                [archivos, carpeta] = uigetfile({'*.html;*.htm', 'Página de SIIAU (*.html)'}, ...
+                    'Consulta de oferta guardada', [fullfile(raiz, 'datos') filesep], 'MultiSelect', 'on');
+                figure(ancestor(h, 'figure'));
+                if isequal(archivos, 0)
+                    sendEventToHTMLSource(h, 'cancelado', struct());
+                    return;
+                end
+                leer_archivos(fullfile(carpeta, cellstr(archivos)));
+            case 'usar_ejemplo'
+                leer_archivos({fullfile(raiz, ejemplo)});
+            case 'regresar'
+                opciones.al_regresar();
+            case 'ir_a_paso'
+                if datos.paso == 0, opciones.al_regresar(); end
+            case 'comparar'
+                opciones.al_comparar();
+        end
+    end
+
+    function consultar(datos)
+        avisar_pagina = @(k, n) enviar_y_dibujar('progreso', struct('pagina', k, 'secciones', n));
+        try
+            [secciones, info] = consultar_siiau(datos.ciclo, datos.centro, datos.carrera, ...
+                solo_cupo=logical(datos.solo_cupo), al_leer_pagina=avisar_pagina);
+        catch err
+            sendEventToHTMLSource(h, 'aviso', struct('texto', mensaje_de_red(err)));
+            return;
+        end
+        detalle = sprintf('%d %s de SIIAU (%d por página) · %s', info.paginas, ...
+            plural(info.paginas, 'página', 'páginas'), info.por_pagina, ...
+            char(datetime('now', 'Format', 'dd/MM/yyyy HH:mm')));
+        enviar_oferta(info, detalle);
+    end
+
+    function leer_archivos(rutas)
+        try
+            [secciones, info] = leer_oferta_guardada(rutas);
+        catch err
+            sendEventToHTMLSource(h, 'aviso', struct('texto', err.message));
+            return;
+        end
+        [~, nombre, extension] = fileparts(rutas{1});
+        archivo = [nombre extension];
+        if numel(rutas) > 1, archivo = sprintf('%d archivos', numel(rutas)); end
+        detalle = sprintf('%s · %d %s guardadas', archivo, info.paginas, ...
+            plural(info.paginas, 'página', 'páginas'));
+        enviar_oferta(info, detalle);
+    end
+
+    function enviar_oferta(info, detalle)
+        sendEventToHTMLSource(h, 'oferta', struct( ...
+            'secciones', secciones, ...
+            'titulo', titulo_de(info, catalogo), ...
+            'detalle', detalle, ...
+            'paginas', info.paginas));
+    end
+
+    function enviar_y_dibujar(nombre, datos)
+        sendEventToHTMLSource(h, nombre, datos);
+        drawnow;
+    end
+end
+
+function texto = titulo_de(info, catalogo)
+    partes = {nombre_en(catalogo.centros, info.centro), info.carrera, nombre_ciclo(info.ciclo)};
+    texto = strjoin(partes(~cellfun(@isempty, partes)), ' · ');
+end
+
+function nombre = nombre_en(lista, id)
+    nombre = id;
+    k = find(strcmp({lista.id}, id), 1);
+    if ~isempty(k), nombre = lista(k).nombre; end
+end
+
+function nombre = nombre_ciclo(ciclo)
+    nombre = ciclo;
+    t = regexp(ciclo, '^\d{2}(\d{2})(10|20)$', 'tokens', 'once');
+    if isempty(t), return; end
+    letras = struct('x10', 'A', 'x20', 'B');
+    nombre = sprintf('Calendario %s %s', t{1}, letras.(['x' t{2}]));
+end
+
+function texto = plural(n, uno, varios)
+    if n == 1, texto = uno; else, texto = varios; end
+end
+
+function texto = mensaje_de_red(err)
+    if contains(err.identifier, 'MATLAB:webservices')
+        texto = 'No se pudo conectar con SIIAU. Revisa tu internet o usa una página guardada.';
+    else
+        texto = err.message;
+    end
+end

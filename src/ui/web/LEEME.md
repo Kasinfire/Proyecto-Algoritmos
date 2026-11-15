@@ -40,6 +40,7 @@ Pantallas hechas:
 | `problema.html` + `problema/` | `pantallas/pantalla_problema.m`, `problemas_de_tipo.m`, `armar_problema.m`, `limites_problema.m`, `generar_imagenes_problemas.m` | 2. problema y datos |
 | `problema_binario.html` + `problema_binario/` | `pantallas/pantalla_problema.m`, `armar_problema_binario.m`, `leer_objetos_csv.m` | 2. problema y datos (binario) |
 | `problema_tsp.html` + `problema_tsp/` | `pantallas/pantalla_problema.m`, `armar_problema_permutacion.m`, `ciudades_al_azar.m`, `leer_ciudades_csv.m` | 2. problema y datos (TSP) |
+| `horario.html` + `horario/` | `pantallas/pantalla_horario.m` (la abre `pantalla_problema` con tipo `real`) y `src/problemas/real/` | 2. problema real: horario del semestre |
 | `algoritmo.html` + `algoritmo/` | `pantallas/pantalla_algoritmo.m`, `algoritmos_de_tipo.m`, `parametros_para_ui.m`, `armar_parametros.m` | 3. algoritmo y parámetros |
 | `ejecucion.html` + `ejecucion/` | `pantallas/pantalla_ejecucion.m`, `pantallas/mapa_de_busqueda.m` | 4. ejecución |
 | `resultados.html` + `resultados/` | `pantallas/pantalla_resultados.m`, `exportar_resultado.m` | 5. resultados |
@@ -61,6 +62,12 @@ las ciudades numeradas. Las coordenadas las genera MATLAB (`ciudades_al_azar.m`,
 propio `RandStream` para no mover el `rng` de los algoritmos) o las lee de un CSV con
 columnas `x,y` (`leer_ciudades_csv.m`); JS solo las dibuja. Siguiente queda bloqueado hasta
 que exista `src/problemas/permutacion/tsp.m`.
+
+Con tipo real carga `horario.html`, con tres subpasos en pastilla: 1 Oferta, 2 Materias y
+3 Preferencias (por ahora solo Oferta). La oferta la consulta MATLAB en SIIAU página por página
+(`consultar_siiau.m`, avisa el avance con el evento `progreso`) o la lee de páginas guardadas
+(`leer_oferta_guardada.m`), y se queda en `pantalla_horario.m` para los siguientes subpasos.
+La tabla dibuja las filas por tandas al bajar, porque un centro completo pasa de 5000 secciones.
 
 En la pantalla 4 el algoritmo corre completo en MATLAB al abrirla y el HTML reproduce
 `resultado.historial` (play, pausa, paso a paso y arrastrar la línea de tiempo). El fondo del
@@ -104,7 +111,7 @@ si no se queda la versión vieja.
 En MATLAB, desde `Proyecto/`:
 ```matlab
 addpath(genpath('src')); demo_pantalla_tipo
-addpath(genpath('src')); demo_pantalla_problema          % o ('binario') o ('permutacion')
+addpath(genpath('src')); demo_pantalla_problema          % o ('binario'), ('permutacion') o ('real')
 addpath(genpath('src')); demo_pantalla_algoritmo         % o demo_pantalla_algoritmo('ackley', 10)
 addpath(genpath('src')); demo_pantalla_ejecucion         % o demo_pantalla_ejecucion('ackley', 5, 'de')
 addpath(genpath('src')); demo_pantalla_resultados        % o demo_pantalla_resultados('ackley', 5, 'de')

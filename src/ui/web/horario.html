@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Horario del semestre</title>
+<link rel="stylesheet" href="comun/fuentes/geist.css?v=3">
+<link rel="stylesheet" href="comun/base.css?v=3">
+<link rel="stylesheet" href="comun/paneles.css?v=1">
+<link rel="stylesheet" href="comun/desplegable.css?v=1">
+<link rel="stylesheet" href="horario/horario.css?v=2">
+</head>
+<body>
+<div class="lienzo">
+  <div class="mancha mancha-izq" aria-hidden="true"></div>
+  <div class="mancha mancha-der" aria-hidden="true"></div>
+
+  <nav class="riel vidrio" aria-label="Pasos" id="riel"></nav>
+
+  <main class="principal">
+    <header class="encabezado encabezado-fila">
+      <div>
+        <h1>Tu horario del semestre</h1>
+        <p id="subtitulo">Primero, la oferta académica. La traemos de la consulta pública de SIIAU.</p>
+      </div>
+      <div class="subpasos" role="tablist" aria-label="Subpasos" id="subpasos">
+        <button type="button" role="tab" data-subpaso="oferta" aria-selected="true">1 Oferta</button>
+        <button type="button" role="tab" data-subpaso="materias" aria-selected="false" disabled>2 Materias</button>
+        <button type="button" role="tab" data-subpaso="preferencias" aria-selected="false" disabled>3 Preferencias</button>
+      </div>
+    </header>
+
+    <div class="cuerpo-horario" role="tabpanel" id="panel-oferta">
+      <section class="tarjeta consulta" aria-label="Consultar SIIAU">
+        <h2 class="grupo-titulo">Consultar SIIAU</h2>
+        <div class="campo">
+          <label for="ciclo">Ciclo</label>
+          <div class="selector">
+            <span class="selector-texto" id="ciclo-texto"></span>
+            <span class="selector-clave" id="ciclo-clave"></span>
+            <select id="ciclo"></select>
+          </div>
+        </div>
+        <div class="campo">
+          <label for="centro">Centro</label>
+          <div class="selector">
+            <span class="selector-texto" id="centro-texto"></span>
+            <span class="selector-clave" id="centro-clave"></span>
+            <select id="centro"></select>
+          </div>
+        </div>
+        <div class="campo">
+          <label for="carrera">Carrera</label>
+          <div class="selector">
+            <span class="selector-texto" id="carrera-texto"></span>
+            <span class="selector-clave" id="carrera-clave"></span>
+            <select id="carrera"></select>
+          </div>
+        </div>
+        <label class="interruptor">
+          <input type="checkbox" id="solo-cupo">
+          <span class="interruptor-riel" aria-hidden="true"></span>
+          Solo secciones con lugares disponibles
+        </label>
+        <button type="button" class="boton boton-primario boton-ancho" id="consultar">Consultar oferta</button>
+
+        <h2 class="grupo-titulo sin-red">Sin internet</h2>
+        <button type="button" class="opcion" id="abrir-guardada">
+          <span class="opcion-marca">.html</span>
+          <span class="opcion-texto">
+            <span>Abrir página guardada</span>
+            <span class="opcion-nota">La consulta de SIIAU guardada con Ctrl+S</span>
+          </span>
+        </button>
+        <button type="button" class="opcion" id="usar-ejemplo">
+          <span class="opcion-marca">ej</span>
+          <span class="opcion-texto">
+            <span>Usar la oferta de ejemplo</span>
+            <span class="opcion-nota" id="ruta-ejemplo"></span>
+          </span>
+        </button>
+      </section>
+
+      <section class="tarjeta llegada" aria-label="Lo que llegó de SIIAU">
+        <div class="llegada-cabeza">
+          <h2 class="grupo-titulo">Lo que llegó de SIIAU</h2>
+          <span class="nota" id="detalle"></span>
+        </div>
+        <p class="llegada-titulo" id="titulo">Todavía no hay oferta</p>
+
+        <div class="cifras">
+          <div><span class="grande" id="n-secciones">–</span><span class="etiqueta">secciones</span></div>
+          <div><span class="grande" id="n-materias">–</span><span class="etiqueta">materias</span></div>
+          <div><span class="grande" id="n-sin-lugares">–</span><span class="etiqueta">sin lugares</span></div>
+          <div class="cifra-aviso"><span class="grande" id="n-sin-horario">–</span><span class="etiqueta">sin horario</span></div>
+        </div>
+        <p class="aviso-oferta" id="aviso-oferta"></p>
+
+        <div class="avance sin-datos" id="avance">
+          <span class="barra"><span class="barra-relleno" id="avance-relleno"></span></span>
+          <span id="avance-texto"></span>
+        </div>
+
+        <div class="tabla-caja" id="tabla-caja">
+          <table class="oferta">
+            <thead>
+              <tr>
+                <th>NRC</th><th>Clave</th><th>Materia</th><th>Sec</th><th>CR</th><th>CUP</th><th>DIS</th>
+                <th>Hora</th><th>Días</th><th>Edif · Aula</th><th>Profesor</th>
+              </tr>
+            </thead>
+            <tbody id="filas"></tbody>
+          </table>
+          <p class="tabla-vacia" id="tabla-vacia">Consulta SIIAU o abre una página guardada.</p>
+        </div>
+      </section>
+    </div>
+
+    <section class="acciones vidrio" aria-label="Acciones">
+      <button type="button" class="boton" id="regresar">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+        Regresar
+      </button>
+      <div role="status" id="resumen"></div>
+      <button type="button" class="boton boton-primario" id="siguiente" disabled>
+        Siguiente
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </section>
+  </main>
+</div>
+
+<script src="comun/puente.js?v=3"></script>
+<script src="comun/riel.js?v=3"></script>
+<script src="comun/desplegable.js?v=1"></script>
+<script src="horario/demo.js?v=1"></script>
+<script src="horario/oferta.js?v=2"></script>
+<script src="horario/horario.js?v=1"></script>
+</body>
+</html>

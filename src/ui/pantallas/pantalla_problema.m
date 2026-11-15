@@ -4,7 +4,8 @@ function h = pantalla_problema(padre, tipo, opciones)
 %   h = pantalla_problema(padre, 'continuo', al_continuar=@(problema) ..., al_regresar=@() ...)
 %
 %   padre        : uifigure, uipanel o uigridlayout donde se dibuja
-%   tipo         : 'continuo', 'binario' o 'permutacion' (lo elegido en el paso 1)
+%   tipo         : 'continuo', 'binario', 'permutacion' o 'real' (lo elegido en el
+%                  paso 1). 'real' es el horario del semestre: lo atiende pantalla_horario.
 %   al_continuar : se llama con el struct problema (crear_problema) y la configuracion
 %                  que mando el HTML al presionar Siguiente. La configuracion sirve como
 %                  seleccion para restaurar la pantalla despues.
@@ -24,12 +25,18 @@ function h = pantalla_problema(padre, tipo, opciones)
 
     arguments
         padre
-        tipo {mustBeMember(tipo, {'continuo', 'binario', 'permutacion'})}
+        tipo {mustBeMember(tipo, {'continuo', 'binario', 'permutacion', 'real'})}
         opciones.al_continuar function_handle = @(problema, config) []
         opciones.al_regresar function_handle = @() []
         opciones.al_comparar function_handle = @() []
         opciones.seleccion struct = struct()
         opciones.n_guardadas (1,1) double = 0
+    end
+
+    if strcmp(tipo, 'real')
+        argumentos = namedargs2cell(opciones);
+        h = pantalla_horario(padre, argumentos{:});
+        return;
     end
 
     carpeta_web = fullfile(fileparts(fileparts(mfilename('fullpath'))), 'web');
