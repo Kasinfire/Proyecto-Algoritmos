@@ -123,6 +123,13 @@ momentos son miniaturas de la semana. La semana la dibuja `horario/elegido.js` c
 `horario/semana.css`, que comparte con Materias y Preferencias. En el navegador:
 `ejecucion.html?horario`; en MATLAB, `demo_pantalla_ejecucion('horario')`.
 
+Los resultados del horario también son `resultados.html`: con tipo `real` llega `horario`
+con una sola solución (la final). La semana final va a la izquierda con la solución como
+bits (un color por materia); a la derecha, mejor f, choques, horas muertas y en qué se va f,
+la lista de NRC para inscribirse (Copiar NRC usa `clipboard` de MATLAB, porque uihtml no deja
+escribir al portapapeles) y las pestañas de siempre. En el navegador:
+`resultados.html?horario`; en MATLAB, `demo_pantalla_resultados('horario')`.
+
 ## Caché de uihtml
 uihtml guarda en caché los CSS y JS mientras MATLAB está abierto. Por eso los enlaces
 llevan `?v=3`: si cambias un CSS o JS, súbele el número en el HTML (o reinicia MATLAB),
@@ -135,7 +142,7 @@ addpath(genpath('src')); demo_pantalla_tipo
 addpath(genpath('src')); demo_pantalla_problema          % o ('binario'), ('permutacion') o ('real')
 addpath(genpath('src')); demo_pantalla_algoritmo         % o ('ackley', 10) u ('horario')
 addpath(genpath('src')); demo_pantalla_ejecucion         % o ('ackley', 5, 'de') u ('horario')
-addpath(genpath('src')); demo_pantalla_resultados        % o demo_pantalla_resultados('ackley', 5, 'de')
+addpath(genpath('src')); demo_pantalla_resultados        % o ('ackley', 5, 'de') u ('horario')
 addpath(genpath('src')); demo_pantalla_comparar
 ```
 Para diseñar en el navegador sin MATLAB: abre cualquier `.html` directamente (o sirve la
