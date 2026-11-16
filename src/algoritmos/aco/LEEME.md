@@ -18,5 +18,6 @@ Los pasos estan separados por responsabilidad: `inicializar_aco.m`,
 `seleccionar_ruleta_aco.m` y `actualizar_feromona_aco.m`.
 
 Uso: `params = valores_por_defecto(parametros_aco('permutacion'))` y
-`resultado = aco(problema, params)`. La permutacion se puede optimizar sin
-`tsp.m`; ese constructor de problema y sus datos se agregaran despues.
+`resultado = aco(problema, params)`. Para resolver TSP, `tsp(coordenadas)`
+crea el problema y guarda la matriz de distancias que ACO puede reutilizar
+como heuristica.
