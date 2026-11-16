@@ -15,6 +15,8 @@ function oferta = leer_oferta_siiau(paginas)
 %                      inicio y fin en minutos desde las 00:00, edificio, aula)
 %   oferta.materias  : struct 1 x m con clave, nombre y n_secciones (por nombre)
 %   oferta.ignoradas : celda con los NRC sin horario (no entran al problema)
+%   oferta.sin_horario : esas mismas secciones con sus datos y sesiones vacias, para
+%                        que la interfaz pueda decir cuantas tiene cada materia
 %
 %   Un NRC repetido en varias paginas se cuenta una sola vez. Las clases terminan
 %   a las :55, asi que fin = hora de fin + 5 min (0900-1055 dura 120 min).
@@ -37,15 +39,11 @@ function oferta = leer_oferta_siiau(paginas)
     oferta.carrera = valor_oculto(texto, 'majrp');
     oferta.paginas = max(1, numel(regexpi(texto, 'Consulta de Oferta Acad\S*\s+del ciclo')));
 
-    [lista, ignoradas] = leer_secciones(texto);
-    if isempty(lista)
-        oferta.secciones = struct('nrc', {}, 'clave', {}, 'materia', {}, 'seccion', {}, ...
-            'profesor', {}, 'creditos', {}, 'cupo', {}, 'disponibles', {}, 'sesiones', {});
-    else
-        oferta.secciones = [lista{:}];
-    end
+    [lista, sin_horario] = leer_secciones(texto);
+    oferta.secciones = a_struct(lista);
     oferta.materias = armar_materias(oferta.secciones);
-    oferta.ignoradas = ignoradas;
+    oferta.sin_horario = a_struct(sin_horario);
+    oferta.ignoradas = {oferta.sin_horario.nrc};
 end
 
 % -------------------------------------------------------------------------
@@ -60,7 +58,16 @@ function html = obtener_html(item)
     end
 end
 
-function [lista, ignoradas] = leer_secciones(texto)
+function s = a_struct(lista)
+    if isempty(lista)
+        s = struct('nrc', {}, 'clave', {}, 'materia', {}, 'seccion', {}, ...
+            'profesor', {}, 'creditos', {}, 'cupo', {}, 'disponibles', {}, 'sesiones', {});
+    else
+        s = [lista{:}];
+    end
+end
+
+function [lista, sin_horario] = leer_secciones(texto)
 % Una fila por NRC: siete celdas tddatos seguidas (NRC, clave, materia, seccion,
 % CR, CUP y DIS). Lo que hay hasta la siguiente fila son sus sesiones y profesores.
     td = '<td[^>]*tddatos[^>]*>\s*';
@@ -77,7 +84,7 @@ function [lista, ignoradas] = leer_secciones(texto)
     [filas, inicios, finales] = regexpi(texto, patron, 'names', 'start', 'end');
 
     lista = {};
-    ignoradas = {};
+    sin_horario = {};
     vistos = containers.Map('KeyType', 'char', 'ValueType', 'logical');
     for k = 1:numel(inicios)
         if k < numel(inicios)
@@ -92,15 +99,16 @@ function [lista, ignoradas] = leer_secciones(texto)
         vistos(f.nrc) = true;
 
         sesiones = leer_sesiones(bloque);
-        if isempty(sesiones)
-            ignoradas{end + 1} = f.nrc; %#ok<AGROW>
-            continue;
-        end
-        lista{end + 1} = struct('nrc', f.nrc, 'clave', upper(f.clave), ...
+        seccion = struct('nrc', f.nrc, 'clave', upper(f.clave), ...
             'materia', limpiar(f.materia), 'seccion', upper(f.seccion), ...
             'profesor', leer_profesores(bloque), 'creditos', str2double(f.creditos), ...
             'cupo', str2double(f.cupo), 'disponibles', str2double(f.disponibles), ...
-            'sesiones', sesiones); %#ok<AGROW>
+            'sesiones', sesiones);
+        if isempty(sesiones)
+            sin_horario{end + 1} = seccion; %#ok<AGROW>
+        else
+            lista{end + 1} = seccion; %#ok<AGROW>
+        end
     end
 end
 

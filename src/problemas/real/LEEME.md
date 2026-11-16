@@ -51,8 +51,10 @@ comparan con la misma semilla y el mismo presupuesto en la pantalla Comparar.
 
 | archivo | qué hace |
 |---|---|
+| `opciones_siiau.m` | ciclos (calculados con la fecha), centros y carreras de CUCEI para la interfaz |
 | `consultar_oferta_siiau.m` | descarga todas las páginas de la oferta |
 | `leer_oferta_siiau.m` | convierte el HTML en secciones, materias e ignoradas |
+| `leer_oferta_guardada.m` | lo mismo desde páginas guardadas con el navegador (UTF-8 o ISO-8859-1) |
 | `horario_materias.m` | arma el problema con `crear_problema` |
 | `desglose_horario.m` | calcula `f` y sus términos (única fuente del costo) |
 | `decodificar_horario.m` | traduce `x` a NRC elegidos y el desglose (lo usa la interfaz) |

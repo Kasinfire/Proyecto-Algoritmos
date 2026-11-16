@@ -140,3 +140,8 @@
   .dock { flex-wrap: wrap; }
   .linea-tiempo { order: 10; flex-basis: 100%; }
 }
+
+/* Horario (problema real): la semana toma el lugar del mapa y las lecturas cambian. */
+body.modo-horario .solo-mapa, body:not(.modo-horario) .solo-horario { display: none; }
+.grande.alerta { color: #D95319; }
+.momento-cuadro .semana.mini { position: absolute; inset: 6px; }

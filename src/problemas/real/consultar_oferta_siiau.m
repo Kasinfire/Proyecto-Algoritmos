@@ -14,9 +14,12 @@ function paginas = consultar_oferta_siiau(ciclo, centro, carrera, opciones)
 %   por_pagina       : 100, 200 o 500 resultados por pagina
 %   guardar_en       : carpeta donde guardar cada pagina como
 %                      oferta_<ciclo>_<centro>_<carrera>_p<k>.html
+%   al_leer_pagina   : se llama tras cada pagina con k (paginas leidas) y su HTML
 %
 %   Regresa una celda 1 x k con el HTML de cada pagina. Se sigue pidiendo mientras
-%   la respuesta traiga el formulario de paginacion (p_start).
+%   la respuesta traiga el formulario de paginacion (p_start) y no sea la ultima, la que
+%   trae "Total de registros": con solo_disponibles SIIAU sigue poniendo el boton de
+%   "Proximos" aunque ya no haya secciones.
 
     arguments
         ciclo {mustBeTextScalar}
@@ -26,6 +29,7 @@ function paginas = consultar_oferta_siiau(ciclo, centro, carrera, opciones)
         opciones.materia {mustBeTextScalar} = ''
         opciones.por_pagina (1,1) double {mustBeMember(opciones.por_pagina, [100 200 500])} = 500
         opciones.guardar_en {mustBeTextScalar} = ''
+        opciones.al_leer_pagina function_handle = @(k, html) []
     end
 
     ciclo = char(ciclo);
@@ -57,9 +61,11 @@ function paginas = consultar_oferta_siiau(ciclo, centro, carrera, opciones)
             break;
         end
         paginas{end + 1} = html; %#ok<AGROW>
+        opciones.al_leer_pagina(numel(paginas), html);
 
         hay_mas = ~isempty(regexp(html, 'NAME="p_start"', 'once', 'ignorecase'));
-        if ~hay_mas
+        ultima = ~isempty(regexp(html, 'Total de registros', 'once', 'ignorecase'));
+        if ~hay_mas || ultima
             break;
         end
         p_start = p_start + opciones.por_pagina;
