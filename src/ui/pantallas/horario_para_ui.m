@@ -3,7 +3,8 @@ function h = horario_para_ui(config, X)
 %   h = horario_para_ui(config, resultado.historial.mejor_solucion)   % ejecucion
 %   h = horario_para_ui(config, resultado.mejor_solucion)             % resultados
 %
-%   config : lo que regreso la pantalla del horario (secciones, materias y preferencias)
+%   config : lo que regreso la pantalla del horario (secciones, materias, preferencias y
+%            datos, el problema.datos de horario_materias)
 %   X      : una solucion por fila (vectores de bits en el orden de config.secciones)
 %
 %   h : struct con
@@ -14,6 +15,7 @@ function h = horario_para_ui(config, X)
 %       cambios      filas de X (desde 0) donde la solucion cambia; con el historial son
 %                    las iteraciones donde cambio el mejor horario
 %       soluciones   una por cambio: elegidas (indices desde 0), bits y el desglose de f
+%                    (el de decodificar_horario, el mismo f que optimizan los algoritmos)
 
     COLORES = {'#0072BD', '#D95319', '#7E2F8E', '#2B9FD0', '#A2142F', '#4E8A22', '#B07A0C', '#4A4D57'};
 
@@ -47,7 +49,7 @@ function h = horario_para_ui(config, X)
     soluciones = cell(numel(cambios), 1);
     for k = 1:numel(cambios)
         x = X(cambios(k), :);
-        d = desglose_horario(x, secciones, preferencias);
+        d = decodificar_horario(x, config.datos).desglose;
         d.elegidas = find(x) - 1;
         d.bits = double(x);
         soluciones{k} = d;

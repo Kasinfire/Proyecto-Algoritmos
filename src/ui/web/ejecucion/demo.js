@@ -112,7 +112,7 @@ const DEMO = (() => {
       }
       const por_materia = CLAVES.map((_, m) => elegidas.filter((k) => secciones[k].materia === m).length);
       const materias_sin_seccion = por_materia.filter((n) => n !== 1).length;
-      const f = muertas + 2 * fuera + 5 * libres + 100 * (choques + materias_sin_seccion);
+      const f = muertas + 2 * fuera + 5 * libres + 1000 * (choques + materias_sin_seccion);
       return { choques, horas_muertas: muertas, materias_sin_seccion, f };
     }
 
