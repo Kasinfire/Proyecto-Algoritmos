@@ -13,7 +13,7 @@
 //   "cancelado"            (se cerro el dialogo de abrir sin elegir archivo)
 // Eventos que se mandan a MATLAB:
 //   "lista", "consultar" { ciclo, centro, carrera, solo_cupo }, "abrir_guardada", "usar_ejemplo",
-//   "materias" { claves }   (cada vez que cambia la lista de materias elegidas),
+//   "materias" { claves, colores }   (cada vez que cambia la lista de materias elegidas),
 //   "preferencias" { entrada, salida, dias_libres, peso_muertas, max_materias_dia,
 //                    max_horas_seguidas, solo_cupo }   (cada vez que cambia una),
 //   "siguiente" (al terminar Preferencias), "regresar", "ir_a_paso" { paso }, "comparar", "ayuda"
@@ -138,7 +138,7 @@ OFERTA.al_pedir({
   usar_ejemplo() {
     empezar_carga("Leyendo la oferta de ejemplo…");
     if (estado.con_matlab) puente.enviar("usar_ejemplo");
-    else puente.recibir("oferta", DEMO.oferta);
+    else puente.recibir("oferta", DEMO_HORARIO.oferta);
   }
 });
 
@@ -149,7 +149,7 @@ function simular_consulta() {
     pagina += 1;
     puente.recibir("progreso", { pagina, secciones: pagina * 100 });
     if (pagina < 3) setTimeout(siguiente_pagina, 450);
-    else setTimeout(() => puente.recibir("oferta", { ...DEMO.oferta, paginas: 3,
+    else setTimeout(() => puente.recibir("oferta", { ...DEMO_HORARIO.oferta, paginas: 3,
       detalle: "3 páginas de SIIAU (100 por página) · demo" }), 450);
   };
   setTimeout(siguiente_pagina, 450);
@@ -157,8 +157,8 @@ function simular_consulta() {
 
 // ---------- Subpaso Materias ----------
 
-MATERIAS.al_cambiar(({ claves }) => {
-  if (estado.con_matlab) puente.enviar("materias", { claves });
+MATERIAS.al_cambiar(({ claves, colores }) => {
+  if (estado.con_matlab) puente.enviar("materias", { claves, colores });
   actualizar_barra();
 });
 
@@ -210,6 +210,6 @@ puente.al_iniciar((con_matlab) => {
   if (con_matlab) {
     puente.enviar("lista");
   } else {
-    puente.recibir("datos", DEMO.datos);
+    puente.recibir("datos", DEMO_HORARIO.datos);
   }
 });

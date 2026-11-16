@@ -9,7 +9,9 @@ function h = pantalla_horario(padre, opciones)
 %   en MATLAB; al terminar se arma el problema con horario.m (src/problemas/real).
 %
 %   padre        : uifigure, uipanel o uigridlayout donde se dibuja
-%   al_continuar : se llama con el problema armado y {claves, preferencias} al terminar
+%   al_continuar : se llama con el problema armado y la configuracion al terminar:
+%                  claves, preferencias, secciones (las que son bits, en el orden de x) y
+%                  materias (clave, nombre y color con que se dibujan en las pantallas)
 %   al_regresar  : se llama sin argumentos al presionar Regresar o el paso 1 del riel
 %   al_comparar  : se llama sin argumentos al presionar el boton de comparar
 %   seleccion    : lo elegido antes (reservado para restaurar al volver del paso 3)
@@ -29,6 +31,7 @@ function h = pantalla_horario(padre, opciones)
     catalogo = opciones_siiau();
     secciones = struct([]);
     claves = strings(1, 0);
+    colores = strings(1, 0);
     preferencias = struct();
 
     h = uihtml(padre, 'HTMLSource', fullfile(raiz, 'src', 'ui', 'web', 'horario.html'));
@@ -64,6 +67,7 @@ function h = pantalla_horario(padre, opciones)
                 leer_archivos({fullfile(raiz, ejemplo)});
             case 'materias'
                 claves = string(datos.claves(:)');
+                if isfield(datos, 'colores'), colores = string(datos.colores(:)'); end
             case 'preferencias'
                 preferencias = datos;
                 preferencias.dias_libres = logical(datos.dias_libres(:)');
@@ -131,7 +135,19 @@ function h = pantalla_horario(padre, opciones)
             sendEventToHTMLSource(h, 'aviso', struct('texto', err.message));
             return;
         end
-        opciones.al_continuar(problema, struct('claves', claves, 'preferencias', preferencias));
+        opciones.al_continuar(problema, struct('claves', claves, 'preferencias', preferencias, ...
+            'secciones', elegidas, 'materias', materias_de(elegidas)));
+    end
+
+    function materias = materias_de(elegidas)
+        materias = struct('clave', {}, 'nombre', {}, 'color', {});
+        for k = 1:numel(claves)
+            s = elegidas(strcmp({elegidas.clave}, claves(k)));
+            if isempty(s), continue; end
+            color = '';
+            if k <= numel(colores), color = char(colores(k)); end
+            materias(end + 1) = struct('clave', char(claves(k)), 'nombre', s(1).materia, 'color', color); %#ok<AGROW>
+        end
     end
 
     function enviar_y_dibujar(nombre, datos)

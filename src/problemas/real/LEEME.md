@@ -12,6 +12,7 @@ Origen de los datos: la consulta pública de oferta académica de SIIAU.
 | `consultar_siiau.m` | descarga la oferta página por página (`p_start`) hasta la que trae "Total de registros" |
 | `leer_oferta_siiau.m` | convierte el HTML de SIIAU en un struct de secciones con sus sesiones (hora, días, aula) |
 | `leer_oferta_guardada.m` | lo mismo desde páginas guardadas con Ctrl+S (UTF-8 o ISO-8859-1) |
+| `desglose_horario.m` | cuenta cada castigo de f para una solución (choques, horas muertas, ...) y su suma |
 
 Pendiente: `horario.m` (el problema: codificación, función objetivo y restricciones). Mientras no
 exista, la tarjeta de aplicación real de la pantalla 1 no deja continuar y Siguiente en
@@ -45,6 +46,13 @@ f(x) = peso_muertas·horas muertas + 2·horas fuera de entrada–salida
 
 "Materias sin sección" cuenta las materias con cero o con más de una sección elegida (una
 sección por materia); con `solo_cupo`, una sección sin lugares no cuenta como elegida.
+
+`desglose_horario(x, secciones, preferencias)` ya calcula cada término y `f`; las pantallas
+de ejecución y resultados lo usan para mostrar choques y horas muertas. `horario.m` puede
+usarlo como función objetivo (`f = desglose.f`) o calcular la suya, pero si cambia los
+pesos o los términos hay que cambiarlos también ahí para que la pantalla diga lo mismo.
+Mientras no exista `horario.m`, `horario_de_ejemplo` (en `src/ui/demos`) arma el problema
+con este desglose para probar las pantallas.
 
 Detalles de SIIAU:
 - Una sección puede traer varias sesiones (por ejemplo lunes en un aula y jueves en otra).

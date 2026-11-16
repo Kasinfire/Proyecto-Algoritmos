@@ -218,7 +218,9 @@ const MATERIAS = (() => {
 
   SEMANA.resaltar_secciones(el.semana);
 
-  function al_cambiar(fn) { avisar_cambio = () => fn({ claves: [...estado.elegidas] }); }
+  function al_cambiar(fn) {
+    avisar_cambio = () => fn({ claves: [...estado.elegidas], colores: estado.elegidas.map((c) => estado.colores.get(c)) });
+  }
 
   function resumen() {
     if (estado.elegidas.length === 0) return "Agrega las materias que vas a cursar.";

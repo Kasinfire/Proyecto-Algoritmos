@@ -12,6 +12,8 @@ function h = pantalla_ejecucion(padre, problema, id, params, opciones)
 %   al_ir_a_paso      : se llama con 0 (tipo) o 1 (problema) al presionar esos pasos del riel
 %   al_comparar       : se llama sin argumentos al presionar el boton de comparar
 %   n_guardadas       : ejecuciones guardadas (contador del boton de comparar)
+%   tipo, config      : lo elegido en los pasos 1 y 2. Con 'real' (el horario) la pantalla
+%                       dibuja el mejor horario de cada iteracion en vez del mapa
 %
 %   El algoritmo corre completo en MATLAB al abrir la pantalla y el HTML solo reproduce
 %   resultado.historial; por eso se puede pausar, adelantar y regresar.
@@ -27,6 +29,8 @@ function h = pantalla_ejecucion(padre, problema, id, params, opciones)
         opciones.al_ir_a_paso function_handle = @(paso) []
         opciones.al_comparar function_handle = @() []
         opciones.n_guardadas (1,1) double = 0
+        opciones.tipo char = ''
+        opciones.config struct = struct()
     end
 
     carpeta_web = fullfile(fileparts(fileparts(mfilename('fullpath'))), 'web');
@@ -51,7 +55,11 @@ function atender(h, evento, problema, id, params, opciones)
                 return;
             end
             h.UserData = resultado;
-            sendEventToHTMLSource(h, 'datos', datos_ejecucion(resultado, id, opciones.n_guardadas));
+            datos = datos_ejecucion(resultado, id, opciones.n_guardadas);
+            if strcmp(opciones.tipo, 'real') && isfield(opciones.config, 'secciones')
+                datos.horario = horario_para_ui(opciones.config, resultado.historial.mejor_solucion);
+            end
+            sendEventToHTMLSource(h, 'datos', datos);
         case 'resultados'
             resultado = h.UserData;
             if datos.iteracion < resultado.iteraciones

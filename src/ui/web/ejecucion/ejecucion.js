@@ -11,6 +11,8 @@
 //            no se conoce). poblacion trae solo x1 y x2 de cada solucion, de una iteracion
 //            cada paso_poblacion (mas la ultima) y a lo mas 500 por iteracion.
 //            mapa sale de mapa_de_busqueda.m ({tipo: 'ninguno'} si no es continuo).
+//            En el horario llega tambien horario (horario_para_ui.m): la semana con el
+//            mejor horario de cada iteracion toma el lugar del mapa.
 //   "aviso"  { texto }   (el algoritmo fallo)
 // Eventos que se mandan a MATLAB:
 //   "lista", "resultados" { iteracion }, "regresar", "ir_a_paso" { paso }, "comparar", "ayuda"
@@ -18,6 +20,7 @@
 const SEGUNDOS_POR_EJECUCION = 14;
 const VENTANA_CAMBIO = 10;
 const MS_POR_CUADRO = 33;
+const UNIDADES = { ga: "Generación", de: "Generación" };
 
 const estado = {
   datos: null,
@@ -30,7 +33,9 @@ const estado = {
   temporizador: null,
   escala: null,
   imagen: null,         // imagen del mapa ya cargada, para las miniaturas
-  cambios_ruta: []      // iteraciones donde el mejor cambio de lugar (la ruta del mapa)
+  cambios_ruta: [],     // iteraciones donde el mejor cambio de lugar (la ruta del mapa)
+  horario: null,        // solo en el problema del horario
+  horario_dibujado: -1  // solucion que ya esta en la semana
 };
 
 const el = Object.fromEntries([
@@ -40,7 +45,9 @@ const el = Object.fromEntries([
   "etiqueta-parametros", "parametros", "ver-configuracion", "configuracion",
   "cerrar-configuracion", "lista-configuracion", "convergencia", "momentos", "reiniciar",
   "anterior", "reproducir", "siguiente", "detener", "hitos", "pista", "regla", "avance",
-  "vedado", "perilla", "estado", "regresar", "resultados"
+  "vedado", "perilla", "estado", "regresar", "resultados", "escena-horario", "horario-etiqueta",
+  "horario-titulo", "horario-leyenda", "horario-semana", "etiqueta-iteracion", "choques",
+  "nota-choques", "muertas", "nota-muertas"
 ].map((id) => [id.replace(/-/g, "_"), document.getElementById(id)]));
 
 // jsonencode manda un vector como [a, b] y una matriz como [[a, b], ...]; esto deja
@@ -88,6 +95,9 @@ function iniciar(datos) {
   datos.problema.x_optimo = como_lista(datos.problema.x_optimo);
 
   estado.datos = datos;
+  estado.horario = datos.horario ? HORARIO.preparar(datos.horario) : null;
+  estado.horario_dibujado = -1;
+  document.body.classList.toggle("modo-horario", Boolean(estado.horario));
   estado.total = Number(datos.iteraciones);
   estado.escala = escala_convergencia(h.mejor_valor);
   estado.t = 0;
@@ -135,6 +145,22 @@ function dibujar_textos() {
   el.lista_configuracion.innerHTML =
     `<span class="grupo">${algoritmo.siglas}</span>${propios.map(fila).join("")}` +
     `<span class="grupo">Comunes</span>${parametros.filter((p) => p.comun).map(fila).join("")}`;
+
+  if (estado.horario) dibujar_textos_horario();
+}
+
+function unidad() {
+  return (estado.horario && UNIDADES[estado.datos.algoritmo.id]) || "Iteración";
+}
+
+function dibujar_textos_horario() {
+  const h = estado.horario, { algoritmo, problema } = estado.datos;
+  el.subtitulo.textContent = `${TEXTO.plural(h.materias.length, "materia", "materias")} con `
+    + `${TEXTO.plural(problema.dim, "sección", "secciones")}: se busca el horario con menos castigos`;
+  el.etiqueta_iteracion.textContent = unidad();
+  el.etiqueta_mejor.textContent = "Mejor f";
+  el.horario_etiqueta.textContent = `${algoritmo.siglas} · horario de materias`;
+  el.horario_leyenda.innerHTML = HORARIO.leyenda(h);
 }
 
 function valor_parametro(v) {
@@ -142,6 +168,9 @@ function valor_parametro(v) {
 }
 
 function preparar_mapa() {
+  el.escena_horario.hidden = !estado.horario;
+  el.escenario.hidden = Boolean(estado.horario);
+  if (estado.horario) return;
   const mapa = estado.datos.mapa;
   const hay_mapa = mapa.tipo !== "ninguno";
   el.leyenda.hidden = !hay_mapa;
@@ -208,11 +237,24 @@ function vista(i, t = i, miniatura = false) {
 }
 
 function dibujar_escenario() {
+  if (estado.horario) return dibujar_horario(Math.floor(estado.t));
   if (estado.datos.mapa.tipo === "ninguno") return;
   const v = vista(Math.floor(estado.t), estado.t);
   const caja = el.escenario.getBoundingClientRect(), ley = el.leyenda.getBoundingClientRect();
   v.evitar = { x: ley.left - caja.left, y: ley.top - caja.top, w: ley.width, h: ley.height };
   dibujar_mapa(el.mapa, v);
+}
+
+// La semana solo se vuelve a armar cuando cambia el mejor horario.
+function dibujar_horario(i) {
+  const h = estado.horario;
+  const k = HORARIO.indice_en(h, i);
+  if (k !== estado.horario_dibujado) {
+    estado.horario_dibujado = k;
+    HORARIO.dibujar_semana(el.horario_semana, h, h.soluciones[k]);
+  }
+  el.horario_titulo.textContent = i === 0 ? "Mejor horario al iniciar"
+    : `Mejor horario en la ${unidad().toLowerCase()} ${i}`;
 }
 
 let iteracion_dibujada = -1;
@@ -226,7 +268,7 @@ function actualizar(todo = false) {
     iteracion_dibujada = i;
     dibujar_lecturas(i);
     dibujar_convergencia(el.convergencia, hist().mejor_valor, i, estado.total, estado.escala,
-      `Mejor f(${estado.datos.algoritmo.simbolo})${estado.escala.tipo === "log" ? ", escala log" : ""}`);
+      `Mejor f${estado.horario ? "" : `(${estado.datos.algoritmo.simbolo})`}${estado.escala.tipo === "log" ? ", escala log" : ""}`);
     dibujar_momentos();
   }
   dibujar_controles();
@@ -242,9 +284,10 @@ function dibujar_lecturas(i) {
   const antes = mejor_valor[i - atras];
   const cambio = mejor_valor[i] === antes ? 0 : mejor_valor[i] - antes;
   el.cambio.classList.toggle("mejora", cambio !== 0);
-  el.cambio.textContent = atras === 0 ? "posición inicial"
+  el.cambio.textContent = atras === 0 ? (estado.horario ? "al iniciar" : "posición inicial")
     : cambio === 0 ? `sin cambio en las últimas ${atras} it`
     : `${cambio > 0 ? "+" : ""}${formato_corto(cambio)} en las últimas ${atras} it`;
+  if (estado.horario) return dibujar_lecturas_horario(i);
 
   const x = mejor_solucion[i];
   el.posicion.textContent = texto_punto(x, problema.dim);
@@ -256,6 +299,18 @@ function dibujar_lecturas(i) {
   } else {
     el.distancia.textContent = "óptimo desconocido con estos datos";
   }
+}
+
+function dibujar_lecturas_horario(i) {
+  const x = HORARIO.solucion_en(estado.horario, i);
+  const choques = Number(x.choques), sin_seccion = Number(x.materias_sin_seccion);
+  el.choques.textContent = choques;
+  el.choques.classList.toggle("alerta", choques > 0);
+  el.nota_choques.textContent = sin_seccion > 0
+    ? `y ${TEXTO.plural(sin_seccion, "materia", "materias")} sin una sección`
+    : choques > 0 ? "secciones encimadas" : "ninguna sección encimada";
+  el.muertas.textContent = `${formato_corto(Number(x.horas_muertas))} h`;
+  el.nota_muertas.textContent = "huecos entre clases del mismo día";
 }
 
 function dibujar_momentos() {
@@ -280,10 +335,13 @@ function dibujar_momentos() {
     const texto = fuera ? "no se llegó"
       : k === 0 && !listo ? "al iniciar" : `llega en la iteración ${m.it}`;
     boton.innerHTML = `<span class="momento-cabeza"><span>${m.nombre}</span><span>${valor}</span></span>
-      <span class="momento-cuadro">${listo ? (hay_mapa ? "<canvas></canvas>" : `it ${m.it}`) : texto}</span>`;
+      <span class="momento-cuadro">${!listo ? texto : estado.horario ? '<div class="semana mini"></div>'
+        : hay_mapa ? "<canvas></canvas>" : `it ${m.it}`}</span>`;
     boton.setAttribute("aria-label", listo ? `${m.nombre}: iteración ${m.it}, ${valor}` : `${m.nombre}: ${texto}`);
     boton.addEventListener("click", () => { pausar(); ir_a(m.it); });
     el.momentos.appendChild(boton);
+    const mini = boton.querySelector(".semana");
+    if (mini) HORARIO.dibujar_semana(mini, estado.horario, HORARIO.solucion_en(estado.horario, m.it), true);
     const canvas = boton.querySelector("canvas");
     const sin_imagen = estado.datos.mapa.tipo === "superficie" && !(estado.imagen && estado.imagen.complete);
     if (canvas && !sin_imagen) dibujar_mapa(canvas, vista(m.it, m.it, true));
@@ -504,6 +562,6 @@ puente.al_iniciar((con_matlab) => {
     mostrar_calculando();
     puente.enviar("lista");
   } else {
-    puente.recibir("datos", DEMO.datos());
+    puente.recibir("datos", location.search.includes("horario") ? DEMO.datos_horario() : DEMO.datos());
   }
 });

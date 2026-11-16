@@ -115,6 +115,14 @@ el presupuesto de
 evaluaciones (`tam × (iteraciones + 1)`) para comparar GA, PSO y DE con el mismo. En el
 navegador sin MATLAB se ve con `algoritmo.html?horario`.
 
+La ejecución del horario también es `ejecucion.html`: con tipo `real`, `pantalla_ejecucion`
+agrega `horario` (de `horario_para_ui.m`: materias con su color, secciones, preferencias y
+el mejor horario de cada vez que cambió, con su desglose de `desglose_horario.m`). La semana
+toma el lugar del mapa, las lecturas son generación, mejor f, choques y horas muertas, y los
+momentos son miniaturas de la semana. La semana la dibuja `horario/elegido.js` con el CSS de
+`horario/semana.css`, que comparte con Materias y Preferencias. En el navegador:
+`ejecucion.html?horario`; en MATLAB, `demo_pantalla_ejecucion('horario')`.
+
 ## Caché de uihtml
 uihtml guarda en caché los CSS y JS mientras MATLAB está abierto. Por eso los enlaces
 llevan `?v=3`: si cambias un CSS o JS, súbele el número en el HTML (o reinicia MATLAB),
@@ -126,7 +134,7 @@ En MATLAB, desde `Proyecto/`:
 addpath(genpath('src')); demo_pantalla_tipo
 addpath(genpath('src')); demo_pantalla_problema          % o ('binario'), ('permutacion') o ('real')
 addpath(genpath('src')); demo_pantalla_algoritmo         % o ('ackley', 10) u ('horario')
-addpath(genpath('src')); demo_pantalla_ejecucion         % o demo_pantalla_ejecucion('ackley', 5, 'de')
+addpath(genpath('src')); demo_pantalla_ejecucion         % o ('ackley', 5, 'de') u ('horario')
 addpath(genpath('src')); demo_pantalla_resultados        % o demo_pantalla_resultados('ackley', 5, 'de')
 addpath(genpath('src')); demo_pantalla_comparar
 ```
