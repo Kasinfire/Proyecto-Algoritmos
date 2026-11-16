@@ -2,7 +2,7 @@
 Responsable: bloque C. TSP: la solución es una permutación de ciudades; costo = longitud del recorrido cerrado. Coordenadas en datos/.
 
 ## Lo que espera la interfaz
-La pantalla 2 (`src/ui/pantallas/armar_problema_permutacion.m`) llama a esta función con las
+La pantalla 2 (`src/ui/pantallas/problema/armar_problema_permutacion.m`) llama a esta función con las
 ciudades que generó la semilla o que vinieron de un CSV, ya validadas (de 4 a 100 ciudades).
 Regresa el struct de `crear_problema`:
 

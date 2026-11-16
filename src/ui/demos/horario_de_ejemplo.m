@@ -10,7 +10,7 @@ function [problema, config] = horario_de_ejemplo(claves)
     if nargin < 1
         claves = ["V0723" "V0718" "IL364" "CB224" "V0726"];
     end
-    raiz = fileparts(fileparts(fileparts(fileparts(mfilename('fullpath')))));
+    raiz = ruta_proyecto();
     oferta = leer_oferta_guardada(fullfile(raiz, 'datos', 'siiau', 'oferta_info_202620.html'));
 
     con_horario = arrayfun(@(s) ~isempty(s.sesiones), oferta);
