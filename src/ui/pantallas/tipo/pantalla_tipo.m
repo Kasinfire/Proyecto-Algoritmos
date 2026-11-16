@@ -20,7 +20,7 @@ function h = pantalla_tipo(padre, opciones)
         opciones.n_guardadas (1,1) double = 0
     end
 
-    carpeta_web = fullfile(fileparts(fileparts(mfilename('fullpath'))), 'web');
+    carpeta_web = ruta_proyecto('src', 'ui', 'web');
     h = uihtml(padre, 'HTMLSource', fullfile(carpeta_web, 'tipo.html'));
     if isa(padre, 'matlab.ui.container.GridLayout')
         h.Layout.Row = 1;

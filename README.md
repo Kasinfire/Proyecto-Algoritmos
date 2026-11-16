@@ -30,8 +30,8 @@ Proyecto/
 │  │  └─ real/               [falta]   problema de aplicación real (bonus)
 │  ├─ core/utilidades/
 │  ├─ graficas/
-│  └─ ui/
-│     ├─ pantallas/
+│  └─ ui/                    interfaz: empezar por src/ui/LEEME.md
+│     ├─ pantallas/          un .m por pantalla, agrupados por paso
 │     ├─ demos/
 │     └─ web/
 ├─ experimentos/

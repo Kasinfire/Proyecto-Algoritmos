@@ -11,6 +11,8 @@ function h = pantalla_resultados(padre, resultado, opciones)
 %                        del enunciado): la app regresa al paso 3 con la misma configuracion
 %   al_comparar  : se llama sin argumentos al presionar Comparar ejecuciones
 %   al_ir_a_paso : se llama con 0..3 al presionar un paso del riel
+%   tipo, config : lo elegido en los pasos 1 y 2. Con 'real' (el horario) la pantalla
+%                  muestra el horario final, sus bits y los NRC para inscribirse
 %
 %   Los botones CSV y JSON abren un dialogo para guardar con exportar_resultado.
 %   h : el componente uihtml. Requiere MATLAB R2023a o mas reciente.
@@ -23,9 +25,11 @@ function h = pantalla_resultados(padre, resultado, opciones)
         opciones.al_nueva_ejecucion function_handle = @() []
         opciones.al_comparar function_handle = @() []
         opciones.al_ir_a_paso function_handle = @(paso) []
+        opciones.tipo char = ''
+        opciones.config struct = struct()
     end
 
-    carpeta_web = fullfile(fileparts(fileparts(mfilename('fullpath'))), 'web');
+    carpeta_web = ruta_proyecto('src', 'ui', 'web');
     h = uihtml(padre, 'HTMLSource', fullfile(carpeta_web, 'resultados.html'));
     if isa(padre, 'matlab.ui.container.GridLayout')
         h.Layout.Row = 1;
@@ -40,7 +44,15 @@ function atender(h, evento, resultado, opciones)
     datos = evento.HTMLEventData;
     switch evento.HTMLEventName
         case 'lista'
-            sendEventToHTMLSource(h, 'datos', datos_resultados(resultado, opciones));
+            datos = datos_resultados(resultado, opciones);
+            if strcmp(opciones.tipo, 'real') && isfield(opciones.config, 'secciones')
+                datos.horario = horario_para_ui(opciones.config, resultado.mejor_solucion);
+            end
+            sendEventToHTMLSource(h, 'datos', datos);
+        case 'copiar'
+            clipboard('copy', datos.texto);
+            sendEventToHTMLSource(h, 'exportado', struct('texto', ...
+                sprintf('NRC copiados: %s', datos.texto), 'ok', true));
         case 'exportar'
             exportar(h, resultado, opciones.numero, datos.formato);
         case 'nueva_ejecucion'

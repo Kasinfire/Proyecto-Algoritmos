@@ -2,7 +2,7 @@
 Responsable: bloque D. OneMax y/o mochila (pesos, valores y capacidad configurables). Datos en datos/.
 
 ## Lo que espera la interfaz
-La pantalla 2 (`src/ui/pantallas/armar_problema_binario.m`) llama a estas dos funciones con
+La pantalla 2 (`src/ui/pantallas/problema/armar_problema_binario.m`) llama a estas dos funciones con
 los datos que escribió el usuario, ya validados. Las dos regresan el struct de `crear_problema`:
 
 ```matlab

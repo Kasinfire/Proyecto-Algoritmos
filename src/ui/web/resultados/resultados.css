@@ -7,8 +7,8 @@
   display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 28px;
 }
 .lectura { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
-.lectura:last-child { align-items: flex-end; text-align: right; }
-.lectura:last-child .nota { white-space: nowrap; }
+.lectura.al-final { align-items: flex-end; text-align: right; }
+.lectura.al-final .nota { white-space: nowrap; }
 .lecturas .mediana { font-size: 22px; font-weight: 300; letter-spacing: -0.02em; line-height: 44px; }
 .lecturas .grande { font-size: 40px; }
 
@@ -52,6 +52,49 @@
 .acciones .boton { white-space: nowrap; }
 .boton:hover:not(:disabled) { background: rgba(17, 19, 40, 0.1); }
 .boton-primario:hover:not(:disabled) { background: var(--acento-oscuro); }
+
+/* Horario (problema real): la semana con sus bits a la izquierda; a la derecha las
+   lecturas, los NRC para inscribirse y las pestanas. */
+body.modo-horario .solo-mapa, body:not(.modo-horario) .solo-horario { display: none; }
+body.modo-horario .lecturas { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 28px; }
+.grande.alerta { color: #D95319; }
+.resumen-f { grid-column: 1 / -1; margin: 0; font-size: 13px; line-height: 1.45; color: var(--tinta-2); }
+.resumen-f b { font-weight: 500; color: var(--tinta); font-variant-numeric: tabular-nums; }
+
+.nrc { flex: 0 1 auto; min-height: 150px; padding: 16px 20px 16px; display: flex; flex-direction: column; gap: 8px; }
+.nrc-cabeza { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.nrc-cabeza h2 { flex: 1; min-width: 0; white-space: nowrap; }
+.boton-chico { height: 34px; padding: 0 14px; gap: 7px; font-size: 13px; color: var(--acento-oscuro); background: var(--acento-suave); }
+.boton-chico:hover:not(:disabled) { background: rgba(0, 114, 189, 0.14); }
+.lista-nrc { flex: 1; min-height: 0; margin: 0 -10px 0 0; padding: 0 10px 0 0; list-style: none; overflow-y: auto; }
+.lista-nrc li {
+  display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; align-items: center; gap: 2px 12px;
+  padding: 8px 0;
+}
+.lista-nrc li + li { box-shadow: inset 0 1px 0 var(--linea); }
+.lista-nrc i { width: 10px; height: 10px; border-radius: 3px; background: var(--color); grid-row: span 2; }
+.lista-nrc b, .lista-nrc span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lista-nrc b { font-weight: 500; font-size: 13px; }
+.lista-nrc span { grid-column: 2; font-size: 12px; color: var(--tinta-3); }
+.lista-nrc code {
+  grid-column: 3; grid-row: 1 / span 2; font-size: 14px; font-weight: 500; color: var(--tinta);
+  font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+}
+.nrc .nota code { font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; color: var(--tinta-2); }
+body.modo-horario .detalle { min-height: 190px; }
+body.modo-horario .historial th:last-child, body.modo-horario .historial td:last-child { display: none; }
+
+.bits-pie { flex: none; display: flex; flex-direction: column; gap: 8px; padding-top: 12px; box-shadow: inset 0 1px 0 var(--linea); }
+.bits-cabeza { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.bits-cabeza .etiqueta { flex: 1; min-width: 0; white-space: nowrap; }
+.bits { display: flex; flex-wrap: wrap; gap: 2px; }
+.bit {
+  width: 14px; height: 20px; border-radius: 5px; background: rgba(17, 19, 40, 0.05);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; font-size: 10px; color: var(--apagado);
+}
+.bit.uno { background: var(--color); color: #FFFFFF; font-weight: 600; }
+.bit.nueva-materia { margin-left: 6px; }
 
 @media (max-width: 1280px) {
   .encabezado h1 { font-size: 36px; }

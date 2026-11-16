@@ -39,7 +39,7 @@ function h = pantalla_problema(padre, tipo, opciones)
         return;
     end
 
-    carpeta_web = fullfile(fileparts(fileparts(mfilename('fullpath'))), 'web');
+    carpeta_web = ruta_proyecto('src', 'ui', 'web');
     paginas = struct('continuo', 'problema.html', 'binario', 'problema_binario.html', ...
                      'permutacion', 'problema_tsp.html');
     pagina = paginas.(tipo);
@@ -121,7 +121,7 @@ end
 
 % Ruta del CSV elegido, o '' si se cancelo.
 function ruta = elegir_csv(h, titulo)
-    carpeta_datos = fullfile(fileparts(fileparts(fileparts(fileparts(mfilename('fullpath'))))), 'datos');
+    carpeta_datos = ruta_proyecto('datos');
     [archivo, carpeta] = uigetfile({'*.csv', 'CSV (*.csv)'}, titulo, [carpeta_datos filesep]);
     figure(ancestor(h, 'figure'));
     if isequal(archivo, 0)

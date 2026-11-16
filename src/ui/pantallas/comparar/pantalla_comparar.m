@@ -23,7 +23,7 @@ function h = pantalla_comparar(padre, ejecuciones, opciones)
         opciones.al_ir_a_paso function_handle = @(paso) []
     end
 
-    carpeta_web = fullfile(fileparts(fileparts(mfilename('fullpath'))), 'web');
+    carpeta_web = ruta_proyecto('src', 'ui', 'web');
     h = uihtml(padre, 'HTMLSource', fullfile(carpeta_web, 'comparar.html'));
     if isa(padre, 'matlab.ui.container.GridLayout')
         h.Layout.Row = 1;
