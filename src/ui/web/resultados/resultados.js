@@ -240,17 +240,20 @@ function dibujar_horario() {
   dibujar_nrc(secciones);
 }
 
+const dura = (x) => ["choques", "materias_sin_seccion", "secciones_de_mas", "sin_lugares"]
+  .reduce((suma, campo) => suma + Number(x[campo] ?? 0), 0);
+
 // Que suma f, en palabras: un termino por castigo que no sea cero.
 function resumen_f(x) {
-  const p = x.pesos, pref = datos.horario.preferencias;
+  const p = x.pesos ?? {}, pref = datos.horario.preferencias;
   const hora = (v) => `${String(v).padStart(2, "0")}:00`;
   const n = (v) => formato_corto(Number(v));
   const terminos = [
     [x.horas_muertas, p.muertas, `${n(x.horas_muertas)} h muertas`],
     [x.horas_fuera, p.fuera, `${n(x.horas_fuera)} h fuera de ${hora(pref.entrada)}–${hora(pref.salida)}`],
-    [x.dias_libres_ocupados, p.dia_libre, TEXTO.plural(Number(x.dias_libres_ocupados), "día libre con clase", "días libres con clase")],
+    [x.dias_libres_usados, p.dia_libre, TEXTO.plural(Number(x.dias_libres_usados), "día libre con clase", "días libres con clase")],
     [Number(x.materias_de_mas) + Number(x.horas_seguidas_de_mas), p.carga, "carga de más en un día"],
-    [Number(x.choques) + Number(x.materias_sin_seccion), p.choque, "choques o materias sin sección"]
+    [dura(x), p.choque, "choques, secciones sin lugar o materias sin sección"]
   ].filter(([cantidad, peso]) => Number(cantidad) > 0 && Number(peso) > 0);
   if (terminos.length === 0) return "Sin castigos: cumple todas tus preferencias.";
   return `<b>f = ${n(x.f)}</b> por ` + terminos.map(([, peso, texto]) => `${TEXTO.esc(texto)} (×${peso})`).join(", ") + ".";

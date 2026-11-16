@@ -16,6 +16,7 @@ function h = horario_para_ui(config, X)
 %                    las iteraciones donde cambio el mejor horario
 %       soluciones   una por cambio: elegidas (indices desde 0), bits y el desglose de f
 %                    (el de decodificar_horario, el mismo f que optimizan los algoritmos)
+%                    con los pesos de cada termino
 
     COLORES = {'#0072BD', '#D95319', '#7E2F8E', '#2B9FD0', '#A2142F', '#4E8A22', '#B07A0C', '#4A4D57'};
 
@@ -44,6 +45,7 @@ function h = horario_para_ui(config, X)
         lista(k).sesiones = num2cell(secciones(k).sesiones);
     end
 
+    pesos = pesos_para_ui(config.datos);
     X = logical(round(X));
     cambios = find([true; any(diff(X, 1, 1) ~= 0, 2)]);
     soluciones = cell(numel(cambios), 1);
@@ -52,6 +54,7 @@ function h = horario_para_ui(config, X)
         d = decodificar_horario(x, config.datos).desglose;
         d.elegidas = find(x) - 1;
         d.bits = double(x);
+        d.pesos = pesos;
         soluciones{k} = d;
     end
 
@@ -69,4 +72,10 @@ function p = preferencias_para_ui(preferencias)
         if isfield(preferencias, campo{1}), p.(campo{1}) = preferencias.(campo{1}); end
     end
     p.dias_libres = logical(p.dias_libres(:)');
+end
+
+function p = pesos_para_ui(datos)
+    w = datos.pesos;
+    p = struct('muertas', datos.preferencias.peso_muertas, 'fuera', w.fuera, ...
+        'dia_libre', w.dia_libre, 'carga', w.exceso, 'choque', w.dura);
 end

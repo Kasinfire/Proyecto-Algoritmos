@@ -40,7 +40,7 @@ const DEMO_RESULTADOS = (() => {
     const h = e.historial, n = h.mejor_valor.length;
     const soluciones = e.horario.soluciones;
     const final = { ...soluciones[soluciones.length - 1],
-      horas_fuera: 2, dias_libres_ocupados: 0, materias_de_mas: 0, horas_seguidas_de_mas: 0,
+      horas_fuera: 2, dias_libres_usados: 0, materias_de_mas: 0, horas_seguidas_de_mas: 0,
       pesos: { muertas: 1, fuera: 2, dia_libre: 5, carga: 10, choque: 100 } };
     return {
       ...datos(),
