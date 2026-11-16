@@ -1,19 +1,12 @@
-# Problemas de permutación: por implementar
-Responsable: bloque C. TSP: la solución es una permutación de ciudades; costo = longitud del recorrido cerrado. Coordenadas en datos/.
+# Problema de permutacion: TSP
 
-## Lo que espera la interfaz
-La pantalla 2 (`src/ui/pantallas/problema/armar_problema_permutacion.m`) llama a esta función con las
-ciudades que generó la semilla o que vinieron de un CSV, ya validadas (de 4 a 100 ciudades).
-Regresa el struct de `crear_problema`:
+La pantalla del problema (`src/ui/pantallas/problema/armar_problema_permutacion.m`) entrega a `tsp(coordenadas)` coordenadas generadas o cargadas desde un CSV.
 
-```matlab
-problema = tsp(coordenadas)      % coordenadas: n x 2, una fila (x, y) por ciudad
-```
+`tsp(coordenadas)` recibe una matriz n x 2, con una ciudad por fila, y crea un problema compatible con `crear_problema`:
 
-- `representacion='permutacion'`, `sentido='min'`, `sentido_fijo=true` y `lb = ub = []`.
-- `f(ruta)` recibe una permutación 1 x n de 1..n y regresa la longitud del recorrido
-  cerrado (de la última ciudad se regresa a la primera).
-- `datos=struct('coordenadas', coordenadas)`; conviene guardar también la matriz de
-  distancias para no recalcularla en cada evaluación.
+- Representacion `permutacion`, sentido fijo `min` y limites vacios.
+- La solucion es un orden de las ciudades, cada una exactamente una vez.
+- La funcion objetivo suma las distancias euclidianas entre ciudades consecutivas y agrega el regreso desde la ultima ciudad a la primera.
+- `datos.coordenadas` conserva los puntos y `datos.distancias` guarda la matriz que pueden reutilizar ACO y la interfaz.
 
-Mientras el archivo no exista, la pantalla deja elegir las ciudades pero no deja continuar.
+Para leer un CSV desde un script: `coordenadas = cargar_ciudades(archivo)`. El ejemplo del repositorio esta en `datos/ciudades_tsp.csv`. La interfaz tambien permite generar ciudades con semilla o cargar coordenadas desde un CSV.
