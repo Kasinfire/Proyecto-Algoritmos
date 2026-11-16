@@ -26,7 +26,7 @@ function h = pantalla_horario(padre, opciones)
         opciones.n_guardadas (1,1) double = 0
     end
 
-    raiz = fileparts(fileparts(fileparts(fileparts(mfilename('fullpath')))));
+    raiz = ruta_proyecto();
     ejemplo = fullfile('datos', 'siiau', 'oferta_info_202620.html');
     catalogo = opciones_siiau();
     secciones = struct([]);

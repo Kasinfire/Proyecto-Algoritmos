@@ -13,7 +13,7 @@ function generar_imagenes_problemas(opciones)
     end
 
     puntos_por_eje = 150;
-    carpeta = fullfile(fileparts(fileparts(mfilename('fullpath'))), 'web', 'problema', 'imagenes');
+    carpeta = ruta_proyecto('src', 'ui', 'web', 'problema', 'imagenes');
     if ~isfolder(carpeta), mkdir(carpeta); end
 
     for id = funcion_prueba('lista')
