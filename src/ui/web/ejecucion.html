@@ -7,7 +7,8 @@
 <link rel="stylesheet" href="comun/fuentes/geist.css?v=3">
 <link rel="stylesheet" href="comun/base.css?v=3">
 <link rel="stylesheet" href="comun/paneles.css?v=1">
-<link rel="stylesheet" href="ejecucion/ejecucion.css?v=2">
+<link rel="stylesheet" href="horario/semana.css?v=1">
+<link rel="stylesheet" href="ejecucion/ejecucion.css?v=3">
 </head>
 <body>
 <div class="lienzo">
@@ -37,10 +38,21 @@
         <p class="escenario-mensaje" id="mensaje-mapa"></p>
       </section>
 
+      <section class="tarjeta escena-horario" aria-label="Mejor horario" id="escena-horario" hidden>
+        <div class="escena-cabeza">
+          <div>
+            <span class="etiqueta" id="horario-etiqueta"></span>
+            <h2 class="escena-titulo" id="horario-titulo"></h2>
+          </div>
+          <ul class="leyenda-semana" id="horario-leyenda"></ul>
+        </div>
+        <div class="semana" id="horario-semana"></div>
+      </section>
+
       <div class="columna">
         <section class="tarjeta lecturas" aria-label="Lecturas">
           <div class="lectura">
-            <span class="etiqueta">Iteración</span>
+            <span class="etiqueta" id="etiqueta-iteracion">Iteración</span>
             <span class="grande"><span id="iteracion">0</span><span class="total">/<span id="total">0</span></span></span>
           </div>
           <div class="lectura">
@@ -48,15 +60,25 @@
             <span class="grande" id="mejor">–</span>
             <span class="nota" id="cambio"></span>
           </div>
-          <div class="lectura">
+          <div class="lectura solo-mapa">
             <span class="etiqueta" id="etiqueta-posicion">Mejor posición</span>
             <span class="mediana" id="posicion">–</span>
             <span class="nota" id="distancia"></span>
           </div>
-          <div class="lectura">
+          <div class="lectura solo-mapa">
             <span class="etiqueta" id="etiqueta-parametros">Parámetros</span>
             <span class="mediana" id="parametros"></span>
             <button type="button" class="enlace" id="ver-configuracion" aria-expanded="false" aria-controls="configuracion">Configuración completa →</button>
+          </div>
+          <div class="lectura solo-horario">
+            <span class="etiqueta">Choques</span>
+            <span class="grande" id="choques">–</span>
+            <span class="nota" id="nota-choques"></span>
+          </div>
+          <div class="lectura solo-horario">
+            <span class="etiqueta">Horas muertas</span>
+            <span class="grande" id="muertas">–</span>
+            <span class="nota" id="nota-muertas"></span>
           </div>
 
           <div class="configuracion" id="configuracion" role="dialog" aria-labelledby="titulo-configuracion" hidden>
@@ -126,7 +148,11 @@
 <script src="comun/puente.js?v=3"></script>
 <script src="comun/riel.js?v=3"></script>
 <script src="comun/graficas.js?v=3"></script>
-<script src="ejecucion/demo.js?v=2"></script>
-<script src="ejecucion/ejecucion.js?v=3"></script>
+<script src="horario/texto.js?v=2"></script>
+<script src="horario/semana.js?v=1"></script>
+<script src="horario/elegido.js?v=1"></script>
+<script src="horario/demo.js?v=2"></script>
+<script src="ejecucion/demo.js?v=3"></script>
+<script src="ejecucion/ejecucion.js?v=4"></script>
 </body>
 </html>

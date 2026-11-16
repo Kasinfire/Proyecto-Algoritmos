@@ -3,12 +3,15 @@ function h = pantalla_horario(padre, opciones)
 %   h = pantalla_horario(padre, al_regresar=@() ..., n_guardadas=0)
 %
 %   Tiene tres subpasos en la misma pagina (horario.html): 1 Oferta, 2 Materias y
-%   3 Preferencias. Por ahora esta hecho Oferta: la oferta se consulta en SIIAU
-%   (consultar_siiau) o se lee de una pagina guardada (leer_oferta_guardada) y se queda
-%   aqui, en MATLAB, para los siguientes subpasos.
+%   3 Preferencias. Oferta consulta SIIAU (consultar_siiau) o lee una pagina guardada
+%   (leer_oferta_guardada); Materias elige que materias entran al problema y Preferencias
+%   dice como se quiere el horario. La oferta, las claves y las preferencias se quedan aqui,
+%   en MATLAB; al terminar se arma el problema con horario.m (src/problemas/real).
 %
 %   padre        : uifigure, uipanel o uigridlayout donde se dibuja
-%   al_continuar : se llamara con el problema armado al terminar Preferencias
+%   al_continuar : se llama con el problema armado y la configuracion al terminar:
+%                  claves, preferencias, secciones (las que son bits, en el orden de x) y
+%                  materias (clave, nombre y color con que se dibujan en las pantallas)
 %   al_regresar  : se llama sin argumentos al presionar Regresar o el paso 1 del riel
 %   al_comparar  : se llama sin argumentos al presionar el boton de comparar
 %   seleccion    : lo elegido antes (reservado para restaurar al volver del paso 3)
@@ -27,6 +30,9 @@ function h = pantalla_horario(padre, opciones)
     ejemplo = fullfile('datos', 'siiau', 'oferta_info_202620.html');
     catalogo = opciones_siiau();
     secciones = struct([]);
+    claves = strings(1, 0);
+    colores = strings(1, 0);
+    preferencias = struct();
 
     h = uihtml(padre, 'HTMLSource', fullfile(raiz, 'src', 'ui', 'web', 'horario.html'));
     if isa(padre, 'matlab.ui.container.GridLayout')
@@ -59,6 +65,14 @@ function h = pantalla_horario(padre, opciones)
                 leer_archivos(fullfile(carpeta, cellstr(archivos)));
             case 'usar_ejemplo'
                 leer_archivos({fullfile(raiz, ejemplo)});
+            case 'materias'
+                claves = string(datos.claves(:)');
+                if isfield(datos, 'colores'), colores = string(datos.colores(:)'); end
+            case 'preferencias'
+                preferencias = datos;
+                preferencias.dias_libres = logical(datos.dias_libres(:)');
+            case 'siguiente'
+                continuar();
             case 'regresar'
                 opciones.al_regresar();
             case 'ir_a_paso'
@@ -104,6 +118,36 @@ function h = pantalla_horario(padre, opciones)
             'titulo', titulo_de(info, catalogo), ...
             'detalle', detalle, ...
             'paginas', info.paginas));
+    end
+
+    % Solo entran las secciones con horario de las materias elegidas: cada una es un bit.
+    function continuar()
+        if exist('horario', 'file') ~= 2
+            sendEventToHTMLSource(h, 'aviso', struct('texto', ...
+                'Falta horario.m en src/problemas/real para armar el problema.'));
+            return;
+        end
+        con_horario = arrayfun(@(s) ~isempty(s.sesiones), secciones);
+        elegidas = secciones(ismember(string({secciones.clave}), claves) & con_horario);
+        try
+            problema = horario(elegidas, preferencias);
+        catch err
+            sendEventToHTMLSource(h, 'aviso', struct('texto', err.message));
+            return;
+        end
+        opciones.al_continuar(problema, struct('claves', claves, 'preferencias', preferencias, ...
+            'secciones', elegidas, 'materias', materias_de(elegidas)));
+    end
+
+    function materias = materias_de(elegidas)
+        materias = struct('clave', {}, 'nombre', {}, 'color', {});
+        for k = 1:numel(claves)
+            s = elegidas(strcmp({elegidas.clave}, claves(k)));
+            if isempty(s), continue; end
+            color = '';
+            if k <= numel(colores), color = char(colores(k)); end
+            materias(end + 1) = struct('clave', char(claves(k)), 'nombre', s(1).materia, 'color', color); %#ok<AGROW>
+        end
     end
 
     function enviar_y_dibujar(nombre, datos)

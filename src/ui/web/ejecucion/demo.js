@@ -89,5 +89,74 @@ const DEMO = (() => {
     };
   }
 
-  return { datos };
+  // Horario: secciones reales de horario/demo.js y una busqueda inventada que cambia una
+  // seccion a la vez. En la app el historial y el desglose llegan de MATLAB.
+  function datos_horario() {
+    const CLAVES = ["V0723", "V0718", "IL364", "CB224", "V0726"];
+    const COLORES = ["#0072BD", "#D95319", "#7E2F8E", "#2B9FD0", "#A2142F"];
+    const oferta = DEMO_HORARIO.oferta.secciones.filter((s) => CLAVES.includes(s.clave) && como_lista(s.sesiones).length);
+    const materias = CLAVES.map((clave, k) => ({ clave, nombre: oferta.find((s) => s.clave === clave).materia, color: COLORES[k] }));
+    const secciones = oferta.map((s) => ({ ...s, materia: CLAVES.indexOf(s.clave), sesiones: como_lista(s.sesiones) }));
+    const preferencias = { entrada: 9, salida: 19, dias_libres: [false, false, false, false, true, false] };
+    const min = (hhmm) => Math.floor(hhmm / 100) * 60 + (hhmm % 100);
+
+    function desglose(elegidas) {
+      let choques = 0, muertas = 0, fuera = 0, libres = 0;
+      for (let d = 0; d < 6; d++) {
+        const ses = elegidas.flatMap((k) => secciones[k].sesiones.filter((x) => x.dias[d] !== ".")
+          .map((x) => [min(x.inicio), min(x.fin) + 5, k])).sort((a, b) => a[0] - b[0]);
+        ses.forEach((a, i) => ses.slice(i + 1).forEach((b) => { if (b[0] < a[1] && b[2] !== a[2]) choques++; }));
+        for (let i = 1; i < ses.length; i++) muertas += Math.max(0, ses[i][0] - Math.max(...ses.slice(0, i).map((x) => x[1]))) / 60;
+        ses.forEach(([a, b]) => { fuera += (Math.max(0, Math.min(b, 540) - a) + Math.max(0, b - Math.max(a, 1140))) / 60; });
+        if (preferencias.dias_libres[d] && ses.length) libres++;
+      }
+      const por_materia = CLAVES.map((_, m) => elegidas.filter((k) => secciones[k].materia === m).length);
+      const materias_sin_seccion = por_materia.filter((n) => n !== 1).length;
+      const f = muertas + 2 * fuera + 5 * libres + 100 * (choques + materias_sin_seccion);
+      return { choques, horas_muertas: muertas, materias_sin_seccion, f };
+    }
+
+    const azar_de = (lista) => lista[Math.floor(azar() * lista.length)];
+    const opciones = CLAVES.map((_, m) => secciones.map((s, k) => (s.materia === m ? k : -1)).filter((k) => k >= 0));
+    let actual = opciones.map((o, m) => (m === 3 ? [] : [azar_de(o), ...(m === 1 ? [azar_de(o)] : [])])).flat();
+    let mejor = desglose(actual);
+    const total = 90, mejor_valor = [], cambios = [], soluciones = [];
+    for (let t = 0; t <= total; t++) {
+      if (t > 0) {
+        for (let intento = 0; intento < 6; intento++) {
+          const m = Math.floor(azar() * CLAVES.length);
+          const nueva = actual.filter((k) => secciones[k].materia !== m).concat(azar_de(opciones[m]));
+          const d = desglose(nueva);
+          if (d.f < mejor.f) { actual = nueva; mejor = d; }
+        }
+      }
+      if (t === 0 || mejor.f < mejor_valor[t - 1]) {
+        cambios.push(t);
+        soluciones.push({ ...mejor, elegidas: [...actual], bits: secciones.map((_, k) => (actual.includes(k) ? 1 : 0)) });
+      }
+      mejor_valor.push(mejor.f);
+    }
+
+    return {
+      algoritmo: { id: "ga", nombre: "Algoritmo genético", siglas: "GA", individuos: "individuos",
+                   simbolo: "x*", continuidad: false },
+      problema: { nombre: "Horario de materias", dim: secciones.length, lb: 0, ub: 1, sentido: "min",
+                  representacion: "binario", f_optimo: null, x_optimo: [] },
+      parametros: [
+        { nombre: "tam_poblacion", etiqueta: "Población", corta: "", valor: 60, comun: false },
+        { nombre: "tasa_mutacion", etiqueta: "Tasa de mutación", corta: "", valor: 0.02, comun: false },
+        { nombre: "n_iteraciones", etiqueta: "Generaciones", corta: "", valor: total, comun: true },
+        { nombre: "semilla", etiqueta: "Semilla", corta: "", valor: 7, comun: true }
+      ],
+      iteraciones: total,
+      motivo: "max_iteraciones",
+      historial: { mejor_valor, mejor_solucion: mejor_valor.map(() => [0]), distancia: [],
+                   poblacion: [[[0, 0]]], paso_poblacion: total + 1, n_individuos: 60 },
+      mapa: { tipo: "ninguno" },
+      horario: { materias, secciones, preferencias, cambios, soluciones },
+      n_guardadas: 2
+    };
+  }
+
+  return { datos, datos_horario };
 })();

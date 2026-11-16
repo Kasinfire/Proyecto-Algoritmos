@@ -20,7 +20,7 @@ const OFERTA = (() => {
     const listas = { ciclo: datos.ciclos, centro: datos.centros, carrera: datos.carreras };
     SELECTORES.forEach((nombre) => {
       el[nombre].innerHTML = como_lista(listas[nombre])
-        .map((o) => `<option value="${esc(o.id)}">${esc(o.nombre)}</option>`).join("");
+        .map((o) => `<option value="${TEXTO.esc(o.id)}">${TEXTO.esc(o.nombre)}</option>`).join("");
       el[nombre].value = datos.defecto[nombre];
       mostrar_eleccion(nombre);
     });
@@ -131,29 +131,23 @@ const OFERTA = (() => {
       : "–";
     const vacio = sesiones.length ? "" : " vacio";
     return `<tr>
-      <td class="mono">${esc(s.nrc)}</td>
-      <td class="mono">${esc(s.clave)}</td>
-      <td class="materia">${esc(s.materia)}</td>
-      <td class="mono">${esc(s.seccion)}</td>
+      <td class="mono">${TEXTO.esc(s.nrc)}</td>
+      <td class="mono">${TEXTO.esc(s.clave)}</td>
+      <td class="materia">${TEXTO.esc(s.materia)}</td>
+      <td class="mono">${TEXTO.esc(s.seccion)}</td>
       <td>${s.creditos}</td>
       <td>${s.cupo}</td>
       <td class="${s.disponibles <= 0 ? "cero" : ""}">${s.disponibles}</td>
-      <td class="${vacio}">${columna((x) => `${hhmm(x.inicio)}-${hhmm(x.fin)}`)}</td>
+      <td class="${vacio}">${columna((x) => `${TEXTO.hhmm(x.inicio)}-${TEXTO.hhmm(x.fin)}`)}</td>
       <td class="${vacio}">${columna((x) => dias(x.dias))}</td>
-      <td class="${vacio}">${columna((x) => esc(`${x.edificio} · ${x.aula}`))}</td>
-      <td class="profesor${s.profesor ? "" : " vacio"}">${esc(s.profesor || "Por asignar")}</td>
+      <td class="${vacio}">${columna((x) => TEXTO.esc(`${x.edificio} · ${x.aula}`))}</td>
+      <td class="profesor${s.profesor ? "" : " vacio"}">${TEXTO.esc(s.profesor || "Por asignar")}</td>
     </tr>`;
   }
-
-  function hhmm(n) { return String(n).padStart(4, "0"); }
 
   // "L.I..." -> "L . I . . ." como lo escribe SIIAU
   function dias(texto) {
     return Array.from(DIAS, (d, i) => (texto[i] === d ? d : ".")).join(" ");
-  }
-
-  function esc(texto) {
-    return String(texto ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   }
 
   // ---------- Eventos del formulario ----------

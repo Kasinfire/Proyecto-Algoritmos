@@ -41,7 +41,7 @@ Pantallas hechas:
 | `problema_binario.html` + `problema_binario/` | `pantallas/pantalla_problema.m`, `armar_problema_binario.m`, `leer_objetos_csv.m` | 2. problema y datos (binario) |
 | `problema_tsp.html` + `problema_tsp/` | `pantallas/pantalla_problema.m`, `armar_problema_permutacion.m`, `ciudades_al_azar.m`, `leer_ciudades_csv.m` | 2. problema y datos (TSP) |
 | `horario.html` + `horario/` | `pantallas/pantalla_horario.m` (la abre `pantalla_problema` con tipo `real`) y `src/problemas/real/` | 2. problema real: horario del semestre |
-| `algoritmo.html` + `algoritmo/` | `pantallas/pantalla_algoritmo.m`, `algoritmos_de_tipo.m`, `parametros_para_ui.m`, `armar_parametros.m` | 3. algoritmo y parámetros |
+| `algoritmo.html` + `algoritmo/` | `pantallas/pantalla_algoritmo.m`, `algoritmos_de_tipo.m`, `parametros_para_ui.m`, `armar_parametros.m`, `algoritmos_para_horario.m` | 3. algoritmo y parámetros |
 | `ejecucion.html` + `ejecucion/` | `pantallas/pantalla_ejecucion.m`, `pantallas/mapa_de_busqueda.m` | 4. ejecución |
 | `resultados.html` + `resultados/` | `pantallas/pantalla_resultados.m`, `exportar_resultado.m` | 5. resultados |
 | `comparar.html` + `comparar/` | `pantallas/pantalla_comparar.m`, `exportar_comparacion.m` | comparar ejecuciones (botón del riel) |
@@ -64,10 +64,14 @@ columnas `x,y` (`leer_ciudades_csv.m`); JS solo las dibuja. Siguiente queda bloq
 que exista `src/problemas/permutacion/tsp.m`.
 
 Con tipo real carga `horario.html`, con tres subpasos en pastilla: 1 Oferta, 2 Materias y
-3 Preferencias (por ahora solo Oferta). La oferta la consulta MATLAB en SIIAU página por página
+3 Preferencias. La oferta la consulta MATLAB en SIIAU página por página
 (`consultar_siiau.m`, avisa el avance con el evento `progreso`) o la lee de páginas guardadas
 (`leer_oferta_guardada.m`), y se queda en `pantalla_horario.m` para los siguientes subpasos.
 La tabla dibuja las filas por tandas al bajar, porque un centro completo pasa de 5000 secciones.
+En Preferencias se eligen horas de entrada y salida, días libres, peso de las horas muertas y
+carga por día; la fórmula de f se arma con esos valores y la semana muestra todas las secciones
+de las materias elegidas con lo que se evita rayado. Cada cambio se manda a MATLAB
+(`preferencias`) y Siguiente arma el problema con `src/problemas/real/horario.m`.
 
 En la pantalla 4 el algoritmo corre completo en MATLAB al abrirla y el HTML reproduce
 `resultado.historial` (play, pausa, paso a paso y arrastrar la línea de tiempo). El fondo del
@@ -100,7 +104,24 @@ la representación del problema. Las tarjetas salen de `parametros_<id>(represen
 (tipo, valor, rango); `parametros_para_ui.m` les pone etiquetas cortas con acentos y marca
 los que dependen de una opción (k del torneo, alfa de BLX). Un parámetro nuevo que no esté
 en su tabla aparece igual, con la etiqueta de su definición. Al presionar Ejecutar,
-`armar_parametros.m` vuelve a validar y entrega el struct `params` completo.
+`armar_parametros.m` vuelve a validar y entrega el struct `params` completo. Junto al
+nombre del algoritmo, una pastilla resume su flujo con las opciones elegidas (GA) o cómo
+pasa de números a bits o ruta (PSO y DE); en continuo, PSO y DE no la muestran.
+
+Con el horario (tipo `real`) es la misma pantalla: el problema es binario y
+`algoritmos_para_horario.m` cambia las notas y ayudas para hablar de horarios y secciones y
+deja los no disponibles al final. Arriba aparecen el problema, `n` y el sentido, y al pie
+el presupuesto de
+evaluaciones (`tam × (iteraciones + 1)`) para comparar GA, PSO y DE con el mismo. En el
+navegador sin MATLAB se ve con `algoritmo.html?horario`.
+
+La ejecución del horario también es `ejecucion.html`: con tipo `real`, `pantalla_ejecucion`
+agrega `horario` (de `horario_para_ui.m`: materias con su color, secciones, preferencias y
+el mejor horario de cada vez que cambió, con su desglose de `desglose_horario.m`). La semana
+toma el lugar del mapa, las lecturas son generación, mejor f, choques y horas muertas, y los
+momentos son miniaturas de la semana. La semana la dibuja `horario/elegido.js` con el CSS de
+`horario/semana.css`, que comparte con Materias y Preferencias. En el navegador:
+`ejecucion.html?horario`; en MATLAB, `demo_pantalla_ejecucion('horario')`.
 
 ## Caché de uihtml
 uihtml guarda en caché los CSS y JS mientras MATLAB está abierto. Por eso los enlaces
@@ -112,8 +133,8 @@ En MATLAB, desde `Proyecto/`:
 ```matlab
 addpath(genpath('src')); demo_pantalla_tipo
 addpath(genpath('src')); demo_pantalla_problema          % o ('binario'), ('permutacion') o ('real')
-addpath(genpath('src')); demo_pantalla_algoritmo         % o demo_pantalla_algoritmo('ackley', 10)
-addpath(genpath('src')); demo_pantalla_ejecucion         % o demo_pantalla_ejecucion('ackley', 5, 'de')
+addpath(genpath('src')); demo_pantalla_algoritmo         % o ('ackley', 10) u ('horario')
+addpath(genpath('src')); demo_pantalla_ejecucion         % o ('ackley', 5, 'de') u ('horario')
 addpath(genpath('src')); demo_pantalla_resultados        % o demo_pantalla_resultados('ackley', 5, 'de')
 addpath(genpath('src')); demo_pantalla_comparar
 ```

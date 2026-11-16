@@ -2,7 +2,7 @@
 // llegan de opciones_siiau.m y las secciones de leer_oferta_siiau.m; aqui son unas
 // cuantas filas reales de datos/siiau/oferta_info_202620.html.
 
-const DEMO = (() => {
+const DEMO_HORARIO = (() => {
   const datos = {
     ciclos: [
       { id: "202710", nombre: "Calendario 27 A" }, { id: "202620", nombre: "Calendario 26 B" },

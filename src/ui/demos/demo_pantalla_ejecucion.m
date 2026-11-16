@@ -4,12 +4,23 @@ function fig = demo_pantalla_ejecucion(nombre, dim, id)
 %   Desde la carpeta Proyecto/:
 %       addpath(genpath('src')); demo_pantalla_ejecucion                     % PSO en Rastrigin 2D
 %       addpath(genpath('src')); demo_pantalla_ejecucion('ackley', 5, 'de')
+%       addpath(genpath('src')); demo_pantalla_ejecucion('horario')          % GA en el horario
+%
+%   Con 'horario' se usa horario_de_ejemplo (la oferta guardada en datos/siiau).
 
     if nargin < 1, nombre = 'rastrigin'; end
     if nargin < 2, dim = 2; end
     if nargin < 3, id = 'pso'; end
 
-    problema = funcion_prueba(nombre, dim);
+    tipo = '';
+    config = struct();
+    if strcmp(nombre, 'horario')
+        [problema, config] = horario_de_ejemplo();
+        tipo = 'real';
+        if nargin < 3, id = 'ga'; end
+    else
+        problema = funcion_prueba(nombre, dim);
+    end
     params = valores_por_defecto(feval(['parametros_' id], problema.representacion));
 
     fig = uifigure('Name', 'Metaheurísticas', 'Position', [80 60 1440 900]);
@@ -17,7 +28,8 @@ function fig = demo_pantalla_ejecucion(nombre, dim, id)
     pantalla_ejecucion(rejilla, problema, id, params, ...
         al_ver_resultados=@(r) ver_resultados(fig, rejilla, r), ...
         al_regresar=@() uialert(fig, 'Regresar al paso 3.', 'Regresar', 'Icon', 'info'), ...
-        al_ir_a_paso=@(paso) uialert(fig, sprintf('Ir al paso %d.', paso + 1), 'Riel', 'Icon', 'info'));
+        al_ir_a_paso=@(paso) uialert(fig, sprintf('Ir al paso %d.', paso + 1), 'Riel', 'Icon', 'info'), ...
+        tipo=tipo, config=config);
 end
 
 function ver_resultados(fig, rejilla, resultado)

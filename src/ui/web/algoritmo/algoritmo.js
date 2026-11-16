@@ -5,9 +5,11 @@
 //               algoritmos: [{id, nombre, siglas, descripcion, disponible, nota,
 //                             parametros: [{nombre, etiqueta, ayuda, tipo, valor, min, max,
 //                                           opciones: [{valor, texto}], solo_si}]}],
-//               seleccion: {id, valores}, n_guardadas }
+//               horario: {materias} o {}, seleccion: {id, valores}, n_guardadas }
 //             tipo es "entero", "real" u "opcion". solo_si = {nombre, valor} si el
 //             parametro solo cuenta con esa opcion elegida (k del torneo, alfa de BLX).
+//             Con horario la pantalla muestra el problema en etiquetas y el
+//             presupuesto de evaluaciones.
 //   "aviso"   { texto }   (MATLAB rechazo los parametros)
 // Eventos que se mandan a MATLAB:
 //   "lista"      la pagina ya puede recibir datos
@@ -15,13 +17,14 @@
 //   "regresar", "ir_a_paso" { paso }, "comparar", "ayuda"
 
 const estado = {
-  problema: null, algoritmos: [], n_guardadas: 0,
+  problema: null, algoritmos: [], n_guardadas: 0, horario: null,
   id: "", valores: {}, aviso: ""
 };
 
 const el = Object.fromEntries([
-  "subtitulo", "lista", "nombre", "por-defecto", "descripcion", "parametros",
-  "resumen", "regresar", "ejecutar"
+  "subtitulo", "etiquetas", "lista", "nombre", "flujo", "por-defecto", "descripcion",
+  "parametros", "presupuesto", "presupuesto-cuenta", "presupuesto-nota", "resumen",
+  "regresar", "ejecutar"
 ].map((id) => [id.replace("-", "_"), document.getElementById(id)]));
 
 const SUPERINDICES = "⁰¹²³⁴⁵⁶⁷⁸⁹";
@@ -84,6 +87,11 @@ function valores_para_matlab(a) {
 
 function subtitulo(problema) {
   const n = problema.dim;
+  if (estado.horario) {
+    const m = estado.horario.materias;
+    const de = m ? ` de ${m} ${m === 1 ? "materia" : "materias"}` : "";
+    return `${n} secciones${de}. Solo aparecen activos los algoritmos que trabajan con vectores binarios.`;
+  }
   switch (problema.representacion) {
     case "binario": return `Para ${problema.nombre}, binario con ${n} bits.`;
     case "permutacion": return `Para ${problema.nombre}, permutación de ${n} elementos.`;
@@ -95,9 +103,24 @@ function dibujar() {
   dibujar_riel(document.getElementById("riel"), 2, estado.n_guardadas,
     (paso) => puente.enviar("ir_a_paso", { paso }));
   el.subtitulo.textContent = subtitulo(estado.problema);
+  dibujar_etiquetas();
   dibujar_lista();
   dibujar_configuracion();
   actualizar_acciones();
+}
+
+function dibujar_etiquetas() {
+  el.etiquetas.hidden = !estado.horario;
+  if (!estado.horario) return;
+  const p = estado.problema;
+  el.etiquetas.innerHTML = "";
+  [[p.nombre, ""], [`n = ${p.dim} bits`, "mono"], [p.sentido === "max" ? "Maximizar" : "Minimizar", ""]]
+    .forEach(([texto, clase]) => {
+      const li = document.createElement("li");
+      li.textContent = texto;
+      if (clase) li.className = clase;
+      el.etiquetas.appendChild(li);
+    });
 }
 
 function dibujar_lista() {
@@ -128,6 +151,8 @@ function dibujar_configuracion() {
     el.nombre.textContent = "Sin algoritmos todavía";
     el.descripcion.textContent = "Ningún algoritmo maneja este tipo de problema por ahora. Regresa y elige otro problema.";
     el.por_defecto.hidden = true;
+    el.flujo.hidden = true;
+    el.presupuesto.hidden = true;
     return;
   }
   el.nombre.textContent = a.nombre;
@@ -199,10 +224,68 @@ function actualizar_parametros() {
     t.querySelector('[data-paso="-1"]').disabled = Number.isFinite(v) && v <= p.min;
     t.querySelector('[data-paso="1"]').disabled = Number.isFinite(v) && v >= p.max;
   });
+  actualizar_flujo(a, valores);
+  actualizar_presupuesto(a, valores);
   const defecto = valores_por_defecto(a);
   el.por_defecto.hidden = parametros(a).every((p) =>
     p.tipo === "opcion" ? valores[p.nombre] === defecto[p.nombre]
                         : leer_numero(valores[p.nombre]) === p.valor);
+}
+
+// Lo que hace cada generacion con las opciones elegidas. En PSO y DE solo se muestra
+// como un vector de numeros se vuelve bits o ruta; en continuo no hay nada que decir.
+const CRUZAS = { un_punto: "cruza en un punto", uniforme: "cruza uniforme",
+                 blx: "cruza BLX-α", aritmetica: "cruza aritmética" };
+const MUTACIONES = { swap: "intercambio", inversion: "inversión" };
+
+function flujo(a, valores, representacion) {
+  switch (a.id) {
+    case "ga": {
+      const cruza = representacion === "permutacion" ? "cruza OX" : CRUZAS[valores.tipo_cruza];
+      const mutacion = { continuo: "mutación gaussiana", binario: "mutación de bits",
+                         permutacion: MUTACIONES[valores.tipo_mutacion] }[representacion];
+      return [valores.seleccion === "ruleta" ? "ruleta" : "torneo", cruza, mutacion,
+              ...(leer_numero(valores.n_elite) > 0 ? ["elitismo"] : [])].join(" → ");
+    }
+    case "pso":
+      if (representacion === "binario") return "velocidad → sigmoide → bits";
+      if (representacion === "permutacion") return "llaves en [0, 1] → ordenar → ruta";
+      return "";
+    case "de":
+      if (representacion === "binario") return "vector en [0, 1] → umbral 0.5 → bits";
+      if (representacion === "permutacion") return "llaves en [0, 1] → ordenar → ruta";
+      return "";
+    default: return "";
+  }
+}
+
+function actualizar_flujo(a, valores) {
+  const texto = flujo(a, valores, estado.problema.representacion) || "";
+  el.flujo.hidden = !texto;
+  el.flujo.textContent = texto;
+}
+
+function con_miles(n) {
+  return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, "\u202f");
+}
+
+// Cada algoritmo evalua su poblacion inicial y luego una poblacion por iteracion
+// (tam x (iteraciones + 1)); con paciencia puede parar antes, por eso es un maximo.
+function actualizar_presupuesto(a, valores) {
+  el.presupuesto.hidden = !estado.horario;
+  if (!estado.horario) return;
+  const p_tam = parametros(a).find((p) => p.nombre === "tam_poblacion" || p.nombre === "n_particulas");
+  const p_iter = parametros(a).find((p) => p.nombre === "n_iteraciones");
+  const tam = p_tam && leer_numero(valores[p_tam.nombre]);
+  const iter = p_iter && leer_numero(valores[p_iter.nombre]);
+  const listos = p_tam && p_iter && !error_de(p_tam, valores[p_tam.nombre]) && !error_de(p_iter, valores[p_iter.nombre]);
+  el.presupuesto_cuenta.innerHTML = listos
+    ? `<b>${con_miles(tam * (iter + 1))}</b> evaluaciones de f como máximo (${tam} × ${iter + 1})`
+    : "Corrige el tamaño y las iteraciones para calcularlo.";
+  const otros = estado.algoritmos.filter((x) => x.disponible && x.id !== a.id).map((x) => x.siglas);
+  el.presupuesto_nota.textContent = otros.length
+    ? `Para comparar con ${otros.join(" y ")}, usa la misma semilla y presupuesto.`
+    : "";
 }
 
 function actualizar_acciones() {
@@ -305,6 +388,7 @@ puente.escuchar("datos", (datos) => {
   estado.problema = datos.problema;
   estado.algoritmos = como_lista(datos.algoritmos);
   estado.n_guardadas = Number(datos.n_guardadas) || 0;
+  estado.horario = datos.horario && "materias" in datos.horario ? datos.horario : null;
   estado.valores = Object.fromEntries(estado.algoritmos.map((a) => [a.id, valores_por_defecto(a)]));
 
   const s = datos.seleccion || {};
@@ -328,6 +412,6 @@ puente.al_iniciar((con_matlab) => {
   if (con_matlab) {
     puente.enviar("lista");
   } else {
-    puente.recibir("datos", DEMO.datos);
+    puente.recibir("datos", location.search.includes("horario") ? DEMO.horario : DEMO.datos);
   }
 });
