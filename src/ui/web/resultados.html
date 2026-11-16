@@ -7,7 +7,8 @@
 <link rel="stylesheet" href="comun/fuentes/geist.css?v=3">
 <link rel="stylesheet" href="comun/base.css?v=3">
 <link rel="stylesheet" href="comun/paneles.css?v=1">
-<link rel="stylesheet" href="resultados/resultados.css?v=4">
+<link rel="stylesheet" href="horario/semana.css?v=1">
+<link rel="stylesheet" href="resultados/resultados.css?v=5">
 </head>
 <body>
 <div class="lienzo">
@@ -18,7 +19,7 @@
 
   <main class="principal">
     <header class="encabezado">
-      <h1>Resultados</h1>
+      <h1 id="titulo">Resultados</h1>
       <p id="subtitulo">Cargando la ejecución…</p>
     </header>
 
@@ -33,6 +34,24 @@
         </ul>
       </section>
 
+      <section class="tarjeta escena-horario" aria-label="Horario final" id="escena-horario" hidden>
+        <div class="escena-cabeza">
+          <div>
+            <span class="etiqueta" id="horario-etiqueta"></span>
+            <h2 class="escena-titulo" id="horario-titulo"></h2>
+          </div>
+          <ul class="leyenda-semana" id="horario-leyenda"></ul>
+        </div>
+        <div class="semana" id="horario-semana"></div>
+        <div class="bits-pie">
+          <div class="bits-cabeza">
+            <span class="etiqueta">La solución como bits</span>
+            <span class="nota" id="bits-nota"></span>
+          </div>
+          <div class="bits" id="bits" role="img"></div>
+        </div>
+      </section>
+
       <div class="columna">
         <section class="tarjeta lecturas" aria-label="Resumen">
           <div class="lectura">
@@ -40,16 +59,37 @@
             <span class="grande" id="mejor">–</span>
             <span class="nota" id="sentido"></span>
           </div>
-          <div class="lectura">
+          <div class="lectura solo-mapa">
             <span class="etiqueta" id="etiqueta-solucion">Mejor solución</span>
             <span class="mediana" id="solucion">–</span>
             <span class="nota" id="optimo"></span>
           </div>
-          <div class="lectura">
+          <div class="lectura al-final solo-mapa">
             <span class="etiqueta">Iteraciones</span>
             <span class="grande" id="iteraciones">–</span>
             <span class="nota" id="motivo"></span>
           </div>
+          <div class="lectura solo-horario">
+            <span class="etiqueta">Choques</span>
+            <span class="grande" id="choques">–</span>
+          </div>
+          <div class="lectura solo-horario">
+            <span class="etiqueta">Horas muertas</span>
+            <span class="grande" id="muertas">–</span>
+          </div>
+          <p class="resumen-f solo-horario" id="resumen-f"></p>
+        </section>
+
+        <section class="tarjeta nrc solo-horario" aria-labelledby="titulo-nrc">
+          <div class="nrc-cabeza">
+            <h2 id="titulo-nrc">NRC para SIIAU</h2>
+            <button type="button" class="boton boton-chico" id="copiar-nrc">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="3"/><path d="M16 5.5A2.5 2.5 0 0 0 13.5 3h-8A2.5 2.5 0 0 0 3 5.5v8A2.5 2.5 0 0 0 5.5 16"/></svg>
+              Copiar NRC
+            </button>
+          </div>
+          <ul class="lista-nrc" id="lista-nrc"></ul>
+          <p class="nota" id="nota-nrc"></p>
         </section>
 
         <section class="tarjeta detalle" aria-label="Detalle">
@@ -107,8 +147,12 @@
 <script src="comun/puente.js?v=3"></script>
 <script src="comun/riel.js?v=3"></script>
 <script src="comun/graficas.js?v=3"></script>
-<script src="ejecucion/demo.js?v=2"></script>
-<script src="resultados/demo.js?v=1"></script>
-<script src="resultados/resultados.js?v=6"></script>
+<script src="horario/texto.js?v=2"></script>
+<script src="horario/semana.js?v=1"></script>
+<script src="horario/elegido.js?v=1"></script>
+<script src="horario/demo.js?v=2"></script>
+<script src="ejecucion/demo.js?v=3"></script>
+<script src="resultados/demo.js?v=2"></script>
+<script src="resultados/resultados.js?v=7"></script>
 </body>
 </html>

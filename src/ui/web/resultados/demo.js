@@ -34,5 +34,25 @@ const DEMO_RESULTADOS = (() => {
     };
   }
 
-  return { datos };
+  // Horario: la busqueda inventada de DEMO.datos_horario, con su ultima solucion.
+  function datos_horario() {
+    const e = DEMO.datos_horario();
+    const h = e.historial, n = h.mejor_valor.length;
+    const soluciones = e.horario.soluciones;
+    const final = { ...soluciones[soluciones.length - 1],
+      horas_fuera: 2, dias_libres_ocupados: 0, materias_de_mas: 0, horas_seguidas_de_mas: 0,
+      pesos: { muertas: 1, fuera: 2, dia_libre: 5, carga: 10, choque: 100 } };
+    return {
+      ...datos(),
+      algoritmo: e.algoritmo, problema: e.problema, parametros: e.parametros,
+      mejor_valor: h.mejor_valor[n - 1], mejor_solucion: [0], iteraciones: e.iteraciones,
+      convergencia: h.mejor_valor,
+      mejoras: { iteracion: e.horario.cambios, valor: e.horario.cambios.map((k) => h.mejor_valor[k]),
+                 solucion: e.horario.cambios.map(() => [0]), total: e.horario.cambios.length },
+      inicio: [], ruta: [], mapa: { tipo: "ninguno" }, numero: 3, n_guardadas: 3,
+      horario: { ...e.horario, cambios: [0], soluciones: [final] }
+    };
+  }
+
+  return { datos, datos_horario };
 })();
