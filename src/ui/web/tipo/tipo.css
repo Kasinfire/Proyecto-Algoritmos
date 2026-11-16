@@ -1,6 +1,6 @@
 .tarjetas {
   flex: 1; min-height: 0;
-  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 0.8fr); gap: 16px;
 }
 
 .tarjeta {
@@ -30,6 +30,22 @@
 .tarjeta-descripcion { margin: 8px 0 0; min-height: 2.9em; font-size: 14px; line-height: 1.45; color: var(--tinta-2); }
 
 .tarjeta-datos { margin: 12px 0 0; }
+
+/* Aplicacion real (bonus): angosta, horario de figura y un pie con los algoritmos. */
+.tarjeta-real .tarjeta-titulo { align-items: center; flex-wrap: nowrap; }
+.tarjeta-real .tarjeta-nombre { font-size: 22px; white-space: nowrap; }
+.tarjeta-real[aria-checked="true"] {
+  background: linear-gradient(var(--acento-suave), var(--acento-suave)), rgba(255, 255, 255, 0.86);
+}
+.insignia {
+  flex: none; padding: 4px 11px; border-radius: 999px;
+  background: var(--acento); color: #FFFFFF; font-size: 12px; font-weight: 500;
+}
+.tarjeta-pie {
+  margin: 12px 0 0; padding-top: 10px; box-shadow: inset 0 1px 0 var(--linea);
+  font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+  font-size: 11px; color: var(--apagado);
+}
 .tarjeta-datos div {
   display: flex; justify-content: space-between; gap: 16px;
   padding: 10px 0; box-shadow: inset 0 -1px 0 var(--linea); font-size: 14px;
@@ -42,6 +58,7 @@
 @media (max-width: 1180px) {
   .encabezado h1 { font-size: 36px; }
   .tarjeta-nombre { font-size: 24px; }
+  .tarjeta-real .tarjeta-nombre { font-size: 19px; }
   .tarjeta-notacion { font-size: 16px; }
   .tarjeta-descripcion, .tarjeta-datos div { font-size: 13px; }
 }

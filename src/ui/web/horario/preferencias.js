@@ -9,7 +9,7 @@ const PREFERENCIAS = (() => {
   ].map((id) => [id.replace(/-/g, "_"), document.getElementById(id)]));
 
   // Pesos fijos de la funcion objetivo; el de las horas muertas lo elige la persona.
-  const PESOS = { fuera: 2, dia_libre: 5, carga: 10, choque: 100 };
+  const PESOS = { fuera: 2, dia_libre: 5, carga: 10, choque: 1000 };
   const SUPER = "⁰¹²³⁴⁵⁶⁷⁸⁹";
 
   const valores = {
@@ -94,7 +94,7 @@ const PREFERENCIAS = (() => {
       [PESOS.fuera, `Horas fuera de ${hora(valores.entrada)}–${hora(valores.salida)}`],
       [valores.dias_libres.some(Boolean) ? PESOS.dia_libre : 0, "Clases en tus días libres"],
       [PESOS.carga, "Materias o horas seguidas de más"],
-      [PESOS.choque, "Choques o materia sin sección", "regla"]
+      [PESOS.choque, valores.solo_cupo ? "Choques, materia sin sección o sin cupo" : "Choques o materia sin sección", "regla"]
     ].filter(([peso]) => peso > 0);
     el.formula.innerHTML = castigos.map(([peso, texto, clase]) =>
       `<li${clase ? ` class="${clase}"` : ""}><span>${TEXTO.esc(texto)}</span><b>×${peso}</b></li>`).join("");

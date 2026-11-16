@@ -1,10 +1,13 @@
-function tipos = tipos_de_problema()
+function [tipos, real] = tipos_de_problema()
 % TIPOS_DE_PROBLEMA  Datos de las tarjetas de la pantalla 1 (tipo de problema).
-%   tipos = tipos_de_problema()
+%   [tipos, real] = tipos_de_problema()
 %
 %   tipos : struct 1 x 3 con id, nombre, notacion, descripcion, problemas y algoritmos.
 %           problemas y algoritmos se calculan con lo que existe en src/, asi la
 %           pantalla se actualiza sola cuando alguien agrega un problema o un algoritmo.
+%   real  : tarjeta del problema de aplicacion real (bonus) con id, nombre, insignia,
+%           descripcion, algoritmos, detalle y disponible (false mientras
+%           horario_materias.m no exista en src/problemas/real/).
 
     ids = {'continuo', 'binario', 'permutacion'};
     nombres = {'Continuo', 'Binario', 'Permutación'};
@@ -21,6 +24,12 @@ function tipos = tipos_de_problema()
         tipos(k).problemas = {catalogo([catalogo.disponible]).nombre};
         tipos(k).algoritmos = algoritmos_para(ids{k});
     end
+
+    % Cada seccion es un bit (se toma o no), por eso usa los algoritmos binarios.
+    real = struct('id', 'real', 'nombre', 'Aplicación real', 'insignia', 'Bonus', ...
+        'descripcion', 'Armar tu horario del semestre con la oferta real: sin choques y con pocas horas muertas.', ...
+        'algoritmos', {algoritmos_para('binario')}, 'detalle', 'una sección por materia', ...
+        'disponible', exist('horario_materias', 'file') == 2);
 end
 
 function siglas = algoritmos_para(representacion)

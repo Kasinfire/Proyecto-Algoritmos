@@ -53,13 +53,16 @@ para no mover el `rng` de los algoritmos) o las lee de un CSV con columnas `x,y`
 
 **Real: horario del semestre** (`horario.html`, MATLAB en `pantallas/horario/`). Tres subpasos
 en pastilla: 1 Oferta, 2 Materias y 3 Preferencias. La oferta la consulta MATLAB en SIIAU
-página por página (`consultar_siiau.m`, avisa el avance con el evento `progreso`) o la lee de
+página por página (`consultar_oferta_siiau.m`, avisa el avance con el evento `progreso`) o la lee de
 páginas guardadas (`leer_oferta_guardada.m`), y se queda en `pantalla_horario.m` para los
 siguientes subpasos. La tabla dibuja las filas por tandas al bajar, porque un centro completo
 pasa de 5000 secciones. En Preferencias se eligen horas de entrada y salida, días libres, peso
 de las horas muertas y carga por día; la fórmula de f se arma con esos valores y la semana
 muestra todas las secciones de las materias elegidas con lo que se evita rayado. Cada cambio se
-manda a MATLAB (`preferencias`) y Siguiente arma el problema con `src/problemas/real/horario.m`.
+manda a MATLAB (`preferencias`) y Siguiente arma el problema con
+`src/problemas/real/horario_materias.m`. Las secciones de `leer_oferta_siiau` traen una sesión
+por día en minutos; `secciones_para_ui.m` las junta en bloques con hora `hhmm` y días
+`'L.I...'`, que es lo que dibujan las pantallas.
 
 ### 3. Algoritmo y parámetros
 Se arma sola con lo que hay en `src/algoritmos/`: un algoritmo aparece disponible cuando
@@ -88,7 +91,7 @@ mapa es solo para problemas continuos; en binario y permutación se muestra la c
 
 Con el horario, `pantalla_ejecucion` agrega `horario` (de `horario_para_ui.m`: materias con su
 color, secciones, preferencias y el mejor horario de cada vez que cambió, con su desglose de
-`desglose_horario.m`). La semana toma el lugar del mapa, las lecturas son generación, mejor f,
+`decodificar_horario.m`). La semana toma el lugar del mapa, las lecturas son generación, mejor f,
 choques y horas muertas, y los momentos son miniaturas de la semana. La semana la dibuja
 `horario/elegido.js` con el CSS de `horario/semana.css`, que comparte con Materias y
 Preferencias.

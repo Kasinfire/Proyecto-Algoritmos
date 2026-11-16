@@ -303,7 +303,8 @@ function dibujar_lecturas(i) {
 
 function dibujar_lecturas_horario(i) {
   const x = HORARIO.solucion_en(estado.horario, i);
-  const choques = Number(x.choques), sin_seccion = Number(x.materias_sin_seccion);
+  const choques = Number(x.choques);
+  const sin_seccion = Number(x.materias_sin_seccion) + Number(x.secciones_de_mas ?? 0);
   el.choques.textContent = choques;
   el.choques.classList.toggle("alerta", choques > 0);
   el.nota_choques.textContent = sin_seccion > 0
