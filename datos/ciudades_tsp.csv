@@ -1,0 +1,13 @@
+ciudad,x,y
+Centro,50,50
+Norte,50,90
+Noreste,78,78
+Este,92,50
+Sureste,78,22
+Sur,50,8
+Suroeste,22,22
+Oeste,8,50
+Noroeste,22,78
+Parque,42,67
+Museo,66,40
+Mercado,34,36
