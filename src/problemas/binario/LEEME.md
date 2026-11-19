@@ -18,3 +18,4 @@ problema = mochila(pesos, valores, capacidad)    % vectores fila 1 x n y un esca
 
 Mientras los archivos no existan, la pantalla deja editar los datos pero no deja continuar.
 
+holalol
