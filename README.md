@@ -25,8 +25,8 @@ Proyecto/
 │  ├─ problemas/
 │  │  ├─ comun/
 │  │  ├─ continuo/
-│  │  ├─ binario/            [falta]   OneMax, mochila
-│  │  ├─ permutacion/        [falta]   TSP
+│  │  ├─ binario/        
+│  │  ├─ permutacion/      
 │  │  └─ real/               [falta]   problema de aplicación real (bonus)
 │  ├─ core/utilidades/
 │  ├─ graficas/
