@@ -41,14 +41,13 @@ al repo. Al presionar Siguiente, `armar_problema.m` vuelve a validar y crea el p
 
 **Binario** (`problema_binario.html`). Pestañas Mochila y OneMax, la tabla de objetos (peso,
 valor, valor por unidad de peso) con su capacidad, y los bits de ejemplo de OneMax. El botón
-Cargar CSV lo atiende MATLAB (`leer_objetos_csv.m`). Se puede editar todo aunque falten
-`mochila.m` u `onemax.m`, pero Siguiente queda bloqueado hasta que existan en
-`src/problemas/binario/`.
+Cargar CSV lo atiende MATLAB (`leer_objetos_csv.m`), y el problema se arma con `mochila.m` u
+`onemax.m` de `src/problemas/binario/`.
 
 **Permutación** (`problema_tsp.html`). Número de ciudades, semilla y el mapa con las ciudades
 numeradas. Las coordenadas las genera MATLAB (`ciudades_al_azar.m`, con su propio `RandStream`
 para no mover el `rng` de los algoritmos) o las lee de un CSV con columnas `x,y`
-(`leer_ciudades_csv.m`); JS solo las dibuja. Siguiente queda bloqueado hasta que exista
+(`leer_ciudades_csv.m`); JS solo las dibuja. El problema se arma con
 `src/problemas/permutacion/tsp.m`.
 
 **Real: horario del semestre** (`horario.html`, MATLAB en `pantallas/horario/`). Tres subpasos

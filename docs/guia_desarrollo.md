@@ -1,8 +1,8 @@
 # Guía de desarrollo
 
-Reglas y contrato común del proyecto. Todo el equipo programa contra este documento;
-si algo no está definido aquí, se acuerda con el equipo antes de implementarlo. El
-contrato (sección 4) no se cambia sin avisar, porque los demás bloques dependen de él.
+Reglas de código y contrato común entre módulos. Los algoritmos, los problemas y la interfaz
+se comunican solo a través de lo que define la sección 4, así que cualquier módulo nuevo
+debe respetarlo.
 
 ### 1. El proyecto
 Aplicación con interfaz gráfica para configurar, ejecutar y comparar cinco
@@ -14,7 +14,7 @@ metaheurísticas sobre tres tipos de problema.
   - **continuo**: la solución es un vector de reales dentro de `[lb, ub]`.
   - **binario**: la solución es un vector de 0 y 1 (tipo `double`).
   - **permutacion**: la solución es un orden de los enteros `1..dim` (p. ej., la ruta en un TSP).
-- Requisitos del profesor que afectan a los algoritmos:
+- Requisitos que afectan a los algoritmos:
   - Cada algoritmo hace una búsqueda real, con su implementación identificable y comentada.
   - Si un algoritmo no soporta una representación, se declara (sección 4.4) y la interfaz la bloquea.
   - Si se usa una adaptación (p. ej. random keys para TSP, PSO binario), se documenta.
@@ -271,96 +271,9 @@ end
 
 ---
 
-## Bloques de trabajo
-
-### Bloque A: Interfaz
-**Carpetas:** `src/ui/`, archivo principal de la app.
-**Archivos de referencia:** `graficar_convergencia.m`, `crear_parametro.m`,
-`parametros_comunes.m`, `crear_problema.m`, `funcion_prueba.m`, `pso.m`, `info_pso.m`,
-`parametros_pso.m`, y los `info_*.m` y `parametros_*.m` de los demás algoritmos que ya existan.
-
-Mientras los demás algoritmos no estén listos, prueba la interfaz con el PSO, que ya
-funciona con las tres representaciones.
-
-Entregar:
-- La app. Se recomienda hacerla como clase de texto `MetaheuristicasApp.m`
-  (`classdef MetaheuristicasApp < matlab.apps.AppBase`, componentes `uifigure`) para
-  que git la pueda versionar y revisar en los Pull Requests. Un `.mlapp` de App Designer
-  también vale, pero solo una persona lo edita.
-- Flujo: tipo de problema, luego problema y sus datos, luego algoritmo y parámetros,
-  luego ejecución y por último resultados. Botones Ejecutar, Detener, Reiniciar y Regresar.
-- Controles de parámetros **generados a partir de `parametros_<alg>(representacion)`**:
-  etiqueta, tooltip con `descripcion` y validación de `min`, `max` y `tipo`. No se puede
-  ejecutar con datos inválidos y debe mostrar un mensaje claro.
-- Las combinaciones no soportadas (según `info_<alg>().representaciones`) se deshabilitan o se explican.
-- Selector min/max solo si `problema.sentido_fijo` es `false`.
-- Durante la ejecución, mediante `al_cada_iteracion`: iteración actual de total, mejor
-  valor, convergencia en vivo y la solución (contorno 2D en continuo, ruta en TSP,
-  barras en binario). Usar `drawnow limitrate`.
-- En resultados: resumen completo, configuración usada, slider para recorrer el
-  historial con marcas en 0, 1/3, 2/3 y final, y exportar a JSON y CSV.
-- Estilo: paneles `uihtml` con HTML/CSS locales (sin CDN) en `src/ui/web/` para el
-  encabezado, las tarjetas y el resumen.
-
-### Bloque B: GA y DE
-**Carpetas:** `src/algoritmos/ga/`, `src/algoritmos/de/`.
-**Archivos de referencia:** `pso.m`, `info_pso.m`, `parametros_pso.m` (ejemplo),
-`funcion_prueba.m`, `crear_problema.m`, `crear_parametro.m`, `parametros_comunes.m`,
-`limitar_a_rango.m`, `decodificar_llaves.m`.
-
-Entregar por cada algoritmo: `ga.m`, `info_ga.m`, `parametros_ga.m` (y lo mismo para `de`)
-y sus operadores en archivos aparte (`seleccion_torneo.m`, `cruza_ox.m`, ...).
-- GA: selección (torneo y ruleta), cruza, mutación y elitismo. Por representación:
-  - continuo: cruza BLX-alfa o aritmética, mutación gaussiana;
-  - binario: cruza de un punto o uniforme, mutación bit-flip;
-  - permutación: cruza OX, mutación swap o inversión.
-- DE: estrategias `rand/1/bin` y `best/1/bin`, con parámetros `F` y `CR`. Binario por
-  umbral y permutación por random keys (documentarlo en `variante`).
-
-### Bloque C: ACO, AIS y TSP
-**Carpetas:** `src/algoritmos/aco/`, `src/algoritmos/ais/`, `src/problemas/permutacion/`, `datos/`.
-**Archivos de referencia:** `pso.m`, `info_pso.m`, `parametros_pso.m` (ejemplo),
-`crear_problema.m`, `crear_parametro.m`, `parametros_comunes.m`.
-
-Entregar:
-- `tsp.m`: recibe coordenadas (n x 2) y regresa un problema `permutacion`, `sentido='min'`,
-  `sentido_fijo=true`. `f` es la longitud de la ruta cerrada. `datos.coordenadas`
-  y `datos.distancias` se usan para dibujar la ruta y como heurística del ACO.
-  Más `cargar_ciudades.m` (lee un CSV) y un CSV de ejemplo en `datos/`.
-- ACO: Ant System para permutación (feromona, evaporación, `alfa`, `beta`, `Q`). Para
-  binario, feromona por bit. Para continuo, ACOR o declarar que no lo soporta y explicar por qué.
-- AIS: CLONALG (selección, clonación proporcional, mutación inversa a la afinidad,
-  reemplazo de los peores) con mutación adecuada a cada representación.
-
-### Bloque D: problemas binarios, experimentos y pruebas
-**Carpetas:** `src/problemas/binario/`, `experimentos/`, `tests/`.
-**Archivos de referencia:** `pso.m`, `info_pso.m`, `parametros_pso.m`,
-`crear_problema.m`, `crear_parametro.m`, `parametros_comunes.m`.
-
-El PSO ya está terminado; este bloque lo usa para probar sus problemas mientras los
-demás terminan sus algoritmos.
-
-Entregar:
-- `onemax.m` y `mochila.m` (pesos, valores y capacidad; penalización en `f`) en
-  `src/problemas/binario/`, con un CSV de ejemplo en `datos/`.
-- `tests/`: pruebas `matlab.unittest` que, para cada algoritmo y cada representación
-  soportada, revisen que el resultado cumple la sección 4.3, que la solución es válida y
-  que el mejor valor final es igual o mejor que el de la iteración 0.
-- `experimentos/correr_experimentos.m`: las 5 ejecuciones documentadas (una por
-  algoritmo, al menos 2 tipos de problema y 3 combinaciones), mismo `n_iteraciones` y
-  semilla fija. Guarda tabla CSV y gráficas.
-
-### Todos: problema real (bonus)
-En `src/problemas/real/`. Explicar la situación real, las variables de decisión, la
-función objetivo, las restricciones y el origen de los datos (CSV en `datos/`). Debe
-usar `crear_problema` como cualquier otro.
-
----
-
-## Antes de subir tu parte
+## Antes de subir cambios
 - [ ] Corre en MATLAB sin errores, con `addpath(genpath('src'))` desde la carpeta `Proyecto/`.
 - [ ] Cumple la sección 4 (nombres de campos exactos).
 - [ ] snake_case, sin emojis, comentarios solo donde hacen falta.
-- [ ] Solo tocaste tus carpetas. Si necesitas cambiar algo común (sección 4 o `comunes/`),
-      avisa al equipo primero.
-- [ ] Rama propia y Pull Request; otra persona lo revisa.
+- [ ] Las pruebas pasan: `runtests('tests')`.
+
