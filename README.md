@@ -70,14 +70,23 @@ y le manda el historial completo, y la pantalla lo reproduce. Los detalles está
 - (Opcional) VS Code con la extensión **MATLAB** de MathWorks (`.vscode/extensions.json`).
 
 ## Cómo correrlo
-Abrir MATLAB en la carpeta `Proyecto/` y escribir en la ventana de comandos:
+Clonar el repositorio:
+
+```bash
+git clone https://github.com/Kasinfire/Proyecto-Algoritmos.git
+```
+
+Abrir MATLAB en la carpeta `Proyecto-Algoritmos/` y escribir en la ventana de comandos:
 
 ```matlab
 MetaheuristicasApp                              % la aplicación completa
 run('experimentos/pso_parametros/main_pso.m')   % experimento PSO (tabla + gráficas en resultados/)
 run('extras/bha/main_bha.m')                    % demo BHA en Rastrigin 2D (ver extras/)
+runtests('tests')                               % pruebas automáticas
 ```
-Cada script agrega `src/` al path por su cuenta.
+Cada script agrega `src/` al path por su cuenta. No hay que compilar nada.
+
+El reporte completo del proyecto está en [`docs/Proyecto.pdf`](docs/Proyecto.pdf).
 
 ## Estructura
 
