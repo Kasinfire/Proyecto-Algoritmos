@@ -1,3 +1,5 @@
+# Pruebas automáticas
+
 ## Cómo correrlas
 
 Desde la raíz del proyecto, en MATLAB:
@@ -36,7 +38,7 @@ Para cada algoritmo y cada representación que soporte, el resultado debe cumpli
 
 ## Convenciones
 
-- Un archivo `test_<tema>.m` por bloque, como `classdef` que hereda de `matlab.unittest.TestCase`.
+- Un archivo `test_<tema>.m` por tema, como `classdef` que hereda de `matlab.unittest.TestCase`.
 - Usar corridas cortas (pocas iteraciones y partículas) y semilla fija para que las pruebas
   sean rápidas y reproducibles.
 - Un nombre de prueba describe lo que se verifica (`mochila_factible_y_penalizada`).

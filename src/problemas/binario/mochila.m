@@ -110,7 +110,7 @@ end
 
 function [f_opt, x_opt] = optimo_fuerza_bruta(pesos, valores, capacidad)
     n = numel(pesos);
-    X = double(bitget(uint32((0:2^n - 1)'), 1:n));
+    X = double(bitget(repmat(uint32((0:2^n - 1)'), 1, n), repmat(1:n, 2^n, 1)));
     ok = X * pesos' <= capacidad;
     totales = X * valores';
     totales(~ok) = -Inf;
