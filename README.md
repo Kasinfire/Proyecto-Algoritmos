@@ -80,8 +80,6 @@ Abrir MATLAB en la carpeta `Proyecto-Algoritmos/` y escribir en la ventana de co
 
 ```matlab
 MetaheuristicasApp                              % la aplicación completa
-run('experimentos/pso_parametros/main_pso.m')   % experimento PSO (tabla + gráficas en resultados/)
-run('extras/bha/main_bha.m')                    % demo BHA en Rastrigin 2D (ver extras/)
 runtests('tests')                               % pruebas automáticas
 ```
 Cada script agrega `src/` al path por su cuenta. No hay que compilar nada.
