@@ -17,3 +17,13 @@ experimentos/**/resultados/*.json
 Thumbs.db
 .vscode/*
 !.vscode/extensions.json
+
+# LaTeX
+docs/reporte/*.aux
+docs/reporte/*.bbl
+docs/reporte/*.blg
+docs/reporte/*.log
+docs/reporte/*.out
+docs/reporte/*.synctex.gz
+docs/reporte/*.fdb_latexmk
+docs/reporte/*.fls
