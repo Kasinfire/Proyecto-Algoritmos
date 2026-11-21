@@ -1,5 +1,5 @@
 # Interfaz
-Responsable: bloque A. La app se abre con `MetaheuristicasApp` (en la raíz de `Proyecto/`).
+La app se abre con `MetaheuristicasApp` (en la raíz de `Proyecto/`).
 
 ## La idea en una línea
 Cada pantalla es una página HTML dentro de un `uihtml`. **MATLAB calcula** (problemas,
